@@ -82,7 +82,7 @@ code,kbd,pre{font-family:var(--mono);font-variant-ligatures:none}
 .dot.edited{background:var(--cell-edited)} .dot.pass{background:var(--pass)} .dot.fail{background:var(--fail)}
 .dot.free{background:transparent;border:1.5px solid var(--ink-3)}
 
-.main{--brief-w:390px;position:relative;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,var(--brief-w),calc(100% - 360px));grid-template-rows:auto minmax(0,1fr) minmax(170px,34%);grid-template-areas:"tool brief" "editor brief" "panel brief"}
+.main{--brief-w:44%;position:relative;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,var(--brief-w),calc(100% - 360px));grid-template-rows:auto minmax(0,1fr) minmax(170px,34%);grid-template-areas:"tool brief" "editor brief" "panel brief"}
 
 /* Brief */
 .brief{grid-area:brief;overflow:auto;background:var(--surface);border-left:1px solid var(--line);padding:22px 24px 30px}
@@ -219,7 +219,9 @@ code,kbd,pre{font-family:var(--mono);font-variant-ligatures:none}
 .sugg-note{margin-top:6px;font-weight:600}
 #appPick.on{color:var(--accent);border-color:var(--accent)}
 .app-hint{font-size:13.5px;color:var(--ink-2);margin:0 0 10px}
-@media (min-width:1100px){ .main.wide{--brief-w:max(400px,46%)} }
+@media (min-width:1100px){ .main.wide{--brief-w:max(400px,50%)} }
+/* Thanh công cụ hẹp (bài giảng được kéo rộng): ẩn dòng nhắc phím tắt để các nút không rớt xuống dòng. Phím tắt vẫn có trong tooltip. */
+@container (max-width: 880px){ .toolbar .keys{display:none} }
 /* Thanh kéo đổi độ rộng giữa phần code và phần bài giảng */
 .splitter{position:absolute;top:0;bottom:0;right:clamp(300px,var(--brief-w),calc(100% - 360px));width:10px;transform:translateX(50%);z-index:3;cursor:col-resize;touch-action:none}
 .splitter::after{content:"";position:absolute;top:0;bottom:0;left:4px;width:2px;background:transparent;transition:background .15s}
@@ -242,7 +244,7 @@ body.resizing iframe{pointer-events:none}
 .back-link{border:0;background:none;padding:0;color:var(--accent);font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 
 /* Toolbar */
-.toolbar{grid-area:tool;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--line)}
+.toolbar{container-type:inline-size;grid-area:tool;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--line)}
 .btn{height:34px;padding:0 14px;border-radius:7px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:14px;font-weight:600;white-space:nowrap}
 .btn:hover:not(:disabled){background:var(--surface-2)}
 .btn:disabled{opacity:.55;cursor:default}
