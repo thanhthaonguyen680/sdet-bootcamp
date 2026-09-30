@@ -1,6 +1,6 @@
-# SDET Bootcamp: từ JavaScript đến Playwright và CI/CD
+# Lộ trình tự học SDET cho team QC/QA: JavaScript, Playwright và CI/CD
 
-Khóa tự học 5 tuần dành cho QA chuyển sang SDET, chạy hoàn toàn trên trình duyệt, không cần cài đặt gì.
+Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA có nhu cầu học và từng bước thực hành theo hướng SDET. Nội dung được chia thành 5 tuần, từ JavaScript nền tảng đến Playwright và CI/CD. Bạn có thể học và làm bài trực tiếp trên trình duyệt, không cần cài đặt gì.
 
 **Dùng thử:** https://TEN-CUA-BAN.github.io/sdet-bootcamp/
 
@@ -24,7 +24,7 @@ Khóa tự học 5 tuần dành cho QA chuyển sang SDET, chạy hoàn toàn tr
 
 ## Về dự án
 
-Nội dung và công cụ được mình thiết kế theo lộ trình tự học SDET, xây dựng với sự hỗ trợ của AI (Claude). Mình dùng khóa này để tự học và hoàn thành các bài tập.
+Mục tiêu của dự án là giúp các thành viên QC/QA trong team có một lộ trình rõ ràng để tự học, thực hành và follow từng tuần. Nội dung và công cụ do mình thiết kế với sự hỗ trợ của AI (Claude).
 
 ## Tác giả
 
