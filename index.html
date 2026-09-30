@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Sân tập JavaScript</title>
+<title>Trở thành SDET từ Zero</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -322,7 +322,7 @@ kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-r
   <header class="top">
     <button class="icon-btn menu-btn" id="menuBtn" aria-label="Mở danh sách bài" aria-expanded="false">☰ Bài tập</button>
     <div class="brand">
-      <h1>Sân tập JavaScript</h1>
+      <h1>Trở thành SDET từ Zero</h1>
       <p id="weekSub">Tuần 1: nền tảng cho SDET</p>
     </div>
     <div class="weeks" role="group" aria-label="Chọn tuần">
@@ -3112,6 +3112,688 @@ String.raw`function bestTrade(prices) {
 }
 console.log(bestTrade([2850, 2800, 2900, 2780, 2950, 2910]));`]},
 };
+
+/* =========================================================
+   TUẦN 1: LỜI GIẢI
+   ========================================================= */
+Object.assign(SOLUTIONS, {
+'1.1': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Cả 4 giá trị không cần gán lại nên dùng <code>const</code>.</li>
+<li><code>"7203"</code> nằm trong dấu ngoặc kép nên là <code>string</code>. Mã cổ phiếu, số điện thoại, mã bưu điện nên lưu dạng chuỗi vì không dùng để tính toán và có thể bắt đầu bằng số 0.</li>
+<li><code>2850.5</code> là <code>number</code>: JavaScript không tách số nguyên và số thực.</li>
+</ul>
+<h3>Lỗi hay gặp</h3>
+<p>Viết <code>const code = 7203</code> (thiếu ngoặc kép): <code>typeof</code> in ra <code>number</code> và test <code>code là chuỗi</code> sẽ fail.</p>`,
+examples:[String.raw`const code = "7203";
+const name = "Toyota";
+const price = 2850.5;
+const isTrading = true;
+
+console.log(typeof code);      // string
+console.log(typeof name);      // string
+console.log(typeof price);     // number
+console.log(typeof isTrading); // boolean`]},
+
+'1.2': { html:`
+<h3>Đáp án</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>==</code> ép kiểu hai vế về cùng kiểu rồi mới so sánh: <code>"1"</code> thành <code>1</code>, <code>false</code> thành <code>0</code>, <code>""</code> thành <code>0</code>. Vì vậy các dòng dùng <code>==</code> đều ra <code>true</code>.</li>
+<li><code>===</code> so sánh cả kiểu, khác kiểu là <code>false</code> ngay.</li>
+<li><code>null == undefined</code> là trường hợp đặc biệt được quy định sẵn: hai giá trị này chỉ bằng nhau (theo <code>==</code>) với nhau.</li>
+<li><code>typeof null</code> là <code>"object"</code> do lỗi thiết kế từ phiên bản đầu, giữ lại để không làm hỏng code cũ. <code>typeof []</code> cũng là <code>"object"</code>; muốn kiểm tra mảng thì dùng <code>Array.isArray(x)</code>.</li>
+</ul>
+<h3>Rút ra</h3>
+<p>Luôn dùng <code>===</code> và <code>!==</code>. Trong test, so sánh lỏng có thể khiến API trả <code>"0"</code> thay vì <code>0</code> mà test vẫn pass.</p>`,
+examples:[String.raw`console.log(1 == "1");           // true
+console.log(1 === "1");          // false
+console.log(null == undefined);  // true
+console.log(null === undefined); // false
+console.log(typeof null);        // "object"
+console.log(typeof []);          // "object"
+console.log(0 == false);         // true
+console.log("" == 0);            // true`]},
+
+'1.3': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Kết quả</h3>
+${TRACE(['Giá trị', 'Kết quả', 'Lý do'], [['<code>0</code>', 'không chạy', 'falsy'], ['<code>"0"</code>', 'chạy', 'chuỗi khác rỗng'], ['<code>""</code>', 'không chạy', 'chuỗi rỗng là falsy'], ['<code>" "</code>', 'chạy', 'có một dấu cách, không rỗng'], ['<code>[]</code>', 'chạy', 'mọi object/mảng đều truthy'], ['<code>{}</code>', 'chạy', 'như trên'], ['<code>null</code>', 'không chạy', 'falsy'], ['<code>NaN</code>', 'không chạy', 'falsy'], ['<code>-1</code>', 'chạy', 'mọi số khác 0 đều truthy']])}
+<h3>Lỗi hay gặp</h3>
+<p>Kiểm tra mảng rỗng bằng <code>if (arr)</code>: luôn đúng. Phải viết <code>if (arr.length &gt; 0)</code>.</p>`,
+examples:[String.raw`function checkTruthy(x) {
+  if (x) {
+    return "chạy";
+  }
+  return "không chạy";
+}
+
+const values = [0, "0", "", " ", [], {}, null, NaN, -1];
+for (const v of values) {
+  console.log(v, "→", checkTruthy(v));
+}`]},
+
+'2.1': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Mỗi nhánh <code>return</code> luôn nên không cần <code>else</code>, code phẳng và dễ đọc hơn.</li>
+<li>Kiểm tra đủ cả cận dưới và cận trên, nhờ vậy 199 và 600 rơi xuống <code>"Unknown"</code>.</li>
+</ul>
+<h3>Lỗi hay gặp</h3>
+<p>Chỉ kiểm tra cận dưới, ví dụ <code>if (code &gt;= 500) return "Server Error"</code>: 600 hay 999 cũng thành Server Error. Khi test, luôn thử giá trị ở biên (199, 200, 299, 300, 599, 600).</p>`,
+examples:[String.raw`function classifyStatus(code) {
+  if (code >= 200 && code <= 299) return "Success";
+  if (code >= 300 && code <= 399) return "Redirect";
+  if (code >= 400 && code <= 499) return "Client Error";
+  if (code >= 500 && code <= 599) return "Server Error";
+  return "Unknown";
+}
+
+console.log(classifyStatus(200)); // Success
+console.log(classifyStatus(404)); // Client Error
+console.log(classifyStatus(600)); // Unknown`]},
+
+'2.2': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>switch</code> so sánh bằng <code>===</code> với từng <code>case</code>, không so sánh được khoảng. Vì vậy phải tính nhóm trước: <code>Math.floor(404 / 100)</code> là <code>4</code>.</li>
+<li>Mỗi <code>case</code> có <code>return</code> nên không cần <code>break</code>.</li>
+<li><code>default</code> bắt mọi nhóm còn lại (1, 6, 7...).</li>
+</ul>
+<h3>Lỗi hay gặp</h3>
+<p>Dùng <code>console.log</code> hoặc gán biến trong <code>case</code> mà quên <code>break</code>: code chạy tuột xuống các <code>case</code> bên dưới (fall-through).</p>`,
+examples:[String.raw`function classifyStatusSwitch(code) {
+  switch (Math.floor(code / 100)) {
+    case 2: return "Success";
+    case 3: return "Redirect";
+    case 4: return "Client Error";
+    case 5: return "Server Error";
+    default: return "Unknown";
+  }
+}
+
+console.log(classifyStatusSwitch(302)); // Redirect
+console.log(classifyStatusSwitch(700)); // Unknown`]},
+
+'2.3': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<p>Toán tử ba ngôi đọc là "điều kiện ? giá trị khi đúng : giá trị khi sai". Có 3 kết quả nên lồng hai lần; xuống dòng như trên giúp đọc giống một chuỗi <code>if / else if / else</code>.</p>
+<h3>Lưu ý</h3>
+<p>Lồng quá 2 cấp thì nên quay về <code>if</code> cho dễ đọc. Toán tử ba ngôi hợp nhất khi chọn giữa hai giá trị.</p>`,
+examples:[String.raw`function trend(yesterday, today) {
+  return today > yesterday ? "Tăng"
+       : today < yesterday ? "Giảm"
+       : "Đứng giá";
+}
+
+console.log(trend(2850, 2900)); // Tăng
+console.log(trend(2900, 2850)); // Giảm
+console.log(trend(2850, 2850)); // Đứng giá`]},
+
+'2.4': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>user.settings?.theme</code>: nếu <code>settings</code> là <code>null/undefined</code> thì dừng lại và trả về <code>undefined</code> thay vì báo lỗi.</li>
+<li><code>?? "default"</code> chỉ thay khi vế trái là <code>null/undefined</code>, nên <code>""</code> vẫn được giữ nguyên.</li>
+</ul>
+<h3>?? khác || thế nào</h3>
+{{ex1}}
+<p>Với dữ liệu mà <code>0</code>, <code>""</code>, <code>false</code> là giá trị hợp lệ (số lượng, giá, cờ bật tắt), dùng <code>??</code>.</p>`,
+examples:[String.raw`const user = { name: "Thao", settings: { theme: null } };
+
+function getTheme(user) {
+  return user.settings?.theme ?? "default";
+}
+
+function getAvatar(user) {
+  return user.profile?.avatar;
+}
+
+console.log(getTheme(user));  // default
+console.log(getAvatar(user)); // undefined`,
+String.raw`const theme = "";
+console.log(theme ?? "default"); // ""
+console.log(theme || "default"); // "default"
+
+const qty = 0;
+console.log(qty ?? 100); // 0
+console.log(qty || 100); // 100`]},
+
+'3.1': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>i % 3 === 0</code> nghĩa là <code>i</code> chia hết cho 3.</li>
+<li>Kiểm tra chia hết cho 15 (cả 3 và 5) <strong>trước</strong>. Nếu đặt sau, số 15 đã khớp điều kiện chia hết cho 3 và in ra <code>"Test"</code>.</li>
+</ul>
+<h3>Lỗi hay gặp</h3>
+<p>Dùng nhiều <code>if</code> rời nhau thay vì <code>else if</code>: số 15 in ra 3 dòng, tổng số dòng không còn là 50.</p>`,
+examples:[String.raw`for (let i = 1; i <= 50; i++) {
+  if (i % 15 === 0) console.log("TestCase");
+  else if (i % 3 === 0) console.log("Test");
+  else if (i % 5 === 0) console.log("Case");
+  else console.log(i);
+}`]},
+
+'3.2': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>max</code> và <code>min</code> khởi tạo bằng phần tử đầu tiên. Nếu khởi tạo <code>max = 0</code>, mảng toàn số âm sẽ ra <code>max = 0</code>, một giá trị không có trong mảng.</li>
+<li>Cộng dồn <code>sum</code> trong cùng vòng lặp để chỉ duyệt mảng một lần.</li>
+<li><code>Math.round(x * 100) / 100</code> làm tròn 2 chữ số: 2878.5714 → 287857.14 → 287857 → 2878.57.</li>
+</ul>
+<h3>Lỗi hay gặp</h3>
+<p>Dùng <code>avg.toFixed(2)</code>: kết quả là chuỗi <code>"2878.57"</code>, không phải số, nên <code>toBe(2878.57)</code> fail.</p>`,
+examples:[String.raw`const prices = [2850, 2870, 2845, 2900, 2880, 2910, 2895];
+
+function priceStats(prices) {
+  let max = prices[0];
+  let min = prices[0];
+  let sum = 0;
+  for (const p of prices) {
+    if (p > max) max = p;
+    if (p < min) min = p;
+    sum += p;
+  }
+  const avg = Math.round((sum / prices.length) * 100) / 100;
+  return { max, min, avg };
+}
+
+console.log(priceStats(prices));
+console.log(priceStats([-5, -2, -9]));`]},
+
+'3.3': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>for...in</code> duyệt qua <strong>key</strong> của object (<code>"login"</code>, <code>"logout"</code>...), lấy giá trị bằng <code>results[key]</code>.</li>
+<li>Ba biến đếm khởi tạo bằng 0 nên object rỗng vẫn trả về đúng <code>"Pass: 0, Fail: 0, Skip: 0"</code>.</li>
+</ul>
+<h3>Lưu ý</h3>
+<p><code>for...in</code> dùng cho object, <code>for...of</code> dùng cho mảng. Dùng <code>for...in</code> với mảng sẽ nhận về index dạng chuỗi <code>"0"</code>, <code>"1"</code>...</p>`,
+examples:[String.raw`const results = { login: "pass", logout: "pass", order: "fail", search: "skip" };
+
+function countResults(results) {
+  let pass = 0;
+  let fail = 0;
+  let skip = 0;
+  for (const key in results) {
+    const status = results[key];
+    if (status === "pass") pass++;
+    else if (status === "fail") fail++;
+    else if (status === "skip") skip++;
+  }
+  return "Pass: " + pass + ", Fail: " + fail + ", Skip: " + skip;
+}
+
+console.log(countResults(results));`]},
+
+'3.4': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Mỗi vòng gọi <code>getRandom()</code> <strong>một lần</strong> và lưu vào biến. Gọi hai lần (một lần để so sánh, một lần để in) sẽ tốn thêm lượt và in sai giá trị.</li>
+<li>Thành công thì <code>return</code> ngay trong vòng lặp, không cần biến cờ hay <code>break</code>.</li>
+<li>Ra khỏi vòng lặp nghĩa là đã thử hết <code>maxAttempts</code> lần mà không thành công.</li>
+<li>Điều kiện là <code>&gt; 0.7</code>, nên đúng 0.7 vẫn là thất bại.</li>
+</ul>
+<h3>Chạy tay với dãy 0.1, 0.5, 0.8</h3>
+${TRACE(['attempt', 'getRandom()', 'Kết quả'], [['1', '0.1', 'thất bại, tăng attempt'], ['2', '0.5', 'thất bại, tăng attempt'], ['3', '0.8', 'thành công, trả về { success: true, attempts: 3 }']])}`,
+examples:[String.raw`function callWithRetry(maxAttempts, getRandom) {
+  let attempt = 1;
+  while (attempt <= maxAttempts) {
+    const value = getRandom();
+    if (value > 0.7) {
+      console.log("Lần " + attempt + ": thành công (" + value.toFixed(2) + ")");
+      return { success: true, attempts: attempt };
+    }
+    console.log("Lần " + attempt + ": thất bại (" + value.toFixed(2) + ")");
+    attempt++;
+  }
+  return { success: false, attempts: maxAttempts };
+}
+
+console.log(callWithRetry(5, Math.random));
+
+const seq = [0.1, 0.5, 0.8];
+console.log(callWithRetry(5, () => seq.shift()));`]},
+
+'4.1': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Kiểm tra kiểu trước tiên. Nhờ vậy <code>null</code> hay số <code>7203</code> trả về <code>false</code> ngay, không bị lỗi khi đọc <code>.length</code>.</li>
+<li>Gặp ký tự không phải chữ số là <code>return false</code> ngay, không cần duyệt tiếp.</li>
+<li>Duyệt hết mà không bị loại thì hợp lệ.</li>
+</ul>
+<h3>Cách dùng regex</h3>
+{{ex1}}
+<p>Vẫn phải giữ <code>typeof</code>: <code>regex.test(7203)</code> tự đổi số thành chuỗi <code>"7203"</code> và trả về <code>true</code>.</p>`,
+examples:[String.raw`function isValidStockCode(code) {
+  if (typeof code !== "string" || code.length !== 4) return false;
+  for (const ch of code) {
+    if (!"0123456789".includes(ch)) return false;
+  }
+  return true;
+}
+
+console.log(isValidStockCode("7203")); // true
+console.log(isValidStockCode("72A3")); // false
+console.log(isValidStockCode(7203));   // false
+console.log(isValidStockCode(null));   // false`,
+String.raw`const isValidStockCodeRegex = code => typeof code === "string" && /^\d{4}$/.test(code);
+console.log(isValidStockCodeRegex("7203"), isValidStockCodeRegex(7203));`]},
+
+'4.2': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Tách phần nguyên và phần thập phân, chỉ chèn dấu phẩy vào phần nguyên.</li>
+<li>Duyệt từ phải sang trái, đếm số chữ số đã lấy. Cứ đủ 3 chữ số và bên trái vẫn còn chữ số (<code>i &gt; 0</code>) thì chèn dấu phẩy.</li>
+<li>Không có phần thập phân thì <code>parts[1]</code> là <code>undefined</code>, chỉ trả về phần nguyên.</li>
+</ul>
+<h3>Chạy tay với 1234567</h3>
+${TRACE(['i', 'Chữ số', 'count', 'result'], [['6', '7', '1', '"7"'], ['5', '6', '2', '"67"'], ['4', '5', '3', '",567"'], ['3', '4', '4', '"4,567"'], ['2', '3', '5', '"34,567"'], ['1', '2', '6', '",234,567"'], ['0', '1', '7', '"1,234,567"']])}
+<h3>Lỗi hay gặp</h3>
+<p>Thiếu điều kiện <code>i &gt; 0</code>: số có 3, 6, 9 chữ số bị thừa dấu phẩy ở đầu, ví dụ <code>",100,000"</code>.</p>`,
+examples:[String.raw`function formatPrice(price) {
+  const parts = String(price).split(".");
+  const intPart = parts[0];
+  let result = "";
+  let count = 0;
+  for (let i = intPart.length - 1; i >= 0; i--) {
+    result = intPart[i] + result;
+    count++;
+    if (count % 3 === 0 && i > 0) result = "," + result;
+  }
+  return parts[1] === undefined ? result : result + "." + parts[1];
+}
+
+function formatPriceLocale(price) {
+  return price.toLocaleString("en-US");
+}
+
+console.log(formatPrice(1234567));   // 1,234,567
+console.log(formatPrice(2850.5));    // 2,850.5
+console.log(formatPrice(100000));    // 100,000
+console.log(formatPriceLocale(1234567));`]},
+
+'4.3': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Tham số mặc định được dùng khi không truyền hoặc truyền <code>undefined</code>.</li>
+<li><code>{ name, role, active }</code> là cách viết gọn của <code>{ name: name, role: role, active: active }</code>.</li>
+</ul>
+<h3>Lưu ý</h3>
+<p>Truyền <code>null</code> thì mặc định <strong>không</strong> được dùng: <code>createTestUser("A", null)</code> cho <code>role: null</code>.</p>`,
+examples:[String.raw`function createTestUser(name, role = "viewer", active = true) {
+  return { name, role, active };
+}
+
+console.log(createTestUser("Thao"));
+console.log(createTestUser("An", "admin"));
+console.log(createTestUser("Binh", "admin", false));
+console.log(createTestUser("Chi", undefined, false));`]},
+
+'4.4': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>...numbers</code> gom mọi tham số truyền vào thành một mảng. Không truyền gì thì là mảng rỗng <code>[]</code>.</li>
+<li><code>total</code> khởi tạo bằng 0, nên với mảng rỗng vòng lặp không chạy và kết quả là 0.</li>
+</ul>
+<h3>Cách viết khác</h3>
+<p>Từ tuần 3, bạn sẽ gặp <code>reduce</code>: <code>numbers.reduce((sum, n) =&gt; sum + n, 0)</code>. Nhớ giá trị khởi tạo <code>0</code>, thiếu nó thì <code>sumAll()</code> báo lỗi.</p>`,
+examples:[String.raw`function sumAll(...numbers) {
+  let total = 0;
+  for (const n of numbers) {
+    total += n;
+  }
+  return total;
+}
+
+console.log(sumAll(1, 2, 3)); // 6
+console.log(sumAll());        // 0`]},
+
+'4.5': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Biến <code>count</code> nằm trong <code>createCounter</code>. Function được trả về vẫn "nhớ" và dùng được biến này sau khi <code>createCounter</code> đã chạy xong. Đó là closure.</li>
+<li>Mỗi lần gọi <code>createCounter()</code> tạo ra một biến <code>count</code> mới, nên hai bộ đếm độc lập.</li>
+<li>Bên ngoài không truy cập trực tiếp <code>count</code> được, chỉ tăng được qua function. Đây là cách giữ dữ liệu "riêng tư".</li>
+</ul>
+<h3>Lỗi hay gặp</h3>
+<p>Khai báo <code>let count = 0</code> bên ngoài <code>createCounter</code>: mọi bộ đếm dùng chung một biến, test "hai bộ đếm độc lập" fail.</p>`,
+examples:[String.raw`function createCounter() {
+  let count = 0;
+  return function () {
+    count++;
+    return count;
+  };
+}
+
+const countFail = createCounter();
+const countPass = createCounter();
+console.log(countFail()); // 1
+console.log(countFail()); // 2
+console.log(countPass()); // 1`]},
+
+'5.1': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>includes</code> trả về <code>true/false</code>, dùng thẳng làm kết quả.</li>
+<li><code>url.split("?")[1]</code> là phần query. URL không có dấu <code>?</code> thì phần tử này là <code>undefined</code>, trả về <code>{}</code> luôn.</li>
+<li>Mỗi cặp <code>key=value</code> tách bằng <code>split("=")</code>, rồi gán <code>result[key] = value</code>. Phải dùng ngoặc vuông vì tên key nằm trong biến.</li>
+</ul>
+<h3>Thực tế</h3>
+<p>Trình duyệt và Node có sẵn <code>new URL(url).searchParams</code>, xử lý cả ký tự mã hóa như <code>%20</code>. Bài này tự viết để luyện <code>split</code>.</p>`,
+examples:[String.raw`const url = "https://devstg.example.jp/order?code=7203&side=buy";
+
+function isStaging(url) {
+  return url.includes("devstg");
+}
+
+function parseQuery(url) {
+  const result = {};
+  const query = url.split("?")[1];
+  if (!query) return result;
+  for (const pair of query.split("&")) {
+    const parts = pair.split("=");
+    result[parts[0]] = parts[1];
+  }
+  return result;
+}
+
+console.log(isStaging(url));
+console.log(parseQuery(url));
+console.log(parseQuery("https://www.example.jp/"));`]},
+
+'5.2': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Method của chuỗi trả về chuỗi mới nên nối liền được: <code>trim</code> rồi <code>toLowerCase</code> rồi <code>replace</code>.</li>
+<li>Trong regex, <code>&#92;s+</code> là "một hoặc nhiều khoảng trắng", cờ <code>g</code> để thay mọi chỗ chứ không chỉ chỗ đầu tiên.</li>
+</ul>
+<h3>Cách không dùng regex</h3>
+{{ex1}}
+<p><code>split(" ")</code> trên nhiều dấu cách liên tiếp tạo ra các phần tử rỗng <code>""</code>, bỏ chúng đi rồi ghép lại bằng một dấu cách.</p>`,
+examples:[String.raw`function normalizeInput(str) {
+  return str.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+console.log(normalizeInput("  Hello    World  ")); // "hello world"
+console.log(normalizeInput("Mã  7203   Toyota"));  // "mã 7203 toyota"`,
+String.raw`function normalizeInputLoop(str) {
+  const words = [];
+  for (const w of str.trim().toLowerCase().split(" ")) {
+    if (w !== "") words.push(w);
+  }
+  return words.join(" ");
+}
+
+console.log(normalizeInputLoop("  Hello    World  "));`]},
+
+'5.3': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Template literal dùng dấu backtick, chèn biểu thức bằng <code>&#36;{...}</code>. Gọn hơn nối chuỗi bằng <code>+</code> khi có nhiều phần.</li>
+<li><code>padStart(3, "0")</code> thêm số 0 vào bên trái cho đủ 3 ký tự. Số đã đủ hoặc dài hơn thì giữ nguyên. Phải đổi <code>number</code> sang chuỗi trước vì <code>padStart</code> là method của chuỗi.</li>
+</ul>`,
+examples:[`function generateTestId(module, number) {
+  return \`TC_\${module.toUpperCase()}_\${String(number).padStart(3, "0")}\`;
+}
+
+console.log(generateTestId("login", 5));   // TC_LOGIN_005
+console.log(generateTestId("order", 123)); // TC_ORDER_123
+console.log(generateTestId("search", 42)); // TC_SEARCH_042`]},
+
+'5.4': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>indexOf(word, pos)</code> tìm <code>word</code> bắt đầu từ vị trí <code>pos</code>, không thấy trả về -1.</li>
+<li>Mỗi lần tìm thấy thì đếm và nhảy qua hết từ vừa tìm (<code>pos + word.length</code>) rồi tìm tiếp.</li>
+</ul>
+<h3>Cách ngắn</h3>
+{{ex1}}
+<p>Chuỗi bị cắt tại mỗi chỗ có <code>word</code>, nên số mảnh luôn nhiều hơn số lần xuất hiện đúng 1.</p>`,
+examples:[String.raw`const log = "INFO  Start test\nERROR Timeout at /order\nINFO  Retry\nERROR Element not found\nWARN  Slow response\nERROR Timeout at /order";
+
+function countWord(log, word) {
+  let count = 0;
+  let pos = log.indexOf(word);
+  while (pos !== -1) {
+    count++;
+    pos = log.indexOf(word, pos + word.length);
+  }
+  return count;
+}
+
+console.log(countWord(log, "ERROR")); // 3
+console.log(countWord(log, "FATAL")); // 0`,
+String.raw`const countWordShort = (log, word) => log.split(word).length - 1;
+console.log(countWordShort("ERROR x ERROR", "ERROR")); // 2`]},
+
+'6.1': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>push</code> thêm vào cuối, <code>shift</code> lấy ra ở đầu: vào trước ra trước (FIFO), giống hàng đợi thật.</li>
+<li><code>while (queue.length &gt; 0)</code> chạy tới khi hàng đợi rỗng. Không dùng <code>for</code> với <code>i &lt; queue.length</code> vì độ dài thay đổi trong lúc lặp.</li>
+</ul>
+<h3>Nếu thay shift bằng pop</h3>
+<p><code>pop</code> lấy ở cuối: vào sau ra trước (LIFO), giống chồng đĩa (stack). Thứ tự chạy bị đảo ngược, test case thêm cuối cùng chạy đầu tiên.</p>`,
+examples:[String.raw`const queue = [];
+
+queue.push("TC_LOGIN_001");
+queue.push("TC_LOGIN_002");
+queue.push("TC_ORDER_001");
+queue.push("TC_ORDER_002");
+queue.push("TC_SEARCH_001");
+
+while (queue.length > 0) {
+  const tc = queue.shift();
+  console.log("Đang chạy: " + tc);
+}
+
+console.log("Còn lại:", queue);`]},
+
+'6.2': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Tạo mảng mới <code>result</code>, không sửa mảng gốc.</li>
+<li>Phần tử nào chưa có trong <code>result</code> thì thêm vào. Lần xuất hiện đầu tiên được giữ lại nên thứ tự không đổi.</li>
+</ul>
+<h3>Độ phức tạp</h3>
+<p><code>includes</code> duyệt lại <code>result</code> mỗi lần, nên tổng là O(n²). Với vài nghìn phần tử vẫn ổn. Từ tuần 3, bạn sẽ dùng <code>[...new Set(arr)]</code> cho O(n) và cũng giữ thứ tự.</p>`,
+examples:[String.raw`const codes = ["7203", "6758", "7203", "9984", "6758", "8306"];
+
+function unique(arr) {
+  const result = [];
+  for (const x of arr) {
+    if (!result.includes(x)) result.push(x);
+  }
+  return result;
+}
+
+console.log(unique(codes));
+console.log(codes); // mảng gốc không đổi`]},
+
+'6.3': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>slice(2, 5)</code>: lấy từ index 2 đến <strong>trước</strong> index 5, tức index 2, 3, 4 là các giá trị 3, 4, 5. Mảng gốc không đổi.</li>
+<li><code>splice(4, 2)</code>: từ index 4 (giá trị 5) xóa 2 phần tử là 5 và 6. Trả về mảng các phần tử bị xóa và <strong>sửa luôn</strong> mảng gốc.</li>
+</ul>
+<h3>Mẹo nhớ</h3>
+<p><code>slice</code> = cắt một lát để xem, <code>splice</code> = nối/ghép lại dây, có thay đổi. Tham số thứ hai cũng khác nghĩa: <code>slice</code> là vị trí kết thúc, <code>splice</code> là số lượng.</p>`,
+examples:[String.raw`const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+const part = arr.slice(2, 5);
+console.log("slice:", part);                 // [3, 4, 5]
+console.log("Mảng gốc sau slice:", arr);     // không đổi
+
+const removed = arr.splice(4, 2);
+console.log("Đã xóa:", removed);             // [5, 6]
+console.log("Mảng gốc sau splice:", arr);    // [1, 2, 3, 4, 7, 8, 9, 10]`]},
+
+'7.1': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Mỗi dòng bắt đầu với <code>error = ""</code>. Chuỗi <code>if / else if</code> đảm bảo chỉ lấy lỗi đầu tiên theo đúng thứ tự price → quantity → side.</li>
+<li><code>typeof row.price !== "number"</code> loại giá trị kiểu chuỗi như <code>"2850"</code>.</li>
+<li>Viết <code>!(row.price &gt; 0)</code> thay vì <code>row.price &lt;= 0</code> để bắt cả <code>NaN</code>: mọi phép so sánh với <code>NaN</code> đều <code>false</code>, nên <code>NaN &lt;= 0</code> cũng là <code>false</code> và lọt qua.</li>
+<li>Số dòng in ra là <code>i + 1</code> vì index bắt đầu từ 0.</li>
+</ul>
+<h3>Lỗi hay gặp</h3>
+<p>Dùng các <code>if</code> rời nhau: dòng sai nhiều chỗ bị ghi đè bởi lỗi cuối cùng, hoặc bị đếm fail nhiều lần.</p>`,
+examples:[String.raw`const orderBook = [
+  { price: 2850, quantity: 100, side: "buy" },
+  { price: 2855, quantity: 0, side: "sell" },
+  { price: -10, quantity: 200, side: "buy" },
+  { price: 2860, quantity: 300, side: "hold" },
+  { price: 2845, quantity: 150, side: "buy" },
+];
+
+function validateOrderBook(data) {
+  let pass = 0;
+  let fail = 0;
+
+  for (let i = 0; i < data.length; i++) {
+    const row = data[i];
+    let error = "";
+    if (typeof row.price !== "number" || !(row.price > 0)) error = "price must be > 0";
+    else if (!(row.quantity > 0)) error = "quantity must be > 0";
+    else if (!Number.isInteger(row.quantity)) error = "quantity must be an integer";
+    else if (row.side !== "buy" && row.side !== "sell") error = 'invalid side "' + row.side + '"';
+
+    if (error === "") {
+      console.log("Row " + (i + 1) + ": PASS");
+      pass++;
+    } else {
+      console.log("Row " + (i + 1) + ": FAIL - " + error);
+      fail++;
+    }
+  }
+
+  console.log("---");
+  console.log("Total: " + data.length + " | Pass: " + pass + " | Fail: " + fail);
+  return { total: data.length, pass, fail };
+}
+
+validateOrderBook(orderBook);`]},
+
+'7.2': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>expectEqual</code> so sánh bằng <code>===</code> nên <code>3</code> và <code>"3"</code> là khác nhau, đúng như test runner thật.</li>
+<li>Giá trị trả về <code>true/false</code> cho phép bên ngoài đếm pass/fail mà <code>expectEqual</code> không cần biết đến biến đếm.</li>
+<li>Hàm <code>run</code> gom việc gọi và đếm vào một chỗ, mỗi test chỉ còn một dòng.</li>
+</ul>
+<h3>So với Playwright</h3>
+<p><code>expect(actual).toBe(expected)</code> ở tuần 4 làm đúng việc này, khác ở chỗ nó <strong>ném lỗi</strong> để dừng test thay vì trả về <code>false</code>, và in thông báo chi tiết hơn.</p>`,
+examples:[`function expectEqual(actual, expected, testName) {
+  if (actual === expected) {
+    console.log(\`✅ \${testName}\`);
+    return true;
+  }
+  console.log(\`❌ \${testName} - expected \${expected} but got \${actual}\`);
+  return false;
+}
+
+// Bài 4.1
+function isValidStockCode(code) {
+  if (typeof code !== "string" || code.length !== 4) return false;
+  for (const ch of code) {
+    if (!"0123456789".includes(ch)) return false;
+  }
+  return true;
+}
+
+// Bài 4.2
+function formatPrice(price) {
+  const parts = String(price).split(".");
+  const intPart = parts[0];
+  let result = "";
+  let count = 0;
+  for (let i = intPart.length - 1; i >= 0; i--) {
+    result = intPart[i] + result;
+    count++;
+    if (count % 3 === 0 && i > 0) result = "," + result;
+  }
+  return parts[1] === undefined ? result : result + "." + parts[1];
+}
+
+// Bài 5.2
+function normalizeInput(str) {
+  return str.trim().toLowerCase().replace(/\\s+/g, " ");
+}
+
+// Bài 5.3
+function generateTestId(module, number) {
+  return \`TC_\${module.toUpperCase()}_\${String(number).padStart(3, "0")}\`;
+}
+
+let passed = 0;
+let failed = 0;
+function run(actual, expected, testName) {
+  if (expectEqual(actual, expected, testName)) passed++;
+  else failed++;
+}
+
+run(isValidStockCode("7203"), true, "4.1: mã hợp lệ");
+run(isValidStockCode("72A3"), false, "4.1: có chữ cái");
+run(isValidStockCode(7203), false, "4.1: kiểu number");
+run(formatPrice(1234567), "1,234,567", "4.2: số nguyên");
+run(formatPrice(2850.5), "2,850.5", "4.2: số thập phân");
+run(normalizeInput("  Hello    World  "), "hello world", "5.2: chuẩn hóa");
+run(generateTestId("login", 5), "TC_LOGIN_005", "5.3: đệm số 0");
+run(generateTestId("order", 123), "TC_ORDER_1234", "5.3: cố tình sai để thấy ❌");
+
+console.log("---");
+console.log(\`Tổng: \${passed + failed} | Pass: \${passed} | Fail: \${failed}\`);`]},
+});
 
 /* =========================================================
    TUẦN 3: JAVASCRIPT HIỆN ĐẠI (ES6+)
