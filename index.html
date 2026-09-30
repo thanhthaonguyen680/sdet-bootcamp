@@ -324,6 +324,17 @@ kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-r
   .keys{display:none}
 }
 @media (prefers-reduced-motion:reduce){ .side,.toast{transition:none} }
+/* Tooltip và hướng dẫn nhanh */
+.tip{position:fixed;z-index:70;max-width:290px;padding:8px 11px;border-radius:7px;background:var(--ink);color:var(--surface);font-size:13px;line-height:1.45;box-shadow:0 6px 18px rgba(0,0,0,.2);pointer-events:none}
+.tip[hidden]{display:none}
+.tip strong{display:block;font-weight:600;margin-bottom:2px}
+.tour-block{position:fixed;inset:0;z-index:80}
+.tour-spot{position:fixed;z-index:81;border-radius:9px;box-shadow:0 0 0 3px var(--accent),0 0 0 9999px rgba(8,14,22,.55);pointer-events:none;transition:top .2s,left .2s,width .2s,height .2s}
+.tour-card{position:fixed;z-index:82;width:min(340px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.25);padding:16px 16px 12px}
+.tour-card h2{margin:0 0 6px;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.tour-card p{margin:0 0 14px;font-size:14px;color:var(--ink-2)}
+.tour-foot{display:flex;align-items:center;gap:8px}
+.tour-step{font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;margin-right:auto}
 </style>
 </head>
 <body>
@@ -335,17 +346,18 @@ kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-r
       <p id="weekSub">Tuần 1: nền tảng cho SDET</p>
     </div>
     <div class="weeks" role="group" aria-label="Chọn tuần">
-      <button data-week="1" aria-pressed="true">Tuần 1</button>
-      <button data-week="2" aria-pressed="false">Tuần 2</button>
-      <button data-week="3" aria-pressed="false">Tuần 3</button>
-      <button data-week="4" aria-pressed="false">Tuần 4</button>
-      <button data-week="5" aria-pressed="false">Tuần 5</button>
+      <button data-week="1" aria-pressed="true" data-tip-title="Tuần 1: JavaScript nền tảng" data-tip="Biến, điều kiện, vòng lặp, function, chuỗi và mảng qua 25 bài. Nền tảng để đọc và tự viết được code test.">Tuần 1</button>
+      <button data-week="2" aria-pressed="false" data-tip-title="Tuần 2: Ôn tập qua thuật toán" data-tip="18 bài thuật toán kinh điển hay gặp khi phỏng vấn, giúp dùng thành thạo kiến thức tuần 1.">Tuần 2</button>
+      <button data-week="3" aria-pressed="false" data-tip-title="Tuần 3: JavaScript hiện đại" data-tip="Cú pháp dùng hằng ngày trong Playwright: arrow function, destructuring, map/filter, async/await. 7 bài bắt buộc, phần còn lại là nâng cao.">Tuần 3</button>
+      <button data-week="4" aria-pressed="false" data-tip-title="Tuần 4: Playwright + TypeScript" data-tip="Viết test tự động trên trang Sàn Demo: locator, assertion, Page Object Model, fixture, đến một dự án POM hoàn chỉnh.">Tuần 4</button>
+      <button data-week="5" aria-pressed="false" data-tip-title="Tuần 5: CI/CD với GitHub Actions" data-tip="Cho bộ test tự chạy khi push code: workflow, secrets, artifact, matrix, sharding và chạy theo lịch.">Tuần 5</button>
     </div>
     <div class="progress">
       <div class="strip" id="strip" role="group" aria-label="Tiến độ từng bài"></div>
-      <div class="count" id="count"></div>
+      <div class="count" id="count" tabindex="0" data-tip="Số bài đã pass trong tuần đang xem. Mỗi ô bên trái là một bài, bấm vào ô để mở bài đó. Bài nâng cao không tính."></div>
     </div>
-    <button class="icon-btn" id="themeBtn" aria-label="Đổi giao diện sáng/tối">◐</button>
+    <button class="icon-btn" id="helpBtn" aria-label="Xem hướng dẫn sử dụng" data-tip="Xem lại hướng dẫn sử dụng trang.">?</button>
+    <button class="icon-btn" id="themeBtn" aria-label="Đổi giao diện sáng/tối" data-tip="Đổi giao diện sáng / tối.">◐</button>
   </header>
 
   <div class="layout">
@@ -389,13 +401,13 @@ kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-r
       </section>
 
       <div class="toolbar">
-        <button class="btn primary" id="runBtn">Chạy</button>
-        <button class="btn check" id="checkBtn">Kiểm tra bài</button>
-        <button class="btn" id="markBtn" hidden>Đánh dấu đã xong</button>
+        <button class="btn primary" id="runBtn" data-tip-title="Chạy" data-tip="Chạy code trong ô soạn thảo. Kết quả console.log hiện ở tab Console bên dưới. Phím tắt: Ctrl + Enter.">Chạy</button>
+        <button class="btn check" id="checkBtn" data-tip-title="Kiểm tra bài" data-tip="Chạy các test case chấm tự động. Pass hết thì bài được tính là xong và hiện nút Sang bài tiếp. Phím tắt: Ctrl + Shift + Enter.">Kiểm tra bài</button>
+        <button class="btn" id="markBtn" hidden data-tip-title="Đánh dấu đã xong" data-tip="Bài này không chấm tự động. Khi đã tự kiểm tra và hiểu hết, bấm để tính là đã xong.">Đánh dấu đã xong</button>
         <span class="spacer"></span>
         <span class="keys"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> chạy, thêm <kbd>Shift</kbd> để kiểm tra</span>
-        <button class="btn ghost small" id="copyBtn">Sao chép</button>
-        <button class="btn ghost small" id="resetBtn">Khôi phục code gốc</button>
+        <button class="btn ghost small" id="copyBtn" data-tip="Sao chép toàn bộ code trong ô soạn thảo, để dán sang VS Code hoặc gửi cho người khác.">Sao chép</button>
+        <button class="btn ghost small" id="resetBtn" data-tip="Xóa code bạn đã viết và trả về code ban đầu của bài. Bấm hai lần để xác nhận.">Khôi phục code gốc</button>
         <div class="file-bar" id="fileBar" hidden></div>
       </div>
 
@@ -410,10 +422,10 @@ kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-r
 
       <section class="panel">
         <div class="tabs" role="tablist">
-          <button class="tab" role="tab" id="tabConsole" aria-selected="true" aria-controls="paneConsole">Console</button>
-          <button class="tab" role="tab" id="tabTests" aria-selected="false" aria-controls="paneTests">Kết quả kiểm tra<span class="badge" id="testBadge" hidden></span></button>
+          <button class="tab" role="tab" id="tabConsole" aria-selected="true" aria-controls="paneConsole" data-tip="Kết quả của console.log và thông báo lỗi khi bấm Chạy.">Console</button>
+          <button class="tab" role="tab" id="tabTests" aria-selected="false" aria-controls="paneTests" data-tip="Từng test case đạt hay chưa đạt sau khi bấm Kiểm tra bài, kèm lý do.">Kết quả kiểm tra<span class="badge" id="testBadge" hidden></span></button>
           <span class="spacer"></span>
-          <button class="btn ghost small" id="clearBtn">Xóa console</button>
+          <button class="btn ghost small" id="clearBtn" data-tip="Xóa các dòng đang hiện trong Console.">Xóa console</button>
         </div>
         <div class="pane console" id="paneConsole" role="tabpanel" aria-labelledby="tabConsole"></div>
         <div class="pane" id="paneTests" role="tabpanel" aria-labelledby="tabTests" hidden></div>
@@ -11521,6 +11533,8 @@ let state = { codes:{}, status:{}, last:'1.1', theme:null, week:1, revealed:{}, 
 function loadState(){
   try{ const s = localStorage.getItem(STORE_KEY); if(s){ const p = JSON.parse(s); if(p && typeof p==='object') state = Object.assign(state, p); } }catch(e){}
   state.revealed = state.revealed || {}; state.lastByWeek = state.lastByWeek || {}; state.week = state.week || 1;
+  // Dọn bản lưu rỗng do lỗi cũ: lần đầu mở trang, bài 1.1 bị lưu code rỗng thay cho code gốc.
+  if (state.codes && state.codes['1.1'] === '') delete state.codes['1.1'];
 }
 function saveState(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
 
@@ -11573,6 +11587,13 @@ function refreshStatus(){
   countEl.innerHTML = '<b>'+done+'</b>/'+list.length+' bài xong';
 }
 let briefView = 'task';
+const VIEW_TIPS = {
+  lesson: 'Lý thuyết của bài. Đọc và bấm Chạy ví dụ trước khi làm bài.',
+  task: 'Yêu cầu của bài và các gợi ý. Mở gợi ý lần lượt khi bị bí.',
+  app: 'Trang Sàn Demo mà code test điều khiển, kèm công cụ thử locator.',
+  ci: 'Mô phỏng GitHub Actions: chọn sự kiện rồi chạy pipeline.',
+  solution: 'Lời giải chi tiết. Nên tự làm ít nhất 15–20 phút trước khi mở.',
+};
 function exampleBlock(list, i, src){
   const item = (list || [])[i];
   if (item == null) return '';
@@ -11632,7 +11653,7 @@ function renderBrief(){
     '<div class="brief-meta">' + exLabel(ex) + tag + '</div>' +
     '<h2>' + esc(ex.title) + '</h2>' +
     (tabs.length ? '<div class="seg" role="tablist" aria-label="Nội dung bài">' +
-      tabs.map(t => '<button role="tab" data-view="' + t[0] + '" aria-selected="' + (briefView === t[0]) + '">' + t[1] + '</button>').join('') + '</div>' : '') +
+      tabs.map(t => '<button role="tab" data-view="' + t[0] + '" data-tip="' + VIEW_TIPS[t[0]] + '" aria-selected="' + (briefView === t[0]) + '">' + t[1] + '</button>').join('') + '</div>' : '') +
     body +
     '<div class="brief-nav">' +
       '<button class="btn small" data-go="' + (idx - 1) + '" ' + (idx <= 0 ? 'disabled' : '') + '>Bài trước</button>' +
@@ -11659,6 +11680,7 @@ function select(id, focusEditor){
   current = ex; state.last = id; saveState();
   briefView = (LESSONS[ex.id] && statusOf(ex) === '') ? 'lesson' : 'task';
   if (ex.files) ta.value = projInit(ex); else { proj = null; ta.value = codeOf(ex); }
+  editorReady = true;
   renderProjTree();
   ta.scrollTop = 0; ta.scrollLeft = 0; syncScroll();
   errLine = 0; lastLines = -1;
@@ -11745,10 +11767,12 @@ function syncScroll(){
   gutEl.style.transform = 'translateY(' + (-ta.scrollTop) + 'px)';
 }
 let saveTimer = null;
+// Chỉ lưu sau khi ô soạn thảo đã nạp code của bài. Trước đó ta.value còn rỗng và sẽ ghi đè code gốc của bài 1.1.
+let editorReady = false;
 function scheduleSave(){ clearTimeout(saveTimer); saveTimer = setTimeout(flushSave, 350); }
 function flushSave(){
   if (saveTimer){ clearTimeout(saveTimer); saveTimer = null; }
-  if (!current) return;
+  if (!current || !editorReady) return;
   const val = proj ? (projSync(), JSON.stringify(proj.files)) : ta.value;
   if (val === current.starter) delete state.codes[current.id]; else state.codes[current.id] = val;
   saveState(); refreshStatus();
@@ -12207,12 +12231,143 @@ function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add
 window.addEventListener('beforeunload', flushSave);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushSave(); });
 
+/* =========================================================
+   TOOLTIP: phần tử có data-tip hiện giải thích khi rê chuột
+   (chỉ trên máy có chuột) hoặc khi focus bằng bàn phím.
+   ========================================================= */
+const tipEl = document.createElement('div');
+tipEl.className = 'tip'; tipEl.id = 'tip'; tipEl.setAttribute('role', 'tooltip'); tipEl.hidden = true;
+document.body.appendChild(tipEl);
+const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+let tipTarget = null, tipPending = null, tipTimer = null;
+function showTip(el){
+  tipPending = null; tipTarget = el;
+  tipEl.innerHTML = (el.dataset.tipTitle ? '<strong>' + esc(el.dataset.tipTitle) + '</strong>' : '') + esc(el.dataset.tip);
+  tipEl.hidden = false; el.setAttribute('aria-describedby', 'tip');
+  const r = el.getBoundingClientRect(), w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+  let top = r.bottom + 8; if (top + h > innerHeight - 8) top = r.top - h - 8;
+  tipEl.style.top = Math.max(8, top) + 'px';
+  tipEl.style.left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, innerWidth - w - 8)) + 'px';
+}
+function hideTip(){
+  clearTimeout(tipTimer); tipPending = null;
+  if (tipTarget) tipTarget.removeAttribute('aria-describedby');
+  tipTarget = null; tipEl.hidden = true;
+}
+document.addEventListener('mouseover', e => {
+  if (!canHover.matches || tourActive) return;
+  const el = e.target.closest('[data-tip]');
+  if (el && (el === tipTarget || el === tipPending)) return;
+  hideTip();
+  if (el){ tipPending = el; tipTimer = setTimeout(() => showTip(el), 400); }
+});
+document.addEventListener('mouseout', e => { if (!e.relatedTarget) hideTip(); });
+document.addEventListener('focusin', e => {
+  const el = e.target.closest('[data-tip]');
+  if (el && !tourActive && el.matches(':focus-visible')) showTip(el); else hideTip();
+});
+document.addEventListener('focusout', hideTip);
+document.addEventListener('pointerdown', hideTip);
+document.addEventListener('scroll', hideTip, true);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTip(); });
+
+/* =========================================================
+   HƯỚNG DẪN NHANH: tự hiện lần đầu, xem lại bằng nút ?
+   Bước nào không có phần tử đang hiển thị (ví dụ danh sách bài
+   trên điện thoại nằm trong menu) thì tự bỏ qua.
+   ========================================================= */
+const TOUR = [
+  { sel: '.weeks', title: 'Chọn tuần học', text: 'Khóa học có 5 tuần, từ JavaScript nền tảng đến Playwright và CI/CD. Rê chuột vào từng tuần để xem tuần đó học gì.' },
+  { sel: '#side', title: 'Danh sách bài', text: 'Các bài của tuần đang chọn. Chấm tròn cho biết trạng thái: xanh là đã pass, đỏ là chưa đạt, xám đậm là đang làm dở.' },
+  { sel: '#menuBtn', title: 'Danh sách bài', text: 'Bấm vào đây để mở danh sách bài của tuần. Chấm tròn cho biết trạng thái: xanh là đã pass, đỏ là chưa đạt, xám đậm là đang làm dở.' },
+  { sel: '.seg', title: 'Bài giảng, Đề bài, Lời giải', text: 'Bắt đầu từ Bài giảng: đọc và bấm Chạy ví dụ. Sau đó sang Đề bài để làm. Lời giải chỉ nên mở khi đã tự làm 15–20 phút.' },
+  { sel: '.editor', title: 'Ô soạn code', text: 'Viết code ở đây. Code tự lưu trên trình duyệt này, đóng tab hay tải lại trang vẫn còn.' },
+  { sel: '#runBtn', title: 'Chạy', text: 'Chạy code để xem kết quả ở tab Console bên dưới. Phím tắt: Ctrl + Enter.' },
+  { sel: '#checkBtn', title: 'Kiểm tra bài', text: 'Chạy các test case chấm tự động. Pass hết thì bài được tính là xong, ô tiến độ trên cùng chuyển xanh và hiện nút Sang bài tiếp.' },
+  { sel: '#helpBtn', title: 'Cần nhắc lại?', text: 'Rê chuột vào nút bất kỳ để xem giải thích. Bấm nút ? này để xem lại hướng dẫn.' },
+];
+let tourActive = false, tourIdx = 0, tourEls = null, tourReturn = null;
+// Bỏ qua phần tử bị ẩn hoặc nằm ngoài màn hình theo chiều ngang (menu trượt trên điện thoại).
+function tourVisible(el){ if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.right > 0 && r.left < innerWidth; }
+function startTour(){
+  hideTip();
+  tourReturn = document.activeElement;
+  tourActive = true;
+  const block = document.createElement('div'); block.className = 'tour-block';
+  const spot = document.createElement('div'); spot.className = 'tour-spot';
+  const card = document.createElement('div'); card.className = 'tour-card';
+  card.setAttribute('role', 'dialog'); card.setAttribute('aria-modal', 'true'); card.setAttribute('aria-labelledby', 'tourTitle');
+  card.innerHTML = '<h2 id="tourTitle"></h2><p id="tourText"></p><div class="tour-foot"><span class="tour-step" id="tourStep"></span>' +
+    '<button type="button" class="btn ghost small" id="tourSkip">Bỏ qua</button><button type="button" class="btn small" id="tourPrev">Trước</button><button type="button" class="btn primary small" id="tourNext">Tiếp</button></div>';
+  document.body.append(block, spot, card);
+  tourEls = { block, spot, card };
+  card.querySelector('#tourSkip').addEventListener('click', endTour);
+  card.querySelector('#tourPrev').addEventListener('click', () => tourGo(-1));
+  card.querySelector('#tourNext').addEventListener('click', () => tourGo(1));
+  tourIdx = -1; tourGo(1);
+}
+function tourSteps(){ return TOUR.filter(t => tourVisible(document.querySelector(t.sel))); }
+function tourGo(dir){
+  const steps = tourSteps();
+  tourIdx += dir;
+  if (tourIdx >= steps.length) return endTour();
+  tourIdx = Math.max(0, tourIdx);
+  const step = steps[tourIdx], c = tourEls.card;
+  c.querySelector('#tourTitle').textContent = step.title;
+  c.querySelector('#tourText').textContent = step.text;
+  c.querySelector('#tourStep').textContent = (tourIdx + 1) + ' / ' + steps.length;
+  c.querySelector('#tourPrev').hidden = tourIdx === 0;
+  c.querySelector('#tourNext').textContent = tourIdx === steps.length - 1 ? 'Bắt đầu học' : 'Tiếp';
+  document.querySelector(step.sel).scrollIntoView({ block: 'nearest' });
+  tourPlace();
+  c.querySelector('#tourNext').focus();
+}
+function tourPlace(){
+  if (!tourActive) return;
+  const step = tourSteps()[tourIdx]; if (!step) return;
+  const r = document.querySelector(step.sel).getBoundingClientRect(), pad = 6;
+  const { spot, card } = tourEls;
+  Object.assign(spot.style, { top: (r.top - pad) + 'px', left: (r.left - pad) + 'px', width: (r.width + pad * 2) + 'px', height: (r.height + pad * 2) + 'px' });
+  const w = card.offsetWidth, h = card.offsetHeight, gap = 14, m = 16;
+  const fits = [
+    [r.bottom + gap, r.left + r.width / 2 - w / 2, r.bottom + gap + h <= innerHeight - m],
+    [r.top - gap - h, r.left + r.width / 2 - w / 2, r.top - gap - h >= m],
+    [r.top, r.right + gap, r.right + gap + w <= innerWidth - m],
+    [r.top, r.left - gap - w, r.left - gap - w >= m],
+  ].find(f => f[2]) || [innerHeight / 2 - h / 2, innerWidth / 2 - w / 2];
+  card.style.top = Math.max(m, Math.min(fits[0], innerHeight - h - m)) + 'px';
+  card.style.left = Math.max(m, Math.min(fits[1], innerWidth - w - m)) + 'px';
+}
+function endTour(){
+  if (!tourActive) return;
+  tourActive = false;
+  Object.values(tourEls).forEach(el => el.remove()); tourEls = null;
+  state.onboarded = true; saveState();
+  if (tourReturn && tourReturn.focus) tourReturn.focus();
+}
+window.addEventListener('resize', tourPlace);
+document.addEventListener('keydown', e => {
+  if (!tourActive) return;
+  if (e.key === 'Escape'){ e.preventDefault(); endTour(); }
+  else if (e.key === 'Tab'){
+    const btns = [...tourEls.card.querySelectorAll('button:not([hidden])')];
+    const i = btns.indexOf(document.activeElement);
+    e.preventDefault();
+    btns[(i + (e.shiftKey ? -1 : 1) + btns.length) % btns.length].focus();
+  }
+}, true);
+$('#helpBtn').addEventListener('click', startTour);
+
 /* Khởi động */
 loadState(); applyTheme();
 { const lastEx = EX.find(e => e.id === state.last); if (lastEx && !lastEx.free) state.week = lastEx.week; }
 buildNav();
 appPaneInit();
 select(EX.some(e => e.id === state.last) ? state.last : '1.1', false);
+if (!state.onboarded){
+  if (Object.keys(state.status).length || Object.keys(state.codes).length){ state.onboarded = true; saveState(); }
+  else setTimeout(startTour, 500);
+}
 </script>
 </body>
 </html>
