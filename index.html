@@ -82,7 +82,7 @@ code,kbd,pre{font-family:var(--mono);font-variant-ligatures:none}
 .dot.edited{background:var(--cell-edited)} .dot.pass{background:var(--pass)} .dot.fail{background:var(--fail)}
 .dot.free{background:transparent;border:1.5px solid var(--ink-3)}
 
-.main{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,390px);grid-template-rows:auto minmax(0,1fr) minmax(170px,34%);grid-template-areas:"tool brief" "editor brief" "panel brief"}
+.main{--brief-w:390px;position:relative;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,var(--brief-w),calc(100% - 360px));grid-template-rows:auto minmax(0,1fr) minmax(170px,34%);grid-template-areas:"tool brief" "editor brief" "panel brief"}
 
 /* Brief */
 .brief{grid-area:brief;overflow:auto;background:var(--surface);border-left:1px solid var(--line);padding:22px 24px 30px}
@@ -219,7 +219,14 @@ code,kbd,pre{font-family:var(--mono);font-variant-ligatures:none}
 .sugg-note{margin-top:6px;font-weight:600}
 #appPick.on{color:var(--accent);border-color:var(--accent)}
 .app-hint{font-size:13.5px;color:var(--ink-2);margin:0 0 10px}
-@media (min-width:1100px){ .main.wide{grid-template-columns:minmax(0,1fr) minmax(400px,46%)} }
+@media (min-width:1100px){ .main.wide{--brief-w:max(400px,46%)} }
+/* Thanh kéo đổi độ rộng giữa phần code và phần bài giảng */
+.splitter{position:absolute;top:0;bottom:0;right:clamp(300px,var(--brief-w),calc(100% - 360px));width:10px;transform:translateX(50%);z-index:3;cursor:col-resize;touch-action:none}
+.splitter::after{content:"";position:absolute;top:0;bottom:0;left:4px;width:2px;background:transparent;transition:background .15s}
+.splitter:hover::after,.splitter:focus-visible::after,body.resizing .splitter::after{background:var(--accent)}
+.splitter:focus-visible{outline:none}
+body.resizing{cursor:col-resize;user-select:none;-webkit-user-select:none}
+body.resizing iframe{pointer-events:none}
 .weeks{display:inline-flex;gap:2px;padding:3px;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;flex:none}
 .weeks button{border:0;background:none;padding:5px 12px;border-radius:6px;font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;white-space:nowrap}
 .weeks button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
@@ -306,6 +313,7 @@ kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-r
   .toolbar{position:sticky;top:0;z-index:2}
   .editor{height:56vh;min-height:300px;flex:none}
   .panel{min-height:230px;max-height:55vh;flex:none}
+  .splitter{display:none}
 }
 /* Small: drawer */
 @media (max-width:759px){
@@ -343,12 +351,12 @@ kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-r
     <button class="icon-btn menu-btn" id="menuBtn" aria-label="Mở danh sách bài" aria-expanded="false">☰ Bài tập</button>
     <div class="brand">
       <h1>Trở thành SDET từ Zero</h1>
-      <p id="weekSub">Tuần 1: nền tảng cho SDET</p>
+      <p id="weekSub">Tuần 1: nền tảng JavaScript</p>
     </div>
     <div class="weeks" role="group" aria-label="Chọn tuần">
       <button data-week="1" aria-pressed="true" data-tip-title="Tuần 1: JavaScript nền tảng" data-tip="Biến, điều kiện, vòng lặp, function, chuỗi và mảng qua 25 bài. Nền tảng để đọc và tự viết được code test.">Tuần 1</button>
-      <button data-week="2" aria-pressed="false" data-tip-title="Tuần 2: Ôn tập qua thuật toán" data-tip="18 bài thuật toán kinh điển hay gặp khi phỏng vấn, giúp dùng thành thạo kiến thức tuần 1.">Tuần 2</button>
-      <button data-week="3" aria-pressed="false" data-tip-title="Tuần 3: JavaScript hiện đại" data-tip="Cú pháp dùng hằng ngày trong Playwright: arrow function, destructuring, map/filter, async/await. 7 bài bắt buộc, phần còn lại là nâng cao.">Tuần 3</button>
+      <button data-week="2" aria-pressed="false" data-tip-title="Tuần 2: Ôn tập qua thuật toán" data-tip="18 bài thuật toán cơ bản hay gặp khi phỏng vấn, giúp dùng thành thạo kiến thức tuần 1.">Tuần 2</button>
+      <button data-week="3" aria-pressed="false" data-tip-title="Tuần 3: JavaScript nâng cao" data-tip="Cú pháp dùng hằng ngày trong Playwright: arrow function, destructuring, map/filter, async/await. 7 bài bắt buộc, phần còn lại là nâng cao.">Tuần 3</button>
       <button data-week="4" aria-pressed="false" data-tip-title="Tuần 4: Playwright + TypeScript" data-tip="Viết test tự động trên trang Sàn Demo: locator, assertion, Page Object Model, fixture, đến một dự án POM hoàn chỉnh.">Tuần 4</button>
       <button data-week="5" aria-pressed="false" data-tip-title="Tuần 5: CI/CD với GitHub Actions" data-tip="Cho bộ test tự chạy khi push code: workflow, secrets, artifact, matrix, sharding và chạy theo lịch.">Tuần 5</button>
     </div>
@@ -399,6 +407,8 @@ kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-r
           </div>
         </div>
       </section>
+      <div class="splitter" id="splitter" role="separator" aria-orientation="vertical" aria-label="Độ rộng phần bài giảng" aria-valuemin="300" tabindex="0"
+           data-tip="Kéo sang trái hoặc phải để đổi độ rộng phần bài giảng. Bấm đúp để trả về mặc định."></div>
 
       <div class="toolbar">
         <button class="btn primary" id="runBtn" data-tip-title="Chạy" data-tip="Chạy code trong ô soạn thảo. Kết quả console.log hiện ở tab Console bên dưới. Phím tắt: Ctrl + Enter.">Chạy</button>
@@ -2227,7 +2237,7 @@ EX.push(...EX2);
 Object.assign(LESSONS, {
 'w2.1': { html:`
 <h3>Tuần 2 học gì</h3>
-<p>Tuần này không có cú pháp mới. Bạn chỉ dùng vòng lặp, chuỗi, mảng, object của tuần 1 để giải 18 bài thuật toán kinh điển mức dễ. Mục tiêu là luyện tư duy chia bài toán thành từng bước, kỹ năng cần cho cả viết test automation lẫn vòng phỏng vấn coding của vị trí SDET (thường ra đúng các bài ở mức này).</p>
+<p>Tuần này không có cú pháp mới. Bạn chỉ dùng vòng lặp, chuỗi, mảng, object của tuần 1 để giải 18 bài thuật toán cơ bản. Mục tiêu là luyện tư duy chia bài toán thành từng bước, kỹ năng cần cho cả viết test automation lẫn vòng phỏng vấn coding của vị trí SDET (thường ra đúng các bài ở mức này).</p>
 <h3>Giải một bài thuật toán theo 4 bước</h3>
 <ul>
 <li><strong>Hiểu đề:</strong> input là gì, output là gì, có trường hợp đặc biệt nào (rỗng, một phần tử, trùng lặp, số âm).</li>
@@ -3883,7 +3893,7 @@ console.log(\`Tổng: \${passed + failed} | Pass: \${passed} | Fail: \${failed}\
 });
 
 /* =========================================================
-   TUẦN 3: JAVASCRIPT HIỆN ĐẠI (ES6+)
+   TUẦN 3: JAVASCRIPT NÂNG CAO (ES6+)
    ========================================================= */
 const H1 = 'Arrow function và destructuring', H2 = 'Method của mảng', H3 = 'Bất đồng bộ: async/await';
 const H4 = 'Nâng cao (không bắt buộc): cú pháp và mảng', H5 = 'Nâng cao (không bắt buộc): bất đồng bộ';
@@ -11544,7 +11554,7 @@ const briefEl = $('#brief'), sideEl = $('#side'), stripEl = $('#strip'), countEl
 const consoleEl = $('#paneConsole'), testsEl = $('#paneTests'), badgeEl = $('#testBadge');
 const runBtn = $('#runBtn'), checkBtn = $('#checkBtn'), markBtn = $('#markBtn'), resetBtn = $('#resetBtn'), copyBtn = $('#copyBtn');
 let current = EX[1];
-const WEEK_SUB = { 1: 'Tuần 1: nền tảng cho SDET', 2: 'Tuần 2: ôn tập qua thuật toán kinh điển', 3: 'Tuần 3: JavaScript hiện đại (ES6+)', 4: 'Tuần 4: Automation với Playwright + TypeScript', 5: 'Tuần 5: CI/CD pipeline với GitHub Actions' };
+const WEEK_SUB = { 1: 'Tuần 1: nền tảng JavaScript', 2: 'Tuần 2: ôn tập qua thuật toán cơ bản', 3: 'Tuần 3: JavaScript nâng cao (ES6+)', 4: 'Tuần 4: Automation với Playwright + TypeScript', 5: 'Tuần 5: CI/CD pipeline với GitHub Actions' };
 // Bài optional hiện trong danh sách nhưng không tính vào thanh tiến độ và số bài xong.
 function graded(w){ return EX.filter(e => !e.free && !e.optional && e.week === w); }
 function exLabel(ex){ return ex.free ? 'Luyện tự do' : (ex.week > 1 ? 'Tuần ' + ex.week + ', bài ' : 'Bài ') + ex.num; }
@@ -11687,6 +11697,7 @@ function select(id, focusEditor){
   renderHL(); renderGutter(); renderFileBar();
   renderBrief(); renderToolbar(); refreshStatus();
   document.querySelector('.main').classList.toggle('wide', !!(ex.pw || ex.ci));
+  applyBriefWidth();
   if (ex.ci) ciPaneSetup(ex);
   if (ex.pw && !running){ App.init().then(() => { App.reset(); App.navigate(ex.route || '/login'); }); }
   clearConsole(true); resetTests();
@@ -12357,6 +12368,46 @@ document.addEventListener('keydown', e => {
   }
 }, true);
 $('#helpBtn').addEventListener('click', startTour);
+
+/* =========================================================
+   KÉO ĐỔI ĐỘ RỘNG phần bài giảng (màn hình từ 1100px).
+   Bài có Trang web / Pipeline (.wide) nhớ độ rộng riêng.
+   ========================================================= */
+const mainEl = document.querySelector('.main'), splitter = $('#splitter');
+const BRIEF_MIN = 300, EDITOR_MIN = 360;
+function briefKey(){ return mainEl.classList.contains('wide') ? 'wide' : 'normal'; }
+function applyBriefWidth(){
+  const w = (state.briefW || {})[briefKey()];
+  if (w) mainEl.style.setProperty('--brief-w', w + 'px'); else mainEl.style.removeProperty('--brief-w');
+}
+function setBriefWidth(px){
+  const max = mainEl.getBoundingClientRect().width - EDITOR_MIN;
+  px = Math.round(Math.max(BRIEF_MIN, Math.min(px, max)));
+  state.briefW = Object.assign({}, state.briefW, { [briefKey()]: px });
+  mainEl.style.setProperty('--brief-w', px + 'px');
+  splitter.setAttribute('aria-valuenow', px);
+}
+splitter.addEventListener('pointerdown', e => {
+  if (e.button !== 0) return;
+  e.preventDefault(); hideTip();
+  splitter.setPointerCapture(e.pointerId);
+  document.body.classList.add('resizing');
+});
+splitter.addEventListener('pointermove', e => {
+  if (splitter.hasPointerCapture(e.pointerId)) setBriefWidth(mainEl.getBoundingClientRect().right - e.clientX);
+});
+splitter.addEventListener('lostpointercapture', () => { document.body.classList.remove('resizing'); saveState(); });
+splitter.addEventListener('dblclick', () => {
+  if (state.briefW) delete state.briefW[briefKey()];
+  applyBriefWidth(); saveState();
+});
+splitter.addEventListener('keydown', e => {
+  const step = e.shiftKey ? 80 : 24, cur = $('#briefWrap').getBoundingClientRect().width;
+  if (e.key === 'ArrowLeft') setBriefWidth(cur + step);
+  else if (e.key === 'ArrowRight') setBriefWidth(cur - step);
+  else return;
+  e.preventDefault(); saveState();
+});
 
 /* Khởi động */
 loadState(); applyTheme();
