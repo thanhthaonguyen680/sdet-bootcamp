@@ -47,7 +47,7 @@ html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-code,kbd,pre{font-family:var(--mono)}
+code,kbd,pre{font-family:var(--mono);font-variant-ligatures:none}
 
 .app{height:100%;display:flex;flex-direction:column}
 
@@ -110,6 +110,14 @@ code,kbd,pre{font-family:var(--mono)}
 .lesson li{margin:4px 0}
 .lesson code{font-size:.86em;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:0 4px}
 .lesson .note code{background:var(--surface)}
+.anat{margin:0 0 16px;border:1px solid var(--line);border-radius:8px;background:var(--surface);overflow:hidden}
+.lesson .anat .anat-code{margin:0;padding:12px 14px 8px;background:var(--ed-bg);border:0;border-bottom:1px solid var(--line);border-radius:0;font-size:14px;line-height:2.1;white-space:pre-wrap;overflow-wrap:break-word}
+.anat-p{color:var(--c);font-weight:500;border-bottom:2px solid var(--c)}
+.anat-p sup{font:700 10.5px/1 var(--sans);margin-left:2px;color:var(--c)}
+.anat-list{margin:0;padding:10px 14px 10px 34px;font-size:14px}
+.anat-list li{margin:6px 0}
+.anat-list li::marker{color:var(--ink-3);font-weight:600}
+.lesson .anat-list code.anat-tok{color:var(--c);font-weight:600}
 .ex-block{position:relative;margin:0 0 16px;border:1px solid var(--line);border-radius:8px;background:var(--ed-bg);overflow:hidden}
 .ex-block pre{margin:0;padding:12px 14px;font-size:12.5px;line-height:1.6;overflow-x:auto;white-space:pre}
 .ex-block pre code{background:none;border:0;padding:0;font-size:inherit}
@@ -219,6 +227,7 @@ code,kbd,pre{font-family:var(--mono)}
 .tbl table{border-collapse:collapse;min-width:100%;font-size:13px}
 .tbl th,.tbl td{border:1px solid var(--line);padding:5px 9px;text-align:left;vertical-align:top;white-space:nowrap}
 .tbl th{background:var(--surface-2);font-weight:600}
+@media (max-width: 600px){ .tbl th,.tbl td{white-space:normal} }
 .lesson pre:not(.ex-block pre){margin:0 0 14px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;font-size:12.5px;line-height:1.5;overflow-x:auto}
 .gate{border:1px dashed var(--ink-3);border-radius:10px;padding:16px 18px;background:var(--surface-2)}
 .gate p{margin:0 0 10px}
@@ -1012,19 +1021,38 @@ test('Trả về true / false', () => { let a, b; captureLogs(() => { a = expect
    Ví dụ { code, run:false } chỉ để đọc, không có nút chạy.
    ========================================================= */
 const L = (...lines) => lines.join('\n');
+// Mổ xẻ một câu lệnh: chuỗi thường là phần không giải thích, [phần, giải_thích] được tô màu và đánh số.
+const ANAT_C = ['--sx-k', '--sx-f', '--sx-s', '--sx-n', '--fail', '--warn'];
+const ANAT = (...segs) => {
+  const e = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const items = [];
+  const code = segs.map(sg => {
+    if (typeof sg === 'string') return e(sg);
+    const c = 'style="--c:var(' + ANAT_C[items.length % ANAT_C.length] + ')"';
+    items.push('<li><code class="anat-tok" ' + c + '>' + e(sg[0].trim()) + '</code> ' + sg[1] + '</li>');
+    return '<span class="anat-p" ' + c + '>' + e(sg[0]) + '<sup>' + items.length + '</sup></span>';
+  }).join('');
+  return '<div class="anat"><pre class="anat-code">' + code + '</pre><ol class="anat-list">' + items.join('') + '</ol></div>';
+};
 const LESSONS = {
 '1.1': { html:`
 <h3>Biến là gì</h3>
-<p>Biến là một cái tên gắn với một giá trị để dùng lại nhiều lần. JavaScript hiện đại có hai cách khai báo:</p>
+<p>Biến là một cái tên gắn với một giá trị để dùng lại nhiều lần. Hình dung như một chiếc hộp có dán nhãn: nhãn là tên biến, đồ trong hộp là giá trị. Cần dùng giá trị thì chỉ việc gọi tên nhãn.</p>
+<p>Ví dụ dòng <code>const price = 2850;</code> đọc là "tạo biến tên <code>price</code> và gán cho nó giá trị <code>2850</code>". Tách từng phần:</p>
+${ANAT(['const', 'Từ khóa khai báo: báo cho JavaScript biết "tạo một biến mới". Biến tạo bằng <code>const</code> không gán lại giá trị khác được.'], ' ', ['price', 'Tên biến, do bạn tự đặt. Tên không có dấu cách, không bắt đầu bằng số, phân biệt hoa thường. Tên nhiều từ thì viết kiểu camelCase: <code>stockCode</code>, <code>isTrading</code>.'], ' ', ['=', 'Dấu <strong>gán</strong>, không phải dấu "bằng" trong toán. Đọc là "lấy giá trị bên phải cất vào tên bên trái". Muốn so sánh bằng thì dùng <code>===</code> (bài 1.2).'], ' ', ['2850', 'Giá trị được cất vào biến. Đây là số (<code>number</code>). Nếu viết <code>"2850"</code> có ngoặc kép thì lại là chuỗi (<code>string</code>).'], [';', 'Dấu kết thúc câu lệnh, giống dấu chấm cuối câu.'])}
+<p>Sau dòng này, ở đâu viết <code>price</code> thì JavaScript hiểu là <code>2850</code>. JavaScript hiện đại có hai từ khóa để khai báo biến:</p>
 <ul>
 <li><code>const</code>: không gán lại được. Đây là lựa chọn mặc định.</li>
 <li><code>let</code>: gán lại được, dùng khi giá trị thay đổi như biến đếm, biến cộng dồn.</li>
 <li><code>var</code>: cách cũ, có nhiều hành vi khó lường. Không dùng nữa.</li>
 </ul>
 {{ex0}}
+<p>Dòng <code>console.log(count);</code> xuất hiện ở hầu hết ví dụ, nên hãy hiểu nó ngay từ bây giờ:</p>
+${ANAT(['console', 'Công cụ để in thông tin ra màn hình. Trong trang này, kết quả hiện ở tab <strong>Console</strong> bên phải.'], ['.log', 'Dấu chấm nghĩa là "lấy ra từ": lấy lệnh <code>log</code> (in ra) của <code>console</code>.'], ['(count)', 'Thứ cần in, đặt trong ngoặc tròn. Truyền tên biến thì in ra giá trị của biến. Muốn in nhiều thứ thì cách nhau bằng dấu phẩy: <code>console.log("Số lượng:", count)</code>.'], ';')}
 <h3>Các kiểu dữ liệu</h3>
 <p>Kiểu nguyên thủy gồm <code>string</code> (chuỗi), <code>number</code> (số, JS không tách số nguyên và số thực), <code>boolean</code> (true/false), <code>null</code> (cố ý để trống) và <code>undefined</code> (chưa có giá trị). Kiểu tham chiếu gồm <code>object</code> và mảng.</p>
 <p>Toán tử <code>typeof</code> cho biết kiểu của một giá trị:</p>
+${ANAT(['typeof', 'Toán tử hỏi "giá trị này thuộc kiểu gì?". Không cần ngoặc tròn.'], ' ', ['price', 'Giá trị cần hỏi, ở đây là biến <code>price</code> đang giữ <code>2850</code>.'], '  // → ', ['"number"', 'Kết quả luôn là một <strong>chuỗi</strong> ghi tên kiểu: <code>"string"</code>, <code>"number"</code>, <code>"boolean"</code>...'])}
 {{ex1}}
 <p class="note">Góc QA: API trả về <code>"7203"</code> (chuỗi) khác với <code>7203</code> (số). Kiểm tra đúng kiểu dữ liệu là một phần quan trọng khi verify response.</p>`,
 examples:[String.raw`const stockCode = "7203";
@@ -1044,6 +1072,8 @@ console.log(typeof [1, 2]);     // object (mảng cũng là object)`]},
 <h3>Hai kiểu so sánh bằng</h3>
 <p><code>===</code> (so sánh nghiêm ngặt) chỉ trả về <code>true</code> khi hai vế cùng kiểu và cùng giá trị. <code>==</code> (so sánh lỏng) tự chuyển kiểu hai vế rồi mới so sánh, nên hay cho kết quả khó đoán.</p>
 {{ex0}}
+<p>Đọc từng phần của một phép so sánh:</p>
+${ANAT(['5', 'Vế trái: số 5, kiểu <code>number</code>.'], ' ', ['===', 'So sánh nghiêm ngặt: phải cùng kiểu <strong>và</strong> cùng giá trị.'], ' ', ['"5"', 'Vế phải: chuỗi "5", kiểu <code>string</code>. Nhìn giống số nhưng có ngoặc kép.'], '  // → ', ['false', 'Kết quả của phép so sánh luôn là <code>true</code> hoặc <code>false</code> (kiểu <code>boolean</code>). Ở đây khác kiểu nên là <code>false</code>. Nếu dùng <code>==</code> thì "5" bị đổi thành 5 trước, kết quả lại là <code>true</code>.'])}
 <p>Quy tắc: luôn dùng <code>===</code> và <code>!==</code>. Nếu thấy <code>==</code> trong code của người khác, hãy đọc kỹ vì đó là chỗ dễ có bug.</p>
 <h3>Hai điều lạ cần nhớ</h3>
 <ul>
@@ -1064,12 +1094,15 @@ console.log(Array.isArray([]));  // true`]},
 <h3>Truthy và falsy</h3>
 <p>Khi đặt một giá trị vào <code>if</code>, JavaScript tự đổi nó thành true hoặc false. Giá trị bị đổi thành false gọi là <em>falsy</em>, còn lại là <em>truthy</em>.</p>
 <p>Chỉ có đúng 6 giá trị falsy: <code>false</code>, <code>0</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code>. Mọi thứ khác đều truthy, kể cả <code>"0"</code>, <code>" "</code>, <code>[]</code> và <code>{}</code>.</p>
+<p>Cấu trúc của câu lệnh <code>if</code>:</p>
+${ANAT(['if', 'Từ khóa "nếu".'], ' ', ['(x)', 'Điều kiện, luôn nằm trong ngoặc tròn. Có thể là phép so sánh như <code>(n &gt; 0)</code>, hoặc chỉ một giá trị như <code>(x)</code>: khi đó JavaScript tự đổi <code>x</code> sang true/false theo luật truthy/falsy.'], ' ', ['{\n  console.log("chạy");\n}', 'Khối lệnh trong ngoặc nhọn, chỉ chạy khi điều kiện là true. Có thể viết nhiều dòng bên trong.'])}
 {{ex0}}
 <h3>Bẫy hay gặp khi test</h3>
 <p>Số lượng bằng 0 là dữ liệu hợp lệ, nhưng <code>if</code> lại coi là "không có":</p>
 {{ex1}}
 <h3>Viết một function nhỏ</h3>
 <p>Bài tập cần viết function trả về giá trị. Từ khóa <code>return</code> trả kết quả và kết thúc function ngay lập tức:</p>
+${ANAT(['function', 'Từ khóa khai báo function: một đoạn code có tên, gọi lại được nhiều lần.'], ' ', ['checkSign', 'Tên function, đặt giống tên biến. Nên là động từ hoặc câu hỏi.'], ['(n)', 'Tham số: tên tạm cho giá trị được truyền vào khi gọi. Gọi <code>checkSign(5)</code> thì bên trong <code>n</code> là 5.'], ' {\n  ', ['return "dương";', '<code>return</code> trả kết quả ra ngoài và <strong>kết thúc function ngay</strong>, các dòng sau không chạy nữa.'], '\n}')}
 {{ex2}}`,
 examples:[String.raw`if ("") console.log("dòng này không in");
 if ("0") console.log("chuỗi \"0\" là truthy");
@@ -1097,6 +1130,7 @@ console.log(checkSign(-2));`]},
 '2.1': { html:`
 <h3>if, else if, else</h3>
 <p>Toán tử so sánh: <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code> <code>===</code> <code>!==</code>. Kết hợp nhiều điều kiện bằng <code>&amp;&amp;</code> (và), <code>||</code> (hoặc), <code>!</code> (phủ định).</p>
+${ANAT(['if', 'Nếu...'], ' (', ['price >= 2000', 'Điều kiện thứ nhất: price lớn hơn hoặc bằng 2000.'], ' ', ['&&', '"Và": cả hai vế đều đúng thì cả biểu thức mới đúng. Chỉ cần một vế đúng thì dùng <code>||</code> ("hoặc").'], ' ', ['price <= 3000', 'Điều kiện thứ hai: price nhỏ hơn hoặc bằng 3000.'], ') { ... }\n', ['else if', '"Còn nếu...": chỉ được xét khi các điều kiện phía trên đều sai.'], ' (price > 3000) { ... }\n', ['else', '"Còn lại": chạy khi mọi điều kiện phía trên đều sai. Không có ngoặc tròn.'], ' { ... }')}
 {{ex0}}
 <p>Các điều kiện được xét từ trên xuống, gặp nhánh đúng đầu tiên thì dừng.</p>
 <h3>Return sớm</h3>
@@ -1121,6 +1155,7 @@ console.log(grade(95), grade(75), grade(10));`]},
 '2.2': { html:`
 <h3>Cú pháp switch</h3>
 <p><code>switch</code> so sánh một giá trị với nhiều <code>case</code> bằng phép <code>===</code>. Hợp khi có nhiều nhánh dựa trên cùng một giá trị.</p>
+${ANAT(['switch (side)', 'Giá trị đem đi so, ở đây là biến <code>side</code>.'], ' {\n  ', ['case "buy":', 'Nếu <code>side === "buy"</code> thì bắt đầu chạy từ dòng này. Chú ý dấu hai chấm ở cuối.'], '\n    console.log("Lệnh mua");\n    ', ['break;', 'Thoát khỏi <code>switch</code>. Thiếu dòng này thì chạy tiếp xuống case bên dưới.'], '\n  ', ['default:', 'Không <code>case</code> nào khớp thì chạy ở đây, giống <code>else</code>.'], '\n    console.log("Không hợp lệ");\n}')}
 {{ex0}}
 <h3>Đừng quên break</h3>
 <p>Thiếu <code>break</code> thì code sẽ "rơi" xuống chạy tiếp case bên dưới:</p>
@@ -1165,6 +1200,7 @@ console.log(Math.floor(2850 / 1000));  // 2`]},
 '2.3': { html:`
 <h3>Toán tử ba ngôi</h3>
 <p>Cú pháp: <code>điều_kiện ? giá_trị_nếu_đúng : giá_trị_nếu_sai</code>. Khác với <code>if</code>, đây là một biểu thức nên trả về giá trị, có thể gán vào biến hoặc đặt ngay sau <code>return</code>.</p>
+${ANAT('const color = ', ['change >= 0', 'Điều kiện cần kiểm tra.'], ' ', ['?', 'Dấu hỏi: "nếu đúng thì lấy..."'], ' ', ['"Xanh"', 'Giá trị khi điều kiện đúng.'], ' ', [':', 'Dấu hai chấm: "còn không thì lấy..."'], ' ', ['"Đỏ"', 'Giá trị khi điều kiện sai. Kết quả cuối cùng được gán vào <code>color</code>.'], ';')}
 {{ex0}}
 <h3>Lồng nhau</h3>
 <p>Khi có ba kết quả, có thể lồng hai toán tử. Chỉ nên lồng một cấp, nhiều hơn thì dùng <code>if</code> cho dễ đọc.</p>
@@ -1180,9 +1216,11 @@ console.log(sign(3), sign(-2), sign(0));`]},
 '2.4': { html:`
 <h3>Optional chaining <code>?.</code></h3>
 <p>Truy cập thuộc tính của <code>null</code> hoặc <code>undefined</code> sẽ gây lỗi và dừng chương trình. <code>?.</code> dừng lại an toàn và trả về <code>undefined</code> thay vì báo lỗi.</p>
+${ANAT(['res.data.user', 'Đi lần lượt vào từng tầng của object: <code>res</code> → <code>data</code> → <code>user</code>. Ở ví dụ dưới, <code>user</code> là <code>null</code>.'], ['?.', '"Nếu phía trước là null/undefined thì dừng và trả về undefined, còn không thì đi tiếp". Thay cho dấu chấm thường ở chỗ có thể bị thiếu.'], ['name', 'Thuộc tính muốn lấy. Chỉ được đọc khi <code>user</code> có giá trị.'])}
 {{ex0}}
 <h3>Nullish coalescing <code>??</code></h3>
 <p><code>a ?? b</code> trả về <code>b</code> chỉ khi <code>a</code> là <code>null</code> hoặc <code>undefined</code>. Còn <code>a || b</code> trả về <code>b</code> với mọi giá trị falsy, kể cả <code>0</code> và <code>""</code>.</p>
+${ANAT(['qty', 'Giá trị cần kiểm tra.'], ' ', ['??', '"Nếu vế trái là null hoặc undefined thì dùng vế phải". 0, "" hay false vẫn được giữ nguyên.'], ' ', ['10', 'Giá trị dự phòng.'])}
 {{ex1}}
 <h3>Kết hợp cả hai</h3>
 {{ex2}}
@@ -1205,9 +1243,12 @@ console.log(lang);  // "ja"`]},
 '3.1': { html:`
 <h3>Vòng lặp for</h3>
 <p>Vòng lặp <code>for</code> có ba phần trong ngoặc, cách nhau bằng dấu chấm phẩy: khởi tạo biến đếm, điều kiện để tiếp tục, và bước nhảy sau mỗi vòng.</p>
+${ANAT('for (', ['let i = 1', 'Khởi tạo: tạo biến đếm <code>i</code> bằng 1. Chỉ chạy <strong>một lần</strong> lúc bắt đầu. Dùng <code>let</code> vì <code>i</code> sẽ thay đổi.'], '; ', ['i <= 5', 'Điều kiện: kiểm tra <strong>trước</strong> mỗi vòng. Còn đúng thì chạy tiếp, sai thì dừng.'], '; ', ['i++', 'Bước nhảy: chạy <strong>sau</strong> mỗi vòng. <code>i++</code> là viết tắt của <code>i = i + 1</code>.'], ') ', ['{\n  console.log("Lần", i);\n}', 'Thân vòng lặp: chạy một lần cho mỗi giá trị của <code>i</code> (1, 2, 3, 4, 5).'])}
+<p>Thứ tự chạy: khởi tạo → kiểm tra → thân → bước nhảy → kiểm tra → thân → ... cho tới khi điều kiện sai.</p>
 {{ex0}}
 <h3>Toán tử chia lấy dư %</h3>
 <p><code>a % b</code> trả về phần dư khi chia <code>a</code> cho <code>b</code>. Nếu kết quả bằng 0 thì <code>a</code> chia hết cho <code>b</code>.</p>
+${ANAT(['10', 'Số bị chia.'], ' ', ['%', 'Toán tử chia lấy dư.'], ' ', ['3', 'Số chia.'], '  // → ', ['1', 'Phần dư: 10 = 3 × 3 + <strong>1</strong>. Dư bằng 0 nghĩa là chia hết.'])}
 {{ex1}}
 <h3>Thứ tự điều kiện</h3>
 <p>Khi các điều kiện chồng lên nhau, điều kiện <strong>cụ thể nhất phải kiểm tra trước</strong>. Số 15 chia hết cho 3, nên nếu kiểm tra "chia hết cho 3" trước thì sẽ không bao giờ tới được nhánh "chia hết cho 15".</p>`,
@@ -1222,8 +1263,13 @@ for (let i = 1; i <= 10; i++) {
 }`]},
 
 '3.2': { html:`
+<h3>Mảng</h3>
+<p>Mảng (array) là một danh sách giá trị có thứ tự, lưu trong một biến:</p>
+${ANAT('const codes = ', ['[', 'Ngoặc vuông mở đầu mảng.'], ['"7203", "6758", "9984"', 'Các phần tử, cách nhau bằng dấu phẩy. Mỗi phần tử có một số thứ tự gọi là <strong>index</strong>, bắt đầu từ 0: <code>"7203"</code> ở index 0, <code>"9984"</code> ở index 2.'], [']', 'Ngoặc vuông đóng mảng.'], ';\n', ['codes[0]', 'Lấy phần tử ở index 0, tức <code>"7203"</code>.'], '\n', ['codes.length', 'Số phần tử trong mảng, ở đây là 3.'])}
 <h3>for...of duyệt mảng</h3>
 <p><code>for...of</code> lấy lần lượt từng <strong>giá trị</strong> trong mảng, không cần quan tâm tới index.</p>
+${ANAT('for (', ['const code', 'Biến nhận từng phần tử. Mỗi vòng là một biến mới nên dùng <code>const</code> được. Tên do bạn đặt, thường là dạng số ít của tên mảng.'], ' ', ['of', '"lấy từng giá trị trong".'], ' ', ['codes', 'Mảng cần duyệt.'], ') { ... }')}
+<p>Đọc cả dòng: "với mỗi <code>code</code> trong <code>codes</code>, chạy khối lệnh". Vòng 1 <code>code</code> là "7203", vòng 2 là "6758", vòng 3 là "9984".</p>
 {{ex0}}
 <h3>Cộng dồn và tìm lớn nhất</h3>
 <p>Mẫu code rất hay dùng: khai báo biến bên ngoài vòng lặp, cập nhật nó trong mỗi vòng.</p>
@@ -1252,9 +1298,12 @@ console.log(avg.toFixed(2));               // "3.33" (kiểu string!)`]},
 '3.3': { html:`
 <h3>Object</h3>
 <p>Object lưu dữ liệu dạng cặp <code>key: value</code>. Truy cập bằng dấu chấm <code>obj.key</code>, hoặc bằng ngoặc vuông <code>obj["key"]</code> khi tên key nằm trong một biến.</p>
+${ANAT('const stock = ', ['{', 'Ngoặc nhọn mở đầu object.'], ' ', ['code', 'Key (tên thuộc tính).'], [':', 'Dấu hai chấm nối key với giá trị.'], ' ', ['"7203"', 'Value (giá trị) của key <code>code</code>.'], [',', 'Dấu phẩy ngăn cách các cặp key: value.'], ' name: "Toyota" ', ['}', 'Ngoặc nhọn đóng object.'], ';')}
+<p>Mảng dùng số thứ tự để lấy dữ liệu (<code>codes[0]</code>), còn object dùng tên (<code>stock.code</code>). Response API thường là object.</p>
 {{ex0}}
 <h3>for...in duyệt object</h3>
 <p><code>for...in</code> lấy lần lượt từng <strong>key</strong> của object. Muốn lấy giá trị thì dùng <code>obj[key]</code>.</p>
+${ANAT('for (', ['const subject', 'Biến nhận từng <strong>key</strong>: vòng 1 là <code>"math"</code>, vòng 2 là <code>"english"</code>...'], ' ', ['in', '"lấy từng key trong".'], ' ', ['scores', 'Object cần duyệt.'], ') {\n  console.log(subject, "→", ', ['scores[subject]', 'Lấy giá trị ứng với key đang xét. Phải dùng ngoặc vuông vì tên key nằm trong biến <code>subject</code>.'], ');\n}')}
 {{ex1}}
 <h3>Mẫu đếm theo điều kiện</h3>
 {{ex2}}
@@ -1281,6 +1330,8 @@ console.log("OK: " + ok);`]},
 '3.4': { html:`
 <h3>Vòng lặp while</h3>
 <p><code>while</code> lặp khi điều kiện còn đúng. Hợp với trường hợp không biết trước sẽ lặp bao nhiêu lần.</p>
+${ANAT(['while', '"Trong khi...".'], ' ', ['(attempt <= 3)', 'Điều kiện, kiểm tra trước mỗi vòng. Còn đúng thì chạy thân, sai thì dừng.'], ' {\n  console.log("Thử lần", attempt);\n  ', ['attempt++;', 'Dòng làm thay đổi điều kiện. Thiếu nó thì <code>attempt</code> mãi là 1 và vòng lặp không bao giờ dừng.'], '\n}')}
+<p>Khác <code>for</code>: <code>while</code> chỉ có điều kiện, phần khởi tạo và bước nhảy bạn tự viết ở trước và bên trong vòng lặp.</p>
 {{ex0}}
 <p>Luôn phải có thứ làm điều kiện thành sai, thường là tăng biến đếm. Quên dòng <code>attempt++</code> sẽ thành lặp vô hạn (công cụ này sẽ tự dừng sau 3 giây).</p>
 <h3>Thoát sớm với break</h3>
@@ -1321,6 +1372,9 @@ check(Math.random);`]},
 '4.1': { html:`
 <h3>Các cách khai báo function</h3>
 {{ex0}}
+<p>Khai báo function là tạo công thức, <strong>gọi</strong> function mới là nấu. Đọc từng phần của một lần gọi:</p>
+${ANAT('const total = ', ['add', 'Tên function cần gọi.'], ['(', 'Ngoặc tròn nghĩa là "chạy function này". Viết <code>add</code> không có ngoặc thì chỉ nhắc tới function, không chạy.'], ['2, 3', 'Đối số: giá trị thật truyền vào, theo đúng thứ tự tham số. 2 vào <code>a</code>, 3 vào <code>b</code>.'], ')', ';')}
+<p>Function chạy <code>return a + b</code> tức <code>return 2 + 3</code>, kết quả 5 thay vào chỗ <code>add(2, 3)</code> và được gán cho <code>total</code>.</p>
 <p>Tên function nên là động từ hoặc câu hỏi: <code>isValid...</code>, <code>has...</code> cho function trả về true/false, <code>get...</code>, <code>create...</code> cho function trả về dữ liệu.</p>
 <h3>Mẫu validate: loại trừ sớm</h3>
 <p>Kiểm tra từng điều kiện sai, gặp cái nào thì <code>return false</code> ngay. Qua được hết thì <code>return true</code>. Cách viết này gọi là guard clause.</p>
@@ -1355,6 +1409,9 @@ for (const ch of s) {
 
 '4.2': { html:`
 <h3>Chuyển số thành chuỗi và tách phần</h3>
+<p>Bài này dùng nhiều <strong>method</strong>: function đi kèm một giá trị, gọi bằng dấu chấm.</p>
+${ANAT('const parts = ', ['text', 'Giá trị cần xử lý, ở đây là chuỗi <code>"2850.5"</code>.'], ['.', 'Dấu chấm: gọi method của giá trị này.'], ['split', 'Tên method: tách chuỗi.'], ['(".")', 'Tham số của method: tách tại dấu chấm.'], ';  // → ', ['["2850", "5"]', 'Kết quả là một mảng. Method không sửa <code>text</code>, mà trả về giá trị mới nên cần gán vào biến.'])}
+
 {{ex0}}
 <h3>Duyệt ngược và ghép chuỗi</h3>
 <p>Vòng <code>for</code> có thể chạy lùi từ cuối về đầu. Ghép ký tự vào <strong>đầu</strong> chuỗi kết quả sẽ giữ nguyên thứ tự ban đầu.</p>
@@ -1387,6 +1444,7 @@ console.log(n.toLocaleString("ja-JP"));  // 1,234,567.8`]},
 '4.3': { html:`
 <h3>Tham số mặc định</h3>
 <p>Gán giá trị ngay trong khai báo tham số. Giá trị mặc định được dùng khi tham số không được truyền, hoặc truyền <code>undefined</code>.</p>
+${ANAT('function greet(', ['name', 'Tham số bình thường: không truyền thì là <code>undefined</code>.'], ', ', ['greeting = "Xin chào"', 'Tham số có giá trị mặc định: không truyền thì tự lấy <code>"Xin chào"</code>.'], ') { ... }\n\n', ['greet("An")', 'Chỉ truyền 1 đối số: <code>name</code> = "An", <code>greeting</code> dùng mặc định.'], '\n', ['greet("An", "Hello")', 'Truyền đủ 2: giá trị truyền vào thắng giá trị mặc định.'])}
 {{ex0}}
 <p>Lưu ý: truyền <code>null</code> thì <strong>không</strong> dùng giá trị mặc định.</p>
 <h3>Viết gọn object</h3>
@@ -1410,6 +1468,7 @@ console.log(order2);`]},
 '4.4': { html:`
 <h3>Rest parameter</h3>
 <p>Dấu ba chấm <code>...</code> trước tham số cuối cùng gom tất cả đối số còn lại vào một <strong>mảng thật</strong>. Nhờ vậy function nhận được số lượng tham số bất kỳ.</p>
+${ANAT('function logAll(', ['label', 'Tham số thường, nhận đối số thứ nhất.'], ', ', ['...items', 'Ba chấm + tên: gom <strong>tất cả</strong> đối số còn lại vào mảng <code>items</code>.'], ') { ... }\n\nlogAll(', ['"B"', 'Vào <code>label</code>.'], ', ', ['1, 2, 3', 'Vào <code>items</code>, thành mảng <code>[1, 2, 3]</code>. Không truyền thêm gì thì <code>items</code> là mảng rỗng <code>[]</code>.'], ');')}
 {{ex0}}
 <p>Rest parameter phải đứng cuối cùng. Vì là mảng thật nên dùng được <code>length</code>, <code>for...of</code> và mọi method của mảng.</p>
 {{ex1}}`,
@@ -1431,6 +1490,7 @@ console.log(multiplyAll(2, 3, 4));  // 24`]},
 {{ex0}}
 <h3>Function trả về function</h3>
 {{ex1}}
+${ANAT('function makeGreeter(', ['prefix', 'Tham số của function <strong>ngoài</strong>.'], ') {\n  ', ['return function (name) {', 'Trả về một function <strong>mới</strong>, chưa chạy. Function này không có tên, nhận tham số <code>name</code>.'], '\n    return ', ['prefix', 'Function trong dùng <code>prefix</code> của function ngoài. Đây là chỗ closure xảy ra.'], ' + " " + name;\n  };\n}\n', ['const hello = makeGreeter("Hello");', '<code>hello</code> giờ là một function, và nó nhớ <code>prefix = "Hello"</code>.'], '\n', ['hello("An")', 'Gọi function đã nhận về. Kết quả <code>"Hello An"</code>.'])}
 <h3>Closure</h3>
 <p>Function bên trong <strong>nhớ</strong> các biến của function bên ngoài, kể cả khi function bên ngoài đã chạy xong. Mỗi lần gọi function bên ngoài lại tạo ra một bộ biến mới, độc lập với lần gọi trước.</p>
 {{ex2}}
@@ -1471,6 +1531,7 @@ console.log(logB("logout"));  // ["logout"], độc lập với logA`]},
 <p><code>split(dấu_tách)</code> cắt chuỗi tại mọi vị trí có dấu tách. Nếu không có dấu tách nào, kết quả là mảng chỉ có một phần tử.</p>
 {{ex1}}
 <h3>Thêm key vào object bằng biến</h3>
+${ANAT(['result', 'Object cần thêm key.'], ['[key]', 'Ngoặc vuông: tên key lấy <strong>từ giá trị của biến</strong> <code>key</code>, tức <code>"side"</code>. Viết <code>result.key</code> thì lại tạo key có tên đúng là chữ "key".'], ' ', ['=', 'Gán.'], ' ', ['"buy"', 'Giá trị. Sau dòng này <code>result</code> là <code>{ side: "buy" }</code>.'], ';')}
 {{ex2}}
 <p class="note">Góc QA: trong Playwright bạn sẽ thường xuyên lấy URL hiện tại rồi kiểm tra query parameter. JavaScript có sẵn <code>new URL(url).searchParams</code> để làm việc này, nhưng tự viết một lần giúp bạn hiểu rõ nó hoạt động thế nào.</p>`,
 examples:[String.raw`const url = "https://devstg.example.jp/order";
@@ -1493,9 +1554,12 @@ console.log(result);`]},
 
 '5.2': { html:`
 <h3>Làm sạch chuỗi</h3>
+${ANAT(['str', 'Chuỗi ban đầu, ví dụ <code>"  Hello  "</code>.'], ['.trim()', 'Bỏ khoảng trắng ở hai đầu, trả về chuỗi mới <code>"Hello"</code>.'], ['.toLowerCase()', 'Chạy trên <strong>kết quả</strong> của <code>trim()</code>, trả về <code>"hello"</code>.'])}
+<p>Đọc từ trái sang phải: mỗi method nhận kết quả của method đứng trước. Chuỗi gốc <code>str</code> không bị thay đổi.</p>
 {{ex0}}
 <h3>replace và regex</h3>
 <p><code>replace</code> chỉ thay chỗ xuất hiện đầu tiên, <code>replaceAll</code> thay tất cả. Muốn thay theo mẫu (ví dụ "một hoặc nhiều khoảng trắng") thì dùng regex: <code>/\\s+/g</code> nghĩa là một hoặc nhiều ký tự khoảng trắng (<code>\\s+</code>), áp dụng cho toàn chuỗi (<code>g</code>).</p>
+${ANAT(['/', 'Dấu mở đầu regex (mẫu tìm kiếm).'], ['\\s', 'Một ký tự khoảng trắng bất kỳ: dấu cách, tab, xuống dòng.'], ['+', '"Một hoặc nhiều" ký tự đứng ngay trước. <code>\\s+</code> là một cụm khoảng trắng liền nhau.'], ['/', 'Dấu kết thúc regex.'], ['g', 'Cờ global: thay <strong>tất cả</strong> chỗ khớp, không chỉ chỗ đầu tiên.'])}
 {{ex1}}
 <p>Các method trả về chuỗi mới nên có thể nối tiếp nhau: <code>str.trim().toLowerCase()</code>.</p>
 <p class="note">Góc QA: khi so sánh text trên UI, nên chuẩn hóa trước để test không fail vì khoảng trắng thừa. Với trang tiếng Nhật, <code>\\s</code> cũng bắt được khoảng trắng toàn góc.</p>
@@ -1513,11 +1577,13 @@ console.log(uiText.replace(/\s+/g, " "));`]},
 '5.3': { html:`
 <h3>Template literal</h3>
 <p>Dùng dấu backtick <code>&#96;</code> (phím nằm dưới Esc) thay cho dấu nháy. Đặt biến hoặc biểu thức bất kỳ vào trong <code>&#36;{ }</code>. Dễ đọc hơn nhiều so với nối chuỗi bằng dấu cộng.</p>
+${ANAT(['`', 'Dấu backtick mở đầu template literal.'], ['Mã ', 'Chữ thường, giữ nguyên.'], ['${code}', 'Chèn giá trị: <code>$</code> + ngoặc nhọn, bên trong là biến hoặc phép tính. Ở đây thay bằng <code>7203</code>.'], ' giá ${price}', ['`', 'Backtick đóng.'], '  // → "Mã 7203 giá 2850"')}
 {{ex0}}
 <p>Template literal còn viết được chuỗi nhiều dòng:</p>
 {{ex1}}
 <h3>Đệm ký tự với padStart</h3>
 <p><code>padStart(độ_dài, ký_tự)</code> thêm ký tự vào đầu chuỗi cho tới khi đủ độ dài. Chỉ dùng được với chuỗi, nên số phải đổi sang chuỗi trước.</p>
+${ANAT(['String(7)', 'Đổi số 7 thành chuỗi <code>"7"</code>.'], ['.padStart(', 'Thêm ký tự vào <strong>đầu</strong> chuỗi.'], ['3', 'Độ dài muốn có.'], ', ', ['"0"', 'Ký tự dùng để đệm.'], ')  // → "007"')}
 {{ex2}}`,
 examples:[L(
 'const code = "7203";',
@@ -1538,6 +1604,7 @@ console.log("TC".toUpperCase());`]},
 '5.4': { html:`
 <h3>indexOf có vị trí bắt đầu</h3>
 <p><code>indexOf(từ, vị_trí)</code> tìm từ vị trí chỉ định trở đi, trả về <code>-1</code> nếu không thấy.</p>
+${ANAT(['text', 'Chuỗi cần tìm trong đó, ở đây là <code>"abcabc"</code>.'], '.indexOf(', ['"b"', 'Nội dung cần tìm.'], ', ', ['2', 'Vị trí bắt đầu tìm (không bắt buộc, bỏ đi thì tìm từ 0).'], ')  // → ', ['4', 'Vị trí đầu tiên tìm thấy tính từ 2. Không thấy thì trả về <code>-1</code>.'])}
 {{ex0}}
 <h3>Tìm tất cả vị trí xuất hiện</h3>
 <p>Kết hợp với <code>while</code>: mỗi lần tìm thấy thì tìm tiếp từ vị trí ngay sau đó, cho tới khi nhận về <code>-1</code>.</p>
@@ -1565,6 +1632,7 @@ console.log(log.split("\n").length, "dòng");`]},
 <li><code>push</code> thêm vào cuối, <code>pop</code> lấy ra từ cuối.</li>
 <li><code>unshift</code> thêm vào đầu, <code>shift</code> lấy ra từ đầu.</li>
 </ul>
+${ANAT(['list', 'Mảng đang có <code>["A", "B"]</code>.'], ['.push("C")', 'Thêm "C" vào <strong>cuối</strong>. Mảng gốc bị thay đổi thành <code>["A", "B", "C"]</code>.'], ';\nconst first = ', ['list.shift()', 'Lấy phần tử <strong>đầu tiên</strong> ra khỏi mảng. Không cần tham số.'], ';  // first → ', ['"A"', 'Kết quả là phần tử vừa lấy ra, mảng còn <code>["B", "C"]</code>.'])}
 {{ex0}}
 <h3>Hàng đợi và ngăn xếp</h3>
 <p><code>push</code> + <code>shift</code> tạo thành hàng đợi (queue): vào trước ra trước. <code>push</code> + <code>pop</code> tạo thành ngăn xếp (stack): vào sau ra trước.</p>
@@ -1589,6 +1657,8 @@ while (tasks.length > 0) {
 {{ex0}}
 <h3>Tạo mảng mới thay vì sửa mảng gốc</h3>
 <p>Tạo một mảng rỗng, duyệt mảng gốc, phần tử nào thỏa điều kiện thì <code>push</code> vào mảng mới. Mảng gốc giữ nguyên.</p>
+${ANAT('if (', ['!', '"Không": đảo true thành false và ngược lại.'], ['result.includes(x)', 'Mảng <code>result</code> đã có <code>x</code> chưa? Trả về true/false.'], ') ', ['result.push(x)', 'Chưa có thì thêm vào.'], ';')}
+<p>Đọc cả dòng: "nếu result <strong>chưa</strong> có x thì thêm x vào result".</p>
 {{ex1}}
 <p class="note">Không sửa dữ liệu đầu vào là nguyên tắc quan trọng. Trong code test, dữ liệu dùng chung bị một test sửa mất sẽ làm test khác fail một cách khó hiểu. Sau này bạn sẽ học <code>Set</code> và <code>filter</code> để làm việc này ngắn hơn.</p>`,
 examples:[String.raw`const codes = ["7203", "6758"];
@@ -1608,9 +1678,11 @@ console.log("Mảng gốc:", nums);`]},
 <p>Phần tử "thứ 1" nằm ở index 0, "thứ 3" nằm ở index 2. Nhầm lẫn giữa vị trí đếm thông thường và index là lỗi rất phổ biến (lỗi lệch 1).</p>
 <h3>slice: cắt ra bản sao</h3>
 <p><code>slice(start, end)</code> lấy từ <code>start</code> tới <strong>trước</strong> <code>end</code>, không thay đổi mảng gốc. Số âm tính từ cuối mảng.</p>
+${ANAT('letters.slice(', ['1', 'Index bắt đầu, có lấy.'], ', ', ['3', 'Index kết thúc, <strong>không</strong> lấy. Lấy index 1, 2 → <code>["b", "c"]</code>.'], ')')}
 {{ex0}}
 <h3>splice: sửa trực tiếp mảng gốc</h3>
 <p><code>splice(start, số_lượng_xóa, ...phần_tử_chèn)</code> xóa và/hoặc chèn ngay trong mảng gốc, trả về mảng các phần tử đã bị xóa.</p>
+${ANAT('items.splice(', ['1', 'Index bắt đầu.'], ', ', ['2', '<strong>Số lượng</strong> phần tử cần xóa, không phải index kết thúc.'], ', ', ['"X"', 'Phần tử chèn vào chỗ vừa xóa (không bắt buộc).'], ')')}
 {{ex1}}`,
 examples:[String.raw`const letters = ["a", "b", "c", "d", "e"];
 console.log(letters.slice(1, 3));  // ["b", "c"]: không lấy index 3
@@ -1627,6 +1699,7 @@ console.log(items);                  // ["a", "X", "d", "e"]`]},
 '7.1': { html:`
 <h3>Chia nhỏ vấn đề</h3>
 <p>Bài tổng hợp dễ bị rối nếu viết hết trong một vòng lặp. Hãy tách thành hai bước: một function kiểm tra <strong>một dòng</strong> và trả về thông báo lỗi (chuỗi rỗng nếu hợp lệ), sau đó một vòng lặp gọi function đó cho từng dòng.</p>
+${ANAT('if (', ['typeof row.price !== "number"', 'Kiểu của <code>row.price</code> <strong>không phải</strong> number? (<code>!==</code> là "khác").'], ' ', ['||', '"Hoặc": chỉ cần một trong hai vế đúng.'], ' ', ['row.price <= 0', 'Giá nhỏ hơn hoặc bằng 0?'], ') ', ['return "price must be > 0";', 'Trả về thông báo lỗi và dừng function, các kiểm tra phía sau không chạy.'], '\n', ['return "";', 'Qua được hết các kiểm tra: trả về chuỗi rỗng, nghĩa là không có lỗi.'])}
 {{ex0}}
 <p>Ví dụ trên mới kiểm tra <code>price</code>. Bạn cần thêm <code>quantity</code>, <code>side</code> và phần đếm pass/fail.</p>
 <h3>Các công cụ cần dùng</h3>
@@ -1654,7 +1727,9 @@ console.log(allowed.includes("buy"), allowed.includes("hold"));`]},
 <h3>Assertion là gì</h3>
 <p>Mọi framework test đều xoay quanh một ý: so sánh giá trị thực tế (actual) với giá trị mong đợi (expected), rồi báo cáo kết quả. Đó gọi là assertion. Ở giai đoạn sau bạn sẽ viết như thế này:</p>
 {{ex0}}
-<p>Bài này bạn tự xây phiên bản đơn giản nhất của <code>expect</code> để hiểu nó hoạt động ra sao.</p>
+
+${ANAT(['expect(', 'Mở đầu một assertion.'], ['sumAll(1, 2)', 'Giá trị <strong>thực tế</strong> (actual): code được test chạy ra gì.'], ')', ['.toBe(', 'Cách so sánh: bằng nhau theo <code>===</code>.'], ['3', 'Giá trị <strong>mong đợi</strong> (expected).'], ');')}
+<p>Đọc cả dòng: "mong đợi <code>sumAll(1, 2)</code> bằng 3". Khớp thì pass, không khớp thì fail kèm thông báo "expected 3 but got ...". Bài này bạn tự viết <code>expectEqual(actual, expected, testName)</code> theo đúng ý đó.</p>
 <h3>Đếm kết quả</h3>
 <p>Function trả về <code>true</code>/<code>false</code>, bên ngoài dùng biến để đếm:</p>
 {{ex1}}
@@ -3798,7 +3873,8 @@ console.log(\`Tổng: \${passed + failed} | Pass: \${passed} | Fail: \${failed}\
 /* =========================================================
    TUẦN 3: JAVASCRIPT HIỆN ĐẠI (ES6+)
    ========================================================= */
-const H1 = 'Arrow function và destructuring', H2 = 'Method của mảng', H3 = 'Bất đồng bộ: Promise và async/await';
+const H1 = 'Arrow function và destructuring', H2 = 'Method của mảng', H3 = 'Bất đồng bộ: async/await';
+const H4 = 'Nâng cao (không bắt buộc): cú pháp và mảng', H5 = 'Nâng cao (không bắt buộc): bất đồng bộ';
 const STRIP = String.raw`const __code = __source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 const __noLoop = () => expect(/\b(for|while)\s*\(/.test(__code), 'Tuần này hãy dùng method của mảng thay cho vòng lặp for/while').toBe(false);
 const __mk = (table, ms = 30) => code => new Promise((res, rej) => setTimeout(() => (code in table ? res(table[code]) : rej(new Error("Unknown code: " + code))), ms));
@@ -3863,7 +3939,180 @@ test('Thiếu qty → mặc định 100', () => expect(formatOrder({ code: "9984
 test('getUserInfo', () => expect(getUserInfo({ data: { user: { name: "An", role: "viewer" } } })).toBe("An (viewer)"));
 test('Có dùng destructuring object', () => expect(/(const|let)\s*\{|\(\s*\{/.test(__code), 'Chưa thấy cú pháp destructuring { ... }').toBe(true));
 `},
-{ id:'w3.3', week:3, group:H1, num:'3', title:'Destructuring mảng',
+{ id:'w3.5', week:3, group:H2, num:'3', title:'map: biến đổi từng phần tử',
+  desc:`<p>Dùng <code>map</code>, <strong>không</strong> dùng <code>for</code>/<code>while</code>:</p>
+<ul>
+<li><code>toCodes(stocks)</code>: trả về mảng mã cổ phiếu.</li>
+<li><code>withTax(prices)</code>: mỗi giá nhân 1.1 rồi làm tròn bằng <code>Math.round</code>.</li>
+<li><code>toLabels(stocks)</code>: trả về dạng <code>"7203: Toyota"</code>.</li>
+</ul>
+<pre>const stocks = [{ code: "7203", name: "Toyota" }, { code: "6758", name: "Sony" }];
+toCodes(stocks)   → ["7203", "6758"]
+withTax([100, 250]) → [110, 275]</pre>`,
+  hints:[
+    '<code>arr.map(x =&gt; ...)</code> gọi callback cho từng phần tử và gom kết quả trả về thành mảng mới cùng độ dài.',
+    '<code>stocks.map(s =&gt; s.code)</code>. Có thể destructuring ngay trong tham số: <code>stocks.map(({ code }) =&gt; code)</code>.',
+    'Nếu callback dùng <code>{ }</code> thì phải có <code>return</code>, nếu không mảng kết quả toàn <code>undefined</code>.'],
+  starter:String.raw`const stocks = [
+  { code: "7203", name: "Toyota" },
+  { code: "6758", name: "Sony" },
+];
+
+const toCodes = (stocks) => ;
+const withTax = (prices) => ;
+const toLabels = (stocks) => ;
+
+console.log(toCodes(stocks));
+console.log(withTax([100, 250]));
+console.log(toLabels(stocks));
+`.replace(/ => ;/g, ' => [];'),
+  tests:STRIP + String.raw`
+const __st = [{ code: "7203", name: "Toyota" }, { code: "6758", name: "Sony" }, { code: "9984", name: "SoftBank" }];
+test('toCodes', () => expect(toCodes(__st)).toEqual(["7203", "6758", "9984"]));
+test('withTax([100, 250]) → [110, 275]', () => expect(withTax([100, 250])).toEqual([110, 275]));
+test('withTax([2850]) → [3135]', () => expect(withTax([2850])).toEqual([3135]));
+test('toLabels', () => expect(toLabels(__st)).toEqual(["7203: Toyota", "6758: Sony", "9984: SoftBank"]));
+test('Mảng rỗng → []', () => { expect(toCodes([])).toEqual([]); expect(withTax([])).toEqual([]); });
+test('Có dùng map', () => expect(__code.includes(".map(")).toBe(true));
+test('Không dùng vòng lặp', __noLoop);
+`},
+{ id:'w3.6', week:3, group:H2, num:'4', title:'filter: lọc phần tử',
+  desc:`<p>Dùng <code>filter</code> (có thể kết hợp <code>map</code>), không dùng vòng lặp:</p>
+<ul>
+<li><code>rising(stocks)</code>: các cổ phiếu có <code>change &gt; 0</code>.</li>
+<li><code>failedNames(results)</code>: tên các test có <code>status === "fail"</code>.</li>
+<li><code>unique(arr)</code>: làm lại bài 6.2 tuần 1 trong một dòng.</li>
+</ul>
+<pre>failedNames([{ name: "login", status: "pass" }, { name: "order", status: "fail" }])
+→ ["order"]</pre>`,
+  hints:[
+    '<code>filter</code> giữ lại phần tử nào mà callback trả về <code>true</code>.',
+    'Nối hai bước: <code>results.filter(r =&gt; r.status === "fail").map(r =&gt; r.name)</code>.',
+    'Callback của <code>filter</code> nhận thêm tham số thứ hai là index. Phần tử là lần xuất hiện đầu tiên khi <code>arr.indexOf(x) === i</code>.'],
+  starter:String.raw`const rising = (stocks) => [];
+const failedNames = (results) => [];
+const unique = (arr) => [];
+
+console.log(rising([{ code: "7203", change: 15 }, { code: "6758", change: -20 }]));
+console.log(failedNames([{ name: "login", status: "pass" }, { name: "order", status: "fail" }]));
+console.log(unique(["7203", "6758", "7203"]));
+`,
+  tests:STRIP + String.raw`
+test('rising', () => expect(rising([{ code: "7203", change: 15 }, { code: "6758", change: -20 }, { code: "9984", change: 0 }])).toEqual([{ code: "7203", change: 15 }]));
+test('failedNames', () => expect(failedNames([{ name: "login", status: "pass" }, { name: "order", status: "fail" }, { name: "search", status: "fail" }, { name: "x", status: "skip" }])).toEqual(["order", "search"]));
+test('failedNames khi không có lỗi → []', () => expect(failedNames([{ name: "a", status: "pass" }])).toEqual([]));
+test('unique giữ thứ tự', () => expect(unique(["7203", "6758", "7203", "9984", "6758"])).toEqual(["7203", "6758", "9984"]));
+test('Có dùng filter', () => expect(__code.includes(".filter(")).toBe(true));
+test('Không dùng vòng lặp', __noLoop);
+`},
+{ id:'w3.8', week:3, group:H2, num:'5', title:'find, some, every',
+  desc:`<p>Dùng đúng method phù hợp, không dùng vòng lặp:</p>
+<ul>
+<li><code>findOrder(orders, id)</code>: trả về lệnh có <code>id</code> tương ứng, không có thì <code>null</code>.</li>
+<li><code>hasFailure(results)</code>: <code>true</code> nếu có ít nhất một test <code>"fail"</code>.</li>
+<li><code>allPassed(results)</code>: <code>true</code> nếu mọi test đều <code>"pass"</code>.</li>
+<li><code>indexOfCode(stocks, code)</code>: vị trí của mã trong mảng, không có thì <code>-1</code>.</li>
+</ul>`,
+  hints:[
+    '<code>find</code> trả về phần tử đầu tiên thỏa điều kiện, <code>findIndex</code> trả về vị trí của nó.',
+    '<code>some</code>: "có ít nhất một?", <code>every</code>: "tất cả đều?". Cả hai trả về true/false.',
+    '<code>find</code> trả về <code>undefined</code> khi không thấy. Dùng <code>?? null</code> để đổi thành <code>null</code>.'],
+  starter:String.raw`const findOrder = (orders, id) => null;
+const hasFailure = (results) => false;
+const allPassed = (results) => false;
+const indexOfCode = (stocks, code) => -1;
+
+const results = [{ name: "login", status: "pass" }, { name: "order", status: "fail" }];
+console.log(hasFailure(results), allPassed(results));
+`,
+  tests:STRIP + String.raw`
+const __od = [{ id: 1, code: "7203" }, { id: 2, code: "6758" }];
+test('findOrder tìm thấy', () => expect(findOrder(__od, 2)).toEqual({ id: 2, code: "6758" }));
+test('findOrder không thấy → null', () => expect(findOrder(__od, 9)).toBe(null));
+test('hasFailure', () => { expect(hasFailure([{ status: "pass" }, { status: "fail" }])).toBe(true); expect(hasFailure([{ status: "pass" }])).toBe(false); });
+test('allPassed', () => { expect(allPassed([{ status: "pass" }, { status: "pass" }])).toBe(true); expect(allPassed([{ status: "pass" }, { status: "skip" }])).toBe(false); });
+test('indexOfCode', () => { expect(indexOfCode([{ code: "7203" }, { code: "6758" }], "6758")).toBe(1); expect(indexOfCode([{ code: "7203" }], "0000")).toBe(-1); });
+test('Có dùng find, some, every, findIndex', () => { for (const m of ["find(", "some(", "every(", "findIndex("]) expect(__code.includes("." + m), 'Chưa dùng .' + m + ')').toBe(true); });
+test('Không dùng vòng lặp', __noLoop);
+`},
+{ id:'w3.14', week:3, group:H3, num:'6', title:'async/await và try/catch',
+  desc:`<p>Viết bằng <code>async</code>/<code>await</code>, không dùng <code>.then</code>:</p>
+<ul>
+<li><code>getPriceTextAsync(code, fetchPrice)</code>: gọi <code>await fetchPrice(code)</code> để lấy giá rồi trả về chuỗi, dùng <code>try/catch</code> để bắt lỗi:
+<pre>thành công → "7203: 2,850"                     (định dạng bằng toLocaleString("en-US"))
+thất bại   → "0000: lỗi - Unknown code: 0000"</pre></li>
+<li><code>getPortfolioValue(positions, fetchPrice)</code>: với <code>positions = [{ code, qty }]</code>, lấy giá từng mã và trả về tổng <code>qty × giá</code>.</li>
+</ul>
+<pre>getPortfolioValue([{ code: "7203", qty: 100 }, { code: "6758", qty: 10 }], fetchPrice)
+→ 2850 × 100 + 13200 × 10 = 417000</pre>
+<p><code>fetchPrice</code> là API giả được truyền vào như tham số (giống bài retry tuần 1 nhận <code>getRandom</code>): nó trả về Promise, sau 100 ms thì có giá hoặc báo lỗi <code>Unknown code</code>.</p>`,
+  hints:[
+    'Thêm <code>async</code> trước tham số: <code>const f = async (code, fetchPrice) =&gt; { ... }</code>. Bên trong dùng <code>const price = await fetchPrice(code);</code>',
+    'Bọc phần <code>await</code> bằng <code>try { ... } catch (err) { ... }</code>, mỗi nhánh <code>return</code> một chuỗi.',
+    'Với danh mục: <code>for (const { code, qty } of positions) { total += qty * await fetchPrice(code); }</code>. Đừng dùng <code>forEach</code> với <code>await</code> vì nó không chờ.'],
+  starter:String.raw`const getPriceTextAsync = async (code, fetchPrice) => {
+
+};
+
+const getPortfolioValue = async (positions, fetchPrice) => {
+
+};
+
+const PRICES = { "7203": 2850, "6758": 13200 };
+const fakeFetch = (code) => new Promise((resolve, reject) =>
+  setTimeout(() => (code in PRICES ? resolve(PRICES[code]) : reject(new Error("Unknown code: " + code))), 100));
+
+// console.log(await getPriceTextAsync("7203", fakeFetch));
+// console.log(await getPortfolioValue([{ code: "7203", qty: 100 }, { code: "6758", qty: 10 }], fakeFetch));
+`,
+  tests:STRIP + String.raw`
+const __f = __mk({ "7203": 2850, "6758": 13200 });
+test('Thành công', async () => expect(await getPriceTextAsync("7203", __f)).toBe("7203: 2,850"));
+test('Thất bại', async () => expect(await getPriceTextAsync("0000", __f)).toBe("0000: lỗi - Unknown code: 0000"));
+test('getPortfolioValue → 417000', async () => expect(await getPortfolioValue([{ code: "7203", qty: 100 }, { code: "6758", qty: 10 }], __f)).toBe(417000));
+test('Danh mục rỗng → 0', async () => expect(await getPortfolioValue([], __f)).toBe(0));
+test('Dùng async, await, try/catch; không dùng .then', () => { expect(/\basync\b/.test(__code) && /\bawait\b/.test(__code) && /\btry\s*\{/.test(__code), 'Cần có async, await và try/catch').toBe(true); expect(__code.includes(".then("), 'Bài này không dùng .then').toBe(false); });
+`},
+{ id:'w3.15', week:3, group:H3, num:'7', title:'Tuần tự và song song (Promise.all)',
+  desc:`<p>Mỗi lần gọi <code>fetchPrice</code> mất 100 ms. Viết hai function cùng trả về mảng giá theo đúng thứ tự của <code>codes</code>:</p>
+<ul>
+<li><code>getPricesSequential(codes, fetchPrice)</code>: gọi lần lượt, chờ xong mã này mới gọi mã tiếp.</li>
+<li><code>getPricesParallel(codes, fetchPrice)</code>: gọi tất cả cùng lúc bằng <code>Promise.all</code>.</li>
+</ul>
+<p>Bộ chấm đo thời gian: với 3 mã, cách tuần tự mất khoảng 300 ms, cách song song chỉ khoảng 100 ms.</p>`,
+  hints:[
+    'Tuần tự: tạo mảng rỗng, <code>for...of</code> qua từng mã, <code>push(await fetchPrice(code))</code>.',
+    'Song song: <code>codes.map(code =&gt; fetchPrice(code))</code> cho ra mảng các Promise, tất cả đã bắt đầu chạy.',
+    '<code>return Promise.all(mangPromise);</code> hoặc <code>return await Promise.all(...)</code>. Kết quả giữ đúng thứ tự dù Promise nào xong trước.'],
+  starter:String.raw`const getPricesSequential = async (codes, fetchPrice) => {
+
+};
+
+const getPricesParallel = async (codes, fetchPrice) => {
+
+};
+
+const PRICES = { "7203": 2850, "6758": 13200, "9984": 8900 };
+const fakeFetch = (code) => new Promise(resolve => setTimeout(() => resolve(PRICES[code]), 100));
+
+// let t = performance.now();
+// console.log(await getPricesSequential(["7203", "6758", "9984"], fakeFetch), Math.round(performance.now() - t) + " ms");
+// t = performance.now();
+// console.log(await getPricesParallel(["7203", "6758", "9984"], fakeFetch), Math.round(performance.now() - t) + " ms");
+`,
+  tests:STRIP + String.raw`
+const __f = __mk({ "7203": 2850, "6758": 13200, "9984": 8900 }, 100);
+const __codes = ["7203", "6758", "9984"];
+test('Tuần tự: đúng kết quả', async () => expect(await getPricesSequential(__codes, __f)).toEqual([2850, 13200, 8900]));
+test('Tuần tự: mất khoảng 300 ms', async () => { const t = performance.now(); await getPricesSequential(__codes, __f); const ms = performance.now() - t; expect(ms >= 270, 'Chỉ mất ' + Math.round(ms) + ' ms, có vẻ đang chạy song song').toBe(true); });
+test('Song song: đúng kết quả và thứ tự', async () => expect(await getPricesParallel(__codes, __f)).toEqual([2850, 13200, 8900]));
+test('Song song: nhanh hơn 200 ms', async () => { const t = performance.now(); await getPricesParallel(__codes, __f); const ms = performance.now() - t; expect(ms < 200, 'Mất ' + Math.round(ms) + ' ms, có vẻ vẫn đang chờ từng mã').toBe(true); });
+test('Song song: một mã lỗi thì cả Promise.all bị reject', async () => { const e = await __rejects(getPricesParallel(["7203", "0000"], __f)); expect(e && e.message).toBe("Unknown code: 0000"); });
+test('Có dùng Promise.all', () => expect(__code.includes("Promise.all(")).toBe(true));
+`},
+
+/* ---------- Nâng cao, không bắt buộc: không tính vào tiến độ ---------- */
+{ id:'w3.3', week:3, group:H4, num:'8', optional:true, title:'Destructuring mảng',
   desc:`<p>Viết ba function dùng destructuring mảng:</p>
 <ul>
 <li><code>parseQuery(url)</code>: làm lại bài 5.1 tuần 1 theo phong cách mới, tách từng cặp bằng <code>const [key, value] = pair.split("=")</code>.</li>
@@ -3901,7 +4150,7 @@ test('firstAndRest([1, 2, 3])', () => expect(firstAndRest([1, 2, 3])).toEqual({ 
 test('firstAndRest([]) → { first: undefined, rest: [] }', () => expect(firstAndRest([])).toEqual({ first: undefined, rest: [] }));
 test('Có dùng destructuring mảng', () => expect(/(const|let)\s*\[|\(\s*\[/.test(__code), 'Chưa thấy cú pháp destructuring [ ... ]').toBe(true));
 `},
-{ id:'w3.4', week:3, group:H1, num:'4', title:'Spread: sao chép và gộp',
+{ id:'w3.4', week:3, group:H4, num:'9', optional:true, title:'Spread: sao chép và gộp',
   desc:`<p>Viết ba function dùng toán tử spread <code>...</code>, không sửa dữ liệu đầu vào:</p>
 <ul>
 <li><code>mergeSettings(defaults, overrides)</code>: trả về object mới, giá trị trong <code>overrides</code> đè lên <code>defaults</code>.</li>
@@ -3939,73 +4188,7 @@ test('maxOf(-5, -1) → -1', () => expect(maxOf(-5, -1)).toBe(-1));
 test('maxOf() → null', () => expect(maxOf()).toBe(null));
 test('Có dùng spread', () => expect(/\.\.\.\s*\w/.test(__code)).toBe(true));
 `},
-{ id:'w3.5', week:3, group:H2, num:'5', title:'map: biến đổi từng phần tử',
-  desc:`<p>Dùng <code>map</code>, <strong>không</strong> dùng <code>for</code>/<code>while</code>:</p>
-<ul>
-<li><code>toCodes(stocks)</code>: trả về mảng mã cổ phiếu.</li>
-<li><code>withTax(prices)</code>: mỗi giá nhân 1.1 rồi làm tròn bằng <code>Math.round</code>.</li>
-<li><code>toLabels(stocks)</code>: trả về dạng <code>"7203: Toyota"</code>.</li>
-</ul>
-<pre>const stocks = [{ code: "7203", name: "Toyota" }, { code: "6758", name: "Sony" }];
-toCodes(stocks)   → ["7203", "6758"]
-withTax([100, 250]) → [110, 275]</pre>`,
-  hints:[
-    '<code>arr.map(x =&gt; ...)</code> gọi callback cho từng phần tử và gom kết quả trả về thành mảng mới cùng độ dài.',
-    '<code>stocks.map(s =&gt; s.code)</code>. Có thể destructuring ngay trong tham số: <code>stocks.map(({ code }) =&gt; code)</code>.',
-    'Nếu callback dùng <code>{ }</code> thì phải có <code>return</code>, nếu không mảng kết quả toàn <code>undefined</code>.'],
-  starter:String.raw`const stocks = [
-  { code: "7203", name: "Toyota" },
-  { code: "6758", name: "Sony" },
-];
-
-const toCodes = (stocks) => ;
-const withTax = (prices) => ;
-const toLabels = (stocks) => ;
-
-console.log(toCodes(stocks));
-console.log(withTax([100, 250]));
-console.log(toLabels(stocks));
-`.replace(/ => ;/g, ' => [];'),
-  tests:STRIP + String.raw`
-const __st = [{ code: "7203", name: "Toyota" }, { code: "6758", name: "Sony" }, { code: "9984", name: "SoftBank" }];
-test('toCodes', () => expect(toCodes(__st)).toEqual(["7203", "6758", "9984"]));
-test('withTax([100, 250]) → [110, 275]', () => expect(withTax([100, 250])).toEqual([110, 275]));
-test('withTax([2850]) → [3135]', () => expect(withTax([2850])).toEqual([3135]));
-test('toLabels', () => expect(toLabels(__st)).toEqual(["7203: Toyota", "6758: Sony", "9984: SoftBank"]));
-test('Mảng rỗng → []', () => { expect(toCodes([])).toEqual([]); expect(withTax([])).toEqual([]); });
-test('Có dùng map', () => expect(__code.includes(".map(")).toBe(true));
-test('Không dùng vòng lặp', __noLoop);
-`},
-{ id:'w3.6', week:3, group:H2, num:'6', title:'filter: lọc phần tử',
-  desc:`<p>Dùng <code>filter</code> (có thể kết hợp <code>map</code>), không dùng vòng lặp:</p>
-<ul>
-<li><code>rising(stocks)</code>: các cổ phiếu có <code>change &gt; 0</code>.</li>
-<li><code>failedNames(results)</code>: tên các test có <code>status === "fail"</code>.</li>
-<li><code>unique(arr)</code>: làm lại bài 6.2 tuần 1 trong một dòng.</li>
-</ul>
-<pre>failedNames([{ name: "login", status: "pass" }, { name: "order", status: "fail" }])
-→ ["order"]</pre>`,
-  hints:[
-    '<code>filter</code> giữ lại phần tử nào mà callback trả về <code>true</code>.',
-    'Nối hai bước: <code>results.filter(r =&gt; r.status === "fail").map(r =&gt; r.name)</code>.',
-    'Callback của <code>filter</code> nhận thêm tham số thứ hai là index. Phần tử là lần xuất hiện đầu tiên khi <code>arr.indexOf(x) === i</code>.'],
-  starter:String.raw`const rising = (stocks) => [];
-const failedNames = (results) => [];
-const unique = (arr) => [];
-
-console.log(rising([{ code: "7203", change: 15 }, { code: "6758", change: -20 }]));
-console.log(failedNames([{ name: "login", status: "pass" }, { name: "order", status: "fail" }]));
-console.log(unique(["7203", "6758", "7203"]));
-`,
-  tests:STRIP + String.raw`
-test('rising', () => expect(rising([{ code: "7203", change: 15 }, { code: "6758", change: -20 }, { code: "9984", change: 0 }])).toEqual([{ code: "7203", change: 15 }]));
-test('failedNames', () => expect(failedNames([{ name: "login", status: "pass" }, { name: "order", status: "fail" }, { name: "search", status: "fail" }, { name: "x", status: "skip" }])).toEqual(["order", "search"]));
-test('failedNames khi không có lỗi → []', () => expect(failedNames([{ name: "a", status: "pass" }])).toEqual([]));
-test('unique giữ thứ tự', () => expect(unique(["7203", "6758", "7203", "9984", "6758"])).toEqual(["7203", "6758", "9984"]));
-test('Có dùng filter', () => expect(__code.includes(".filter(")).toBe(true));
-test('Không dùng vòng lặp', __noLoop);
-`},
-{ id:'w3.7', week:3, group:H2, num:'7', title:'reduce: gom về một giá trị',
+{ id:'w3.7', week:3, group:H4, num:'10', optional:true, title:'reduce: gom về một giá trị',
   desc:`<p>Dùng <code>reduce</code>, không dùng vòng lặp:</p>
 <ul>
 <li><code>totalValue(positions)</code>: tổng <code>qty × price</code> của danh mục.</li>
@@ -4035,37 +4218,7 @@ test('sumAll(1, 2, 3) → 6, sumAll() → 0', () => { expect(sumAll(1, 2, 3)).to
 test('Có dùng reduce', () => expect(__code.includes(".reduce(")).toBe(true));
 test('Không dùng vòng lặp', __noLoop);
 `},
-{ id:'w3.8', week:3, group:H2, num:'8', title:'find, some, every',
-  desc:`<p>Dùng đúng method phù hợp, không dùng vòng lặp:</p>
-<ul>
-<li><code>findOrder(orders, id)</code>: trả về lệnh có <code>id</code> tương ứng, không có thì <code>null</code>.</li>
-<li><code>hasFailure(results)</code>: <code>true</code> nếu có ít nhất một test <code>"fail"</code>.</li>
-<li><code>allPassed(results)</code>: <code>true</code> nếu mọi test đều <code>"pass"</code>.</li>
-<li><code>indexOfCode(stocks, code)</code>: vị trí của mã trong mảng, không có thì <code>-1</code>.</li>
-</ul>`,
-  hints:[
-    '<code>find</code> trả về phần tử đầu tiên thỏa điều kiện, <code>findIndex</code> trả về vị trí của nó.',
-    '<code>some</code>: "có ít nhất một?", <code>every</code>: "tất cả đều?". Cả hai trả về true/false.',
-    '<code>find</code> trả về <code>undefined</code> khi không thấy. Dùng <code>?? null</code> để đổi thành <code>null</code>.'],
-  starter:String.raw`const findOrder = (orders, id) => null;
-const hasFailure = (results) => false;
-const allPassed = (results) => false;
-const indexOfCode = (stocks, code) => -1;
-
-const results = [{ name: "login", status: "pass" }, { name: "order", status: "fail" }];
-console.log(hasFailure(results), allPassed(results));
-`,
-  tests:STRIP + String.raw`
-const __od = [{ id: 1, code: "7203" }, { id: 2, code: "6758" }];
-test('findOrder tìm thấy', () => expect(findOrder(__od, 2)).toEqual({ id: 2, code: "6758" }));
-test('findOrder không thấy → null', () => expect(findOrder(__od, 9)).toBe(null));
-test('hasFailure', () => { expect(hasFailure([{ status: "pass" }, { status: "fail" }])).toBe(true); expect(hasFailure([{ status: "pass" }])).toBe(false); });
-test('allPassed', () => { expect(allPassed([{ status: "pass" }, { status: "pass" }])).toBe(true); expect(allPassed([{ status: "pass" }, { status: "skip" }])).toBe(false); });
-test('indexOfCode', () => { expect(indexOfCode([{ code: "7203" }, { code: "6758" }], "6758")).toBe(1); expect(indexOfCode([{ code: "7203" }], "0000")).toBe(-1); });
-test('Có dùng find, some, every, findIndex', () => { for (const m of ["find(", "some(", "every(", "findIndex("]) expect(__code.includes("." + m), 'Chưa dùng .' + m + ')').toBe(true); });
-test('Không dùng vòng lặp', __noLoop);
-`},
-{ id:'w3.9', week:3, group:H2, num:'9', title:'sort và nối chuỗi method',
+{ id:'w3.9', week:3, group:H4, num:'11', optional:true, title:'sort và nối chuỗi method',
   desc:`<p>Viết <code>topGainers(stocks, n)</code> trả về mảng <strong>mã</strong> của <code>n</code> cổ phiếu có <code>change</code> cao nhất, xếp giảm dần. Không được làm thay đổi mảng gốc.</p>
 <pre>const stocks = [
   { code: "7203", change: 15 },
@@ -4096,7 +4249,7 @@ test('n lớn hơn số phần tử', () => expect(topGainers(__s(), 10).length)
 test('So sánh theo số, không theo chữ', () => expect(topGainers([{ code: "a", change: 9 }, { code: "b", change: 100 }, { code: "c", change: 10 }], 3)).toEqual(["b", "c", "a"]));
 test('Không sửa mảng gốc', () => { const s = __s(); topGainers(s, 2); expect(s.map(x => x.code), 'Mảng gốc đã bị sort').toEqual(["7203", "6758", "9984", "8306"]); });
 `},
-{ id:'w3.10', week:3, group:H2, num:'10', title:'Tổng hợp: báo cáo kết quả test',
+{ id:'w3.10', week:3, group:H4, num:'12', optional:true, title:'Tổng hợp: báo cáo kết quả test',
   desc:`<p>Mỗi phần tử trong <code>results</code> có dạng <code>{ name, status, duration }</code>, với <code>status</code> là <code>"pass"</code>, <code>"fail"</code> hoặc <code>"skip"</code>. Viết <code>summarize(results)</code> trả về:</p>
 <pre>{
   total,        // tổng số test
@@ -4139,7 +4292,7 @@ test('Mảng rỗng', () => expect(summarize([])).toEqual({ total: 0, passed: 0,
 test('Toàn skip → passRate 0', () => expect(summarize([{ name: "a", status: "skip", duration: 5 }]).passRate).toBe(0));
 test('Không dùng vòng lặp', __noLoop);
 `},
-{ id:'w3.11', week:3, group:H3, num:'11', title:'Event loop: thứ tự chạy',
+{ id:'w3.11', week:3, group:H5, num:'13', optional:true, title:'Event loop: thứ tự chạy',
   desc:`<p>Đọc đoạn code trong editor. <strong>Trước khi chạy</strong>, hãy điền vào mảng <code>prediction</code> thứ tự bạn nghĩ các chữ cái sẽ được in ra. Sau đó bấm Chạy để đối chiếu, rồi Kiểm tra bài.</p>
 <p>Đọc bài giảng trước khi làm bài này.</p>`,
   hints:[
@@ -4158,7 +4311,7 @@ const prediction = ["?", "?", "?", "?"];
 test('Đã điền dự đoán', () => expect(prediction.includes("?"), 'Mảng prediction vẫn còn dấu ?').toBe(false));
 test('Thứ tự đúng', () => expect(prediction, 'Chưa đúng. Bấm Chạy để xem thứ tự thật, rồi đọc lại bài giảng').toEqual(["A", "D", "C", "B"]));
 `},
-{ id:'w3.12', week:3, group:H3, num:'12', title:'Tự tạo Promise',
+{ id:'w3.12', week:3, group:H5, num:'14', optional:true, title:'Tự tạo Promise',
   desc:`<p>Viết hai function trả về Promise:</p>
 <ul>
 <li><code>wait(ms)</code>: resolve sau <code>ms</code> mili giây.</li>
@@ -4190,7 +4343,7 @@ test('fetchPrice("7203") → 2850', async () => expect(await fetchPrice("7203"))
 test('fetchPrice mất khoảng 50 ms', async () => { const t = performance.now(); await fetchPrice("6758"); expect(performance.now() - t >= 40, 'Resolve ngay lập tức, chưa có độ trễ').toBe(true); });
 test('Mã không có → reject đúng thông báo', async () => { const e = await __rejects(fetchPrice("0000")); expect(e && e.message, 'Promise phải bị reject với Error("Unknown code: 0000")').toBe("Unknown code: 0000"); });
 `},
-{ id:'w3.13', week:3, group:H3, num:'13', title:'Xử lý Promise với then/catch',
+{ id:'w3.13', week:3, group:H5, num:'15', optional:true, title:'Xử lý Promise với then/catch',
   desc:`<p>Viết <code>getPriceText(code, fetchPrice)</code> trả về một Promise mà kết quả là chuỗi:</p>
 <pre>thành công → "7203: 2,850"                     (định dạng bằng toLocaleString("en-US"))
 thất bại   → "0000: lỗi - Unknown code: 0000"</pre>
@@ -4219,79 +4372,7 @@ test('Thành công: "6758: 13,200"', async () => expect(await getPriceText("6758
 test('Thất bại vẫn resolve ra chuỗi lỗi', async () => expect(await getPriceText("0000", __f)).toBe("0000: lỗi - Unknown code: 0000"));
 test('Dùng then/catch, chưa dùng async/await', () => { expect(__code.includes(".then(") && __code.includes(".catch("), 'Cần dùng .then và .catch').toBe(true); expect(/\bawait\b|\basync\b/.test(__code), 'Bài này chưa dùng async/await').toBe(false); });
 `},
-{ id:'w3.14', week:3, group:H3, num:'14', title:'async/await và try/catch',
-  desc:`<p>Viết bằng <code>async</code>/<code>await</code>, không dùng <code>.then</code>:</p>
-<ul>
-<li><code>getPriceTextAsync(code, fetchPrice)</code>: giống bài 13, dùng <code>try/catch</code> để bắt lỗi.</li>
-<li><code>getPortfolioValue(positions, fetchPrice)</code>: với <code>positions = [{ code, qty }]</code>, lấy giá từng mã và trả về tổng <code>qty × giá</code>.</li>
-</ul>
-<pre>getPortfolioValue([{ code: "7203", qty: 100 }, { code: "6758", qty: 10 }], fetchPrice)
-→ 2850 × 100 + 13200 × 10 = 417000</pre>`,
-  hints:[
-    'Thêm <code>async</code> trước tham số: <code>const f = async (code, fetchPrice) =&gt; { ... }</code>. Bên trong dùng <code>const price = await fetchPrice(code);</code>',
-    'Bọc phần <code>await</code> bằng <code>try { ... } catch (err) { ... }</code>, mỗi nhánh <code>return</code> một chuỗi.',
-    'Với danh mục: <code>for (const { code, qty } of positions) { total += qty * await fetchPrice(code); }</code>. Đừng dùng <code>forEach</code> với <code>await</code> vì nó không chờ.'],
-  starter:String.raw`const getPriceTextAsync = async (code, fetchPrice) => {
-
-};
-
-const getPortfolioValue = async (positions, fetchPrice) => {
-
-};
-
-const PRICES = { "7203": 2850, "6758": 13200 };
-const fakeFetch = (code) => new Promise((resolve, reject) =>
-  setTimeout(() => (code in PRICES ? resolve(PRICES[code]) : reject(new Error("Unknown code: " + code))), 100));
-
-// console.log(await getPriceTextAsync("7203", fakeFetch));
-// console.log(await getPortfolioValue([{ code: "7203", qty: 100 }, { code: "6758", qty: 10 }], fakeFetch));
-`,
-  tests:STRIP + String.raw`
-const __f = __mk({ "7203": 2850, "6758": 13200 });
-test('Thành công', async () => expect(await getPriceTextAsync("7203", __f)).toBe("7203: 2,850"));
-test('Thất bại', async () => expect(await getPriceTextAsync("0000", __f)).toBe("0000: lỗi - Unknown code: 0000"));
-test('getPortfolioValue → 417000', async () => expect(await getPortfolioValue([{ code: "7203", qty: 100 }, { code: "6758", qty: 10 }], __f)).toBe(417000));
-test('Danh mục rỗng → 0', async () => expect(await getPortfolioValue([], __f)).toBe(0));
-test('Dùng async, await, try/catch; không dùng .then', () => { expect(/\basync\b/.test(__code) && /\bawait\b/.test(__code) && /\btry\s*\{/.test(__code), 'Cần có async, await và try/catch').toBe(true); expect(__code.includes(".then("), 'Bài này không dùng .then').toBe(false); });
-`},
-{ id:'w3.15', week:3, group:H3, num:'15', title:'Tuần tự và song song (Promise.all)',
-  desc:`<p>Mỗi lần gọi <code>fetchPrice</code> mất 100 ms. Viết hai function cùng trả về mảng giá theo đúng thứ tự của <code>codes</code>:</p>
-<ul>
-<li><code>getPricesSequential(codes, fetchPrice)</code>: gọi lần lượt, chờ xong mã này mới gọi mã tiếp.</li>
-<li><code>getPricesParallel(codes, fetchPrice)</code>: gọi tất cả cùng lúc bằng <code>Promise.all</code>.</li>
-</ul>
-<p>Bộ chấm đo thời gian: với 3 mã, cách tuần tự mất khoảng 300 ms, cách song song chỉ khoảng 100 ms.</p>`,
-  hints:[
-    'Tuần tự: tạo mảng rỗng, <code>for...of</code> qua từng mã, <code>push(await fetchPrice(code))</code>.',
-    'Song song: <code>codes.map(code =&gt; fetchPrice(code))</code> cho ra mảng các Promise, tất cả đã bắt đầu chạy.',
-    '<code>return Promise.all(mangPromise);</code> hoặc <code>return await Promise.all(...)</code>. Kết quả giữ đúng thứ tự dù Promise nào xong trước.'],
-  starter:String.raw`const getPricesSequential = async (codes, fetchPrice) => {
-
-};
-
-const getPricesParallel = async (codes, fetchPrice) => {
-
-};
-
-const PRICES = { "7203": 2850, "6758": 13200, "9984": 8900 };
-const fakeFetch = (code) => new Promise(resolve => setTimeout(() => resolve(PRICES[code]), 100));
-
-// let t = performance.now();
-// console.log(await getPricesSequential(["7203", "6758", "9984"], fakeFetch), Math.round(performance.now() - t) + " ms");
-// t = performance.now();
-// console.log(await getPricesParallel(["7203", "6758", "9984"], fakeFetch), Math.round(performance.now() - t) + " ms");
-`,
-  tests:STRIP + String.raw`
-const __f = __mk({ "7203": 2850, "6758": 13200, "9984": 8900 }, 100);
-const __codes = ["7203", "6758", "9984"];
-test('Tuần tự: đúng kết quả', async () => expect(await getPricesSequential(__codes, __f)).toEqual([2850, 13200, 8900]));
-test('Tuần tự: mất khoảng 300 ms', async () => { const t = performance.now(); await getPricesSequential(__codes, __f); const ms = performance.now() - t; expect(ms >= 270, 'Chỉ mất ' + Math.round(ms) + ' ms, có vẻ đang chạy song song').toBe(true); });
-test('Song song: đúng kết quả và thứ tự', async () => expect(await getPricesParallel(__codes, __f)).toEqual([2850, 13200, 8900]));
-test('Song song: nhanh hơn 200 ms', async () => { const t = performance.now(); await getPricesParallel(__codes, __f); const ms = performance.now() - t; expect(ms < 200, 'Mất ' + Math.round(ms) + ' ms, có vẻ vẫn đang chờ từng mã').toBe(true); });
-test('Song song: một mã lỗi thì cả Promise.all bị reject', async () => { const e = await __rejects(getPricesParallel(["7203", "0000"], __f)); expect(e && e.message).toBe("Unknown code: 0000"); });
-test('Có dùng Promise.all', () => expect(__code.includes("Promise.all(")).toBe(true));
-`},
-{ id:'w3.16', week:3, group:H3, num:'16', title:'Kiểm tra nhiều endpoint (allSettled)',
+{ id:'w3.16', week:3, group:H5, num:'16', optional:true, title:'Kiểm tra nhiều endpoint (allSettled)',
   desc:`<p>Viết <code>checkEndpoints(urls, ping)</code>. <code>ping(url)</code> trả về Promise: resolve nếu endpoint sống, reject kèm lỗi nếu chết. Kết quả trả về:</p>
 <pre>{
   up:   ["/api/prices", "/api/orders"],
@@ -4319,7 +4400,7 @@ test('Tất cả chết', async () => expect((await checkEndpoints(["/bad1", "/b
 test('Chạy song song (dưới 150 ms cho 3 endpoint)', async () => { const t = performance.now(); await checkEndpoints(["/a", "/b", "/c"], __p); expect(performance.now() - t < 150, 'Có vẻ đang ping lần lượt từng endpoint').toBe(true); });
 test('Có dùng Promise.allSettled', () => expect(__code.includes("Promise.allSettled(")).toBe(true));
 `},
-{ id:'w3.17', week:3, group:H3, num:'17', title:'Retry bất đồng bộ',
+{ id:'w3.17', week:3, group:H5, num:'17', optional:true, title:'Retry bất đồng bộ',
   desc:`<p>Viết <code>retryAsync(fn, times, delayMs)</code>:</p>
 <ul>
 <li>Gọi <code>fn()</code> (trả về Promise). Thành công thì trả về kết quả ngay.</li>
@@ -4328,7 +4409,7 @@ test('Có dùng Promise.allSettled', () => expect(__code.includes("Promise.allSe
 </ul>
 <p>Đây là bản nâng cấp của bài retry tuần 1, đúng kiểu retry dùng thật khi gọi API trong test automation.</p>`,
   hints:[
-    'Viết lại <code>wait(ms)</code> của bài 12 để dùng cho việc chờ.',
+    'Tự viết hàm chờ <code>const wait = ms =&gt; new Promise(r =&gt; setTimeout(r, ms));</code> (xem bài 14).',
     'Vòng <code>for (let attempt = 1; attempt &lt;= times; attempt++)</code>, bên trong <code>try { return await fn(); } catch (err) { lastError = err; }</code>.',
     'Chỉ chờ khi còn lượt: <code>if (attempt &lt; times) await wait(delayMs);</code>. Sau vòng lặp: <code>throw lastError;</code>'],
   starter:String.raw`const retryAsync = async (fn, times, delayMs) => {
@@ -4351,7 +4432,7 @@ test('Hết lượt: ném lỗi của lần cuối', async () => { const f = __f
 test('Có chờ giữa các lần thử', async () => { const f = __flaky(2); const t = performance.now(); await retryAsync(f, 5, 60); expect(performance.now() - t >= 110, 'Chưa chờ delayMs giữa các lần').toBe(true); });
 test('Không chờ thừa sau lần cuối', async () => { const f = __flaky(99); const t = performance.now(); await __rejects(retryAsync(f, 2, 80)); const ms = performance.now() - t; expect(ms < 150, 'Mất ' + Math.round(ms) + ' ms, có vẻ vẫn chờ sau lần thử cuối').toBe(true); });
 `},
-{ id:'w3.18', week:3, group:H3, num:'18', title:'Giới hạn thời gian chờ (Promise.race)',
+{ id:'w3.18', week:3, group:H5, num:'18', optional:true, title:'Giới hạn thời gian chờ (Promise.race)',
   desc:`<p>Viết <code>withTimeout(promise, ms)</code> trả về Promise mới:</p>
 <ul>
 <li>Nếu <code>promise</code> xong trước <code>ms</code> mili giây: trả về đúng kết quả (hoặc đúng lỗi) của nó.</li>
@@ -4385,7 +4466,14 @@ Object.assign(LESSONS, {
 <h3>Tuần 3 học gì</h3>
 <p>ES6 (năm 2015) và các phiên bản sau bổ sung nhiều cú pháp làm code ngắn và rõ hơn. Code Playwright, Jest và hầu hết project hiện đại dùng chúng ở mọi dòng. Đoạn test Playwright dưới đây có đủ những thứ bạn sẽ học tuần này:</p>
 {{ex0}}
-<p>Tuần này có 3 nhóm: arrow function và destructuring, các method của mảng (<code>map</code>, <code>filter</code>, <code>reduce</code>...), và bất đồng bộ (Promise, async/await). Nhóm cuối là quan trọng nhất cho automation, vì mọi thao tác với trình duyệt đều là bất đồng bộ.</p>
+<p>Tuần này có <strong>7 bài bắt buộc</strong>, chỉ gồm những gì bạn sẽ gặp hằng ngày khi viết test Playwright:</p>
+<ul>
+<li>Arrow function và destructuring (bài 1–2): cú pháp của mọi test, như <code>async ({ page }) =&gt; { ... }</code>.</li>
+<li><code>map</code>, <code>filter</code>, <code>find</code>, <code>some</code>, <code>every</code> (bài 3–5): xử lý danh sách lấy từ trang, ví dụ text của các dòng trong bảng giá.</li>
+<li><code>async/await</code> và <code>Promise.all</code> (bài 6–7): mọi thao tác với trình duyệt đều phải <code>await</code>.</li>
+</ul>
+<p>11 bài còn lại (từ bài 8) là <strong>nâng cao, không bắt buộc</strong> và không tính vào tiến độ. Playwright đã lo sẵn phần lớn những việc đó, như tự chờ và tự thử lại. Bạn có thể học xong tuần 4 rồi quay lại làm sau.</p>
+<p class="note">Cuối một số bài giảng có mục <strong>Gặp trong Playwright</strong>. Đoạn code ở đó chỉ để minh họa, chưa chạy được ở tuần này. Từ tuần 4, bạn sẽ viết code thật trên trang Sàn Demo.</p>
 <h3>Cú pháp arrow function</h3>
 {{ex1}}
 <p>Quy tắc rút gọn: chỉ một tham số thì bỏ được ngoặc tròn; thân chỉ có một biểu thức thì bỏ <code>{ }</code> và <code>return</code>, giá trị biểu thức tự được trả về.</p>
@@ -4505,7 +4593,10 @@ console.log(original);`]},
 {{ex1}}
 <h3>map khác forEach thế nào</h3>
 <p><code>forEach</code> chỉ chạy callback, không trả về gì (<code>undefined</code>). Dùng <code>forEach</code> khi chỉ muốn làm gì đó với từng phần tử (như in ra), dùng <code>map</code> khi muốn có mảng kết quả.</p>
-<p class="note">Góc QA: <code>map</code> dùng liên tục khi xử lý dữ liệu lấy từ trang, ví dụ lấy danh sách text từ các phần tử rồi chuẩn hóa: <code>texts.map(t =&gt; t.trim())</code>.</p>`,
+<p class="note">Góc QA: <code>map</code> dùng liên tục khi xử lý dữ liệu lấy từ trang, ví dụ lấy danh sách text từ các phần tử rồi chuẩn hóa: <code>texts.map(t =&gt; t.trim())</code>.</p>
+<h3>Gặp trong Playwright</h3>
+<p>Lấy text của cả cột rồi đổi sang số để so sánh. <code>allTextContents()</code> trả về mảng chuỗi, <code>map</code> biến đổi từng phần tử:</p>
+{{ex2}}`,
 examples:[String.raw`const prices = [100, 250, 2850];
 const doubled = prices.map(p => p * 2);
 console.log(doubled, prices);
@@ -4518,7 +4609,11 @@ console.log(stocks.map(({ code }) => code));`,
 String.raw`const nums = [1, 2, 3];
 console.log(nums.map(n => { n * 2; }));         // [undefined, undefined, undefined]
 console.log(nums.map(n => { return n * 2; }));  // [2, 4, 6]
-console.log(nums.map(n => n * 2));              // [2, 4, 6]`]},
+console.log(nums.map(n => n * 2));              // [2, 4, 6]`,
+{ run:false, code:String.raw`const texts = await page.getByTestId("price").allTextContents();
+// ["2,850", "13,250", "8,850"]
+const prices = texts.map(t => Number(t.replaceAll(",", "")));
+// [2850, 13250, 8850]` }]},
 
 'w3.6': { html:`
 <h3>filter: giữ lại phần tử thỏa điều kiện</h3>
@@ -4528,7 +4623,10 @@ console.log(nums.map(n => n * 2));              // [2, 4, 6]`]},
 <p>Mỗi method trả về mảng mới nên có thể nối tiếp. Xuống dòng trước mỗi dấu chấm cho dễ đọc:</p>
 {{ex1}}
 <h3>Dùng index trong filter</h3>
-{{ex2}}`,
+{{ex2}}
+<h3>Gặp trong Playwright</h3>
+<p>Chỉ giữ lại những dòng cần kiểm tra, ví dụ các lệnh đang chờ khớp:</p>
+{{ex3}}`,
 examples:[String.raw`const nums = [5, 12, 8, 130, 44];
 console.log(nums.filter(n => n > 10));
 
@@ -4545,7 +4643,10 @@ const bigBuyCodes = orders
   .map(o => o.code);
 console.log(bigBuyCodes);`,
 String.raw`const letters = ["a", "b", "c", "d"];
-console.log(letters.filter((x, i) => i % 2 === 0));  // vị trí chẵn: a, c`]},
+console.log(letters.filter((x, i) => i % 2 === 0));  // vị trí chẵn: a, c`,
+{ run:false, code:String.raw`const statuses = await page.getByTestId("order-status").allTextContents();
+const pending = statuses.filter(s => s === "Chờ khớp");
+expect(pending).toHaveLength(2);` }]},
 
 'w3.7': { html:`
 <h3>reduce: gom cả mảng về một giá trị</h3>
@@ -4577,7 +4678,10 @@ ${TRACE(['Method', 'Trả về', 'Không tìm thấy'], [['<code>find</code>', '
 <p>Cả bốn đều <strong>dừng sớm</strong>: <code>find</code> và <code>some</code> dừng ngay khi gặp phần tử thỏa, <code>every</code> dừng ngay khi gặp phần tử không thỏa.</p>
 <h3>Bẫy: every trên mảng rỗng</h3>
 {{ex1}}
-<p class="note">Góc QA: đây là lỗi có thật trong báo cáo test. Nếu vì lỗi cấu hình mà không test nào chạy, <code>results.every(r =&gt; r.status === "pass")</code> vẫn trả về <code>true</code> và pipeline báo xanh. Luôn kiểm tra thêm số test đã chạy lớn hơn 0.</p>`,
+<p class="note">Góc QA: đây là lỗi có thật trong báo cáo test. Nếu vì lỗi cấu hình mà không test nào chạy, <code>results.every(r =&gt; r.status === "pass")</code> vẫn trả về <code>true</code> và pipeline báo xanh. Luôn kiểm tra thêm số test đã chạy lớn hơn 0.</p>
+<h3>Gặp trong Playwright</h3>
+<p>Kiểm tra cả danh sách trong một dòng: mọi giá đều dương, có ít nhất một lệnh bán, tìm đúng lệnh cần xem:</p>
+{{ex2}}`,
 examples:[String.raw`const orders = [{ id: 1, qty: 100 }, { id: 2, qty: 500 }, { id: 3, qty: 50 }];
 console.log(orders.find(o => o.qty > 200));        // { id: 2, qty: 500 }
 console.log(orders.findIndex(o => o.qty > 200));   // 1
@@ -4586,7 +4690,12 @@ console.log(orders.every(o => o.qty > 10));        // true
 console.log(orders.find(o => o.qty > 9999));       // undefined`,
 String.raw`const results = [];
 console.log(results.every(r => r.status === "pass"));  // true!
-console.log(results.some(r => r.status === "fail"));   // false`]},
+console.log(results.some(r => r.status === "fail"));   // false`,
+{ run:false, code:String.raw`expect(prices.every(p => p > 0)).toBe(true);
+expect(sides.some(s => s === "Bán")).toBe(true);
+
+const order = orders.find(o => o.id === "DH-1001");
+expect(order.status).toBe("Đã khớp");` }]},
 
 'w3.9': { html:`
 <h3>sort cần hàm so sánh</h3>
@@ -4706,6 +4815,9 @@ Promise.reject(new Error("mất mạng"))
   .then(v => console.log(v));`]},
 
 'w3.14': { html:`
+<h3>Promise trong một phút</h3>
+<p>Có những việc cần thời gian mới xong: gọi API, mở trang, bấm nút rồi chờ trang phản hồi. JavaScript không đứng chờ, mà trả về ngay một <strong>Promise</strong>: một "phiếu hẹn" cho kết quả sẽ có sau. Giống phiếu gửi xe, lúc cầm phiếu chưa có xe trong tay, nhưng sau này sẽ nhận được xe (thành công) hoặc được báo có sự cố (thất bại).</p>
+<p>Bạn gần như không phải tự tạo Promise. Playwright và các thư viện tạo sẵn, việc của bạn là <strong>chờ</strong> chúng bằng <code>await</code>. Muốn hiểu sâu hơn thì xem các bài nâng cao 13–15.</p>
 <h3>async/await: viết code bất đồng bộ như đồng bộ</h3>
 <p><code>await</code> dừng function tại chỗ cho tới khi Promise xong, rồi trả về giá trị của nó. Chỉ dùng được bên trong function có <code>async</code>. Function <code>async</code> luôn trả về Promise.</p>
 {{ex0}}
@@ -4762,7 +4874,10 @@ console.log("for...of:", total);  // 5700`]},
 <p>Mấu chốt: gọi <code>fetchPrice</code> là việc đã bắt đầu chạy. <code>codes.map(c =&gt; fetchPrice(c))</code> khởi động tất cả cùng lúc, <code>Promise.all</code> chỉ việc chờ.</p>
 <h3>Khi nào phải tuần tự</h3>
 <p>Khi bước sau cần kết quả bước trước (đăng nhập rồi mới lấy token để gọi API), hoặc khi server giới hạn số request cùng lúc.</p>
-<p class="note">Góc QA: chuẩn bị test data song song bằng <code>Promise.all</code> có thể giảm thời gian setup của cả bộ test đáng kể.</p>`,
+<p class="note">Góc QA: chuẩn bị test data song song bằng <code>Promise.all</code> có thể giảm thời gian setup của cả bộ test đáng kể.</p>
+<h3>Gặp trong Playwright</h3>
+<p>Mẫu hay gặp nhất: bấm nút và chờ response của API <strong>cùng lúc</strong>. Nếu bấm trước rồi mới chờ, response có thể về trước khi bạn kịp bắt đầu chờ và test bị treo. <code>[response]</code> lấy phần tử đầu tiên của mảng kết quả (destructuring mảng, bài nâng cao 8).</p>
+{{ex1}}`,
 examples:[String.raw`const wait = ms => new Promise(r => setTimeout(r, ms));
 const task = async (name) => { await wait(100); return name; };
 
@@ -4772,7 +4887,12 @@ console.log("Lần lượt:", r1, Math.round(performance.now() - t), "ms");
 
 t = performance.now();
 const r2 = await Promise.all([task("A"), task("B"), task("C")]);
-console.log("Cùng lúc:", r2, Math.round(performance.now() - t), "ms");`]},
+console.log("Cùng lúc:", r2, Math.round(performance.now() - t), "ms");`,
+{ run:false, code:String.raw`const [response] = await Promise.all([
+  page.waitForResponse("**/api/orders"),
+  page.getByRole("button", { name: "Đặt lệnh" }).click(),
+]);
+expect(response.status()).toBe(201);` }]},
 
 'w3.16': { html:`
 <h3>Các cách chờ nhiều Promise</h3>
@@ -5164,12 +5284,12 @@ examples:[L(
 {{ex0}}
 <h3>Giải thích</h3>
 <ul>
-<li>So với bài 13, logic giữ nguyên nhưng đọc từ trên xuống như code đồng bộ: lấy giá, định dạng, trả về; lỗi thì nhảy vào <code>catch</code>.</li>
+<li>Code đọc từ trên xuống như code đồng bộ: lấy giá, định dạng, trả về; lỗi thì nhảy vào <code>catch</code>.</li>
 <li><code>getPortfolioValue</code> dùng <code>for...of</code> với destructuring <code>{ code, qty }</code>, <code>await</code> từng mã.</li>
 <li>Không có <code>try/catch</code> trong <code>getPortfolioValue</code>: một mã lỗi thì cả hàm bị reject, người gọi tự quyết định xử lý thế nào. Đây thường là lựa chọn đúng, tổng giá trị thiếu một mã là con số sai.</li>
 </ul>
 <h3>Nhanh hơn với Promise.all</h3>
-<p>Cách trên gọi lần lượt từng mã. Bài 15 sẽ cho thấy cách gọi đồng thời để nhanh hơn nhiều lần.</p>`,
+<p>Cách trên gọi lần lượt từng mã. Bài 7 sẽ cho thấy cách gọi đồng thời để nhanh hơn nhiều lần. Muốn xem cách viết cũ bằng <code>.then/.catch</code> thì làm bài nâng cao 15.</p>`,
 examples:[L(
 'const getPriceTextAsync = async (code, fetchPrice) => {',
 '  try {',
@@ -6558,7 +6678,7 @@ function appPaneInit(){
 /* =========================================================
    TUẦN 4: BÀI TẬP
    ========================================================= */
-const K1 = 'Locator: từ dễ đến khó', K2 = 'Viết step với Playwright + TypeScript';
+const K1 = 'Locator theo cách của Playwright', K2 = 'Viết step với Playwright + TypeScript';
 const LOC_HEAD = String.raw`import { Page } from '@playwright/test';
 
 `;
@@ -6704,86 +6824,7 @@ check('orderCount', () => H.locator('orderCount', '[data-testid="order-count"]',
 check('ordersTable', () => H.locator('ordersTable', 'table', r));
 check('statusFilter', () => H.locator('statusFilter', '#status-filter', r));
 `},
-{ id:'w4.6', week:4, pw:true, kind:'locator', route:'/order', exports:['locators'], group:K1, num:'6', title:'CSS selector cơ bản',
-  desc:`<p>Dùng <code>page.locator('css')</code> trên trang Đặt lệnh:</p>
-<ul>
-<li><code>orderForm</code>: thẻ <code>form</code> theo <strong>id</strong>.</li>
-<li><code>sideRadios</code>: <strong>cả hai</strong> nút radio Mua/Bán, theo thuộc tính <code>name</code> (locator này khớp 2 phần tử là đúng).</li>
-<li><code>submitButton</code>: nút gửi form, theo thuộc tính <code>type</code>.</li>
-<li><code>toast</code>: khung thông báo, theo <strong>class</strong>.</li>
-</ul>`,
-  hints:[
-    'Theo id: <code>#ten-id</code>. Theo class: <code>.ten-class</code>. Theo thuộc tính: <code>[ten="gia-tri"]</code>.',
-    'Có thể ghép thẻ với thuộc tính: <code>input[name="side"]</code>, <code>button[type="submit"]</code>.',
-    'Mở Inspect để đọc id của form và class của khung thông báo (khung này đang bị ẩn nhưng vẫn có trong HTML).'],
-  starter: LOC_HEAD + String.raw`const locators = (page: Page) => ({
-  orderForm: page.locator('TODO'),
-  sideRadios: page.locator('TODO'),
-  submitButton: page.locator('TODO'),
-  toast: page.locator('TODO'),
-});
-`,
-  tests: String.raw`
-const r = { kinds: ['css'], kindLabel: 'page.locator() với CSS selector' };
-check('orderForm', () => H.locator('orderForm', '#order-form', r));
-check('sideRadios (2 phần tử)', () => H.locator('sideRadios', 'input[name="side"]', r));
-check('submitButton', () => H.locator('submitButton', '#order-form button[type=submit]', r));
-check('toast', () => H.locator('toast', '.toast', r));
-`},
-{ id:'w4.7', week:4, pw:true, kind:'locator', route:'/dashboard', exports:['locators'], group:K1, num:'7', title:'CSS selector nâng cao',
-  desc:`<p>Trên bảng giá, dùng CSS để lấy <strong>nhóm</strong> phần tử (mỗi locator khớp nhiều phần tử):</p>
-<ul>
-<li><code>rows</code>: tất cả 6 dòng dữ liệu (không tính dòng tiêu đề).</li>
-<li><code>priceCells</code>: 6 ô ở cột "Giá" (cột thứ 3).</li>
-<li><code>risingCells</code>: các ô "Thay đổi" đang tăng giá (có class <code>up</code>).</li>
-<li><code>watchButtons</code>: 6 nút "Theo dõi". Id của chúng sinh ngẫu nhiên, nhưng luôn bắt đầu bằng <code>watch-</code>.</li>
-</ul>`,
-  hints:[
-    'Dấu cách nghĩa là "nằm bên trong": <code>tbody tr</code> là các <code>tr</code> nằm trong <code>tbody</code>.',
-    '<code>:nth-child(3)</code> chọn phần tử là con thứ 3 của cha nó. Ví dụ <code>tbody td:nth-child(3)</code>.',
-    '<code>[id^="watch-"]</code> nghĩa là id <strong>bắt đầu bằng</strong> "watch-". Tương tự <code>*=</code> là chứa, <code>$=</code> là kết thúc bằng.'],
-  starter: LOC_HEAD + String.raw`const locators = (page: Page) => ({
-  rows: page.locator('TODO'),
-  priceCells: page.locator('TODO'),
-  risingCells: page.locator('TODO'),
-  watchButtons: page.locator('TODO'),
-});
-`,
-  tests: String.raw`
-const r = { kinds: ['css'], kindLabel: 'page.locator() với CSS selector' };
-check('rows (6 dòng)', () => H.locator('rows', 'tbody tr', r));
-check('priceCells (6 ô)', () => H.locator('priceCells', 'tbody td:nth-child(3)', r));
-check('risingCells', () => H.locator('risingCells', 'td.up', r));
-check('watchButtons (6 nút)', () => H.locator('watchButtons', '[id^="watch-"]', r));
-`},
-{ id:'w4.8', week:4, pw:true, kind:'locator', route:'/orders', exports:['locators'], group:K1, num:'8', title:'XPath',
-  desc:`<p>XPath hữu ích khi cần đi theo quan hệ giữa các phần tử mà CSS không làm được, ví dụ "tìm dòng có ô chứa chữ X". Dùng <code>page.locator('//...')</code> trên trang Lệnh của tôi:</p>
-<ul>
-<li><code>row1002</code>: dòng có số hiệu "DH-1002".</li>
-<li><code>cancel1003</code>: nút "Hủy" trong dòng "DH-1003".</li>
-<li><code>badges</code>: tất cả nhãn trạng thái (thẻ <code>span</code> có class chứa <code>badge</code>), khớp 3 phần tử.</li>
-<li><code>typeHeader</code>: ô tiêu đề cột <strong>ngay sau</strong> cột "Mã".</li>
-</ul>`,
-  hints:[
-    '<code>//tr[td[text()="DH-1002"]]</code>: một <code>tr</code> có con <code>td</code> với chữ đúng bằng "DH-1002".',
-    'Đi tiếp xuống bên trong: <code>//tr[td[text()="DH-1003"]]//button[text()="Hủy"]</code>. Class nhiều giá trị dùng <code>contains(@class, "badge")</code>.',
-    'Anh em đứng sau: <code>//th[text()="Mã"]/following-sibling::th[1]</code>.'],
-  starter: LOC_HEAD + String.raw`const locators = (page: Page) => ({
-  row1002: page.locator('//TODO'),
-  cancel1003: page.locator('//TODO'),
-  badges: page.locator('//TODO'),
-  typeHeader: page.locator('//TODO'),
-});
-`,
-  tests: String.raw`
-const r = { kinds: ['xpath'], kindLabel: 'XPath (chuỗi bắt đầu bằng //)' };
-const rowOf = id => d => [...d.querySelectorAll('tbody tr')].filter(tr => tr.cells[0].textContent === id);
-check('row1002', () => H.locator('row1002', rowOf('DH-1002'), r));
-check('cancel1003', () => H.locator('cancel1003', d => rowOf('DH-1003')(d).map(tr => tr.querySelector('button.danger')), r));
-check('badges (3 phần tử)', () => H.locator('badges', 'span.badge', r));
-check('typeHeader', () => H.locator('typeHeader', d => [d.querySelectorAll('th')[2]], r));
-`},
-{ id:'w4.9', week:4, pw:true, kind:'locator', route:'/dashboard', exports:['locators'], group:K1, num:'9', title:'Lọc và nối locator',
+{ id:'w4.9', week:4, pw:true, kind:'locator', route:'/dashboard', exports:['locators'], group:K1, num:'6', title:'Lọc và nối locator',
   desc:`<p>Trên bảng giá có 6 nút "Mua" giống hệt nhau. Để lấy đúng nút của một mã, cần lấy <strong>dòng</strong> trước rồi tìm nút <strong>bên trong</strong> dòng đó.</p>
 <ul>
 <li><code>buyButtons</code>: tất cả 6 nút "Mua".</li>
@@ -6794,12 +6835,12 @@ check('typeHeader', () => H.locator('typeHeader', d => [d.querySelectorAll('th')
   hints:[
     'Locator nối được với nhau: <code>dong.getByRole(\'button\', ...)</code> chỉ tìm bên trong <code>dong</code>.',
     '<code>page.getByRole(\'row\').filter({ hasText: \'Sony\' })</code> giữ lại những dòng có chữ "Sony".',
-    '<code>nth(i)</code> đếm từ 0. <code>getByRole(\'row\')</code> có cả dòng tiêu đề, nên dùng <code>page.locator(\'tbody tr\').nth(2)</code> sẽ dễ hiểu hơn.'],
+    '<code>nth(i)</code> đếm từ 0. <code>getByRole(\'row\')</code> có cả dòng tiêu đề ở vị trí 0, nên dòng dữ liệu thứ 3 là <code>nth(3)</code>.'],
   starter: LOC_HEAD + String.raw`const locators = (page: Page) => ({
   buyButtons: page.getByRole('button', { name: 'TODO' }),
   sonyBuy: page.getByText('TODO'),
   keyenceWatch: page.getByText('TODO'),
-  thirdRow: page.locator('TODO'),
+  thirdRow: page.getByText('TODO'),
 });
 `,
   tests: String.raw`
@@ -6809,7 +6850,7 @@ check('sonyBuy', () => H.locator('sonyBuy', d => rowByName('Sony')(d).map(tr => 
 check('keyenceWatch', () => H.locator('keyenceWatch', d => rowByName('Keyence')(d).map(tr => tr.querySelector('button.ghost')), { kinds: ['filter'], kindLabel: '.filter(...)' }));
 check('thirdRow', () => H.locator('thirdRow', d => [d.querySelectorAll('tbody tr')[2]]));
 `},
-{ id:'w4.10', week:4, pw:true, kind:'locator', route:'/orders', exports:['locators'], group:K1, num:'10', title:'Strict mode và locator bền vững',
+{ id:'w4.10', week:4, pw:true, kind:'locator', route:'/orders', exports:['locators'], group:K1, num:'7', title:'Strict mode và locator bền vững',
   desc:`<p>Bài khó nhất của phần locator. Trên trang Lệnh của tôi, mỗi dòng có nút "Chi tiết" và "Hủy" giống nhau, và <strong>id của nút Chi tiết thay đổi mỗi lần tải trang</strong>. Bộ chấm sẽ tải lại trang trước khi kiểm tra, nên locator dựa vào id sẽ trượt.</p>
 <ul>
 <li><code>cancel1002</code>: nút "Hủy" của lệnh DH-1002.</li>
@@ -6821,7 +6862,7 @@ check('thirdRow', () => H.locator('thirdRow', d => [d.querySelectorAll('tbody tr
   hints:[
     'Hãy tìm dòng bằng chữ ổn định (số hiệu lệnh, mã cổ phiếu), không dựa vào id hay thứ tự dòng.',
     '<code>page.getByRole(\'row\').filter({ hasText: \'DH-1002\' }).getByRole(\'button\', { name: \'Hủy\' })</code>.',
-    'Nhãn trạng thái là thẻ <code>span</code> có class <code>badge</code>: tìm dòng rồi <code>.locator(\'.badge\')</code>.'],
+    'Nhãn trạng thái không có role riêng. Tìm dòng trước, rồi tìm theo chữ trạng thái bên trong dòng: <code>.getByText(\'Chờ khớp\')</code>.'],
   starter: LOC_HEAD + String.raw`const locators = (page: Page) => ({
   cancel1002: page.getByText('TODO'),
   detail9984: page.getByText('TODO'),
@@ -6838,7 +6879,7 @@ check('cancelButtons (3 nút)', () => H.locator('cancelButtons', 'button.danger'
 `},
 
 /* ---------- Viết step ---------- */
-{ id:'w4.11', week:4, pw:true, group:K2, num:'11', title:'Test Playwright đầu tiên',
+{ id:'w4.11', week:4, pw:true, group:K2, num:'8', title:'Test Playwright đầu tiên',
   desc:`<p>Viết test tên <code>'mở trang đăng nhập'</code>:</p>
 <ul>
 <li>Mở trang <code>/login</code>.</li>
@@ -6867,7 +6908,7 @@ check('Mở trang /login', () => expect(__acts().some(a => a.type === 'goto' && 
 check('Kiểm tra tiêu đề tab bằng toHaveTitle', () => expect(__okAssert(/^toHaveTitle$/), 'Chưa có expect(page).toHaveTitle(...) nào pass').toBe(true));
 check('Kiểm tra heading bằng toBeVisible', () => expect(__asserts().some(a => a.pass && a.matcher === 'toBeVisible' && /heading|h1/.test(a.target)), 'Cần expect(page.getByRole(\'heading\', ...)).toBeVisible()').toBe(true));
 `},
-{ id:'w4.12', week:4, pw:true, group:K2, num:'12', title:'Điền form và bấm nút: đăng nhập',
+{ id:'w4.12', week:4, pw:true, group:K2, num:'9', title:'Điền form và bấm nút: đăng nhập',
   desc:`<p>Viết test <code>'đăng nhập thành công'</code>:</p>
 <ul>
 <li>Mở <code>/login</code>, điền email <code>thao@sandemo.test</code> và mật khẩu <code>Demo@123</code>.</li>
@@ -6895,7 +6936,7 @@ check('Kiểm tra URL bằng toHaveURL', () => expect(__okAssert(/^toHaveURL$/),
 check('Kiểm tra dòng chào hiển thị', () => expect(__okAssert(/^(toBeVisible|toHaveText|toContainText)$/), 'Cần kiểm tra "Xin chào, Thao" bằng toBeVisible hoặc toContainText').toBe(true));
 check('Test phát hiện được bug "không chuyển trang"', async () => { const r = await H.rerun('login-no-redirect'); expect(r.some(t => t.status === 'failed'), 'Trang bị bug mà test vẫn pass, nghĩa là test chưa kiểm tra đủ').toBe(true); });
 `},
-{ id:'w4.13', week:4, pw:true, group:K2, num:'13', title:'Assertion cho trường hợp lỗi',
+{ id:'w4.13', week:4, pw:true, group:K2, num:'10', title:'Assertion cho trường hợp lỗi',
   desc:`<p>Test thất bại quan trọng không kém test thành công. Viết <strong>2 test</strong>:</p>
 <ul>
 <li><code>'báo lỗi khi bỏ trống email'</code>: không điền gì, bấm Đăng nhập, kiểm tra thông báo lỗi là <code>"Vui lòng nhập email"</code>.</li>
@@ -6922,7 +6963,7 @@ check('Tất cả test pass', () => expect(__passed(), __failMsg()).toBe(true));
 check('Mỗi test đều kiểm tra nội dung thông báo', () => expect(__pw.tests.filter(t => t.asserts.some(a => a.pass && /^(toHaveText|toContainText)$/.test(a.matcher))).length >= 2, 'Cần toHaveText hoặc toContainText trong cả 2 test').toBe(true));
 check('Test phát hiện được bug "sai nội dung thông báo"', async () => { const r = await H.rerun('login-error-text'); expect(r.some(t => t.status === 'failed'), 'Thông báo lỗi đã bị đổi mà mọi test vẫn pass').toBe(true); });
 `},
-{ id:'w4.14', week:4, pw:true, group:K2, num:'14', title:'Select, radio và checkbox',
+{ id:'w4.14', week:4, pw:true, group:K2, num:'11', title:'Select, radio và checkbox',
   desc:`<p>Viết test <code>'đặt lệnh bán'</code> trên trang <code>/order</code>:</p>
 <ul>
 <li>Chọn mã <code>7203</code>.</li>
@@ -6950,7 +6991,7 @@ check('Kiểm tra nút bị vô hiệu hóa rồi được bật', () => { expec
 check('Lệnh bán 7203 x200 đã được tạo', () => expect((__pw.tests[0] && __pw.tests[0].state.orders || []).some(o => o.code === '7203' && o.side === 'sell' && o.qty === 200)).toBe(true));
 check('Test phát hiện được bug "luôn đặt lệnh mua"', async () => { const r = await H.rerun('order-side-ignored'); expect(r.some(t => t.status === 'failed'), 'Ứng dụng đặt nhầm thành lệnh MUA mà test vẫn pass').toBe(true); });
 `},
-{ id:'w4.15', week:4, pw:true, group:K2, num:'15', title:'Chờ dữ liệu và tìm kiếm',
+{ id:'w4.15', week:4, pw:true, group:K2, num:'12', title:'Chờ dữ liệu và tìm kiếm',
   desc:`<p>Bảng giá mất khoảng 0,6 đến 1,2 giây để tải, mỗi lần một khác. Viết test <code>'tìm kiếm mã cổ phiếu'</code>:</p>
 <ul>
 <li>Mở <code>/dashboard</code>, kiểm tra bảng có đủ 6 dòng dữ liệu.</li>
@@ -6960,8 +7001,8 @@ check('Test phát hiện được bug "luôn đặt lệnh mua"', async () => { 
 <p><strong>Không</strong> dùng <code>page.waitForTimeout</code>.</p>`,
   hints:[
     '<code>expect(...).toHaveCount(6)</code> tự chờ và thử lại cho tới khi đúng hoặc hết giờ, nên không cần chờ cố định.',
-    'Dòng bị lọc bỏ vẫn có trong HTML nhưng bị ẩn. <code>page.locator(\'tbody tr\')</code> đếm cả dòng ẩn, còn <code>page.getByRole(\'row\')</code> thì không. Có thể dùng <code>.filter({ visible: true })</code>.',
-    '<code>await expect(page.locator(\'tbody tr\').filter({ visible: true })).toHaveCount(1);</code>'],
+    'Dòng bị lọc bỏ vẫn có trong HTML nhưng bị ẩn. <code>page.getByRole(\'row\')</code> tự bỏ qua dòng ẩn, nhưng có tính dòng tiêu đề. Lọc thêm <code>.filter({ has: page.getByRole(\'cell\') })</code> để chỉ giữ dòng dữ liệu.',
+    '<code>const rows = page.getByRole(\'row\').filter({ has: page.getByRole(\'cell\') });</code> rồi <code>await expect(rows).toHaveCount(1);</code>'],
   starter: String.raw`import { test, expect } from '@playwright/test';
 
 test('tìm kiếm mã cổ phiếu', async ({ page }) => {
@@ -6976,7 +7017,7 @@ check('Dùng toHaveCount', () => expect(__okAssert(/^toHaveCount$/)).toBe(true))
 check('Có gõ vào ô tìm kiếm', () => expect(__acts().some(a => a.type === 'fill' && /sony/i.test(String(a.arg)))).toBe(true));
 check('Test phát hiện được bug "tìm kiếm không lọc"', async () => { const r = await H.rerun('search-broken'); expect(r.some(t => t.status === 'failed'), 'Ô tìm kiếm hỏng mà test vẫn pass').toBe(true); });
 `},
-{ id:'w4.16', week:4, pw:true, group:K2, num:'16', title:'TypeScript: interface và test theo dữ liệu',
+{ id:'w4.16', week:4, pw:true, group:K2, num:'13', title:'TypeScript: interface và test theo dữ liệu',
   desc:`<p>Thay vì viết 3 test gần giống nhau, hãy mô tả dữ liệu bằng TypeScript rồi sinh test tự động:</p>
 <ul>
 <li>Khai báo <code>interface LoginCase</code> gồm <code>name</code>, <code>email</code>, <code>password</code>, <code>message</code> (đều là <code>string</code>).</li>
@@ -7011,7 +7052,7 @@ check('Tất cả test pass', () => expect(__passed(), __failMsg()).toBe(true));
 check('Mỗi test kiểm tra thông báo lỗi', () => expect(__pw.tests.every(t => t.asserts.some(a => a.pass && /^(toHaveText|toContainText)$/.test(a.matcher)))).toBe(true));
 check('Test phát hiện được bug "sai nội dung thông báo"', async () => { const r = await H.rerun('login-error-text'); expect(r.some(t => t.status === 'failed')).toBe(true); });
 `},
-{ id:'w4.17', week:4, pw:true, exports:['LoginPage'], group:K2, num:'17', title:'Page Object Model',
+{ id:'w4.17', week:4, pw:true, exports:['LoginPage'], group:K2, num:'14', title:'Page Object Model',
   desc:`<p>Gom locator và thao tác của trang đăng nhập vào một class, để các test dùng lại. Class <code>LoginPage</code> cần có:</p>
 <ul>
 <li>Constructor nhận <code>page: Page</code>.</li>
@@ -7055,7 +7096,7 @@ check('goto() và login() hoạt động', async () => { const lp = new __pw.exp
 check('Test dùng LoginPage và pass', () => { expect(/new\s+LoginPage\s*\(/.test(__code), 'Test chưa dùng new LoginPage(page)').toBe(true); expect(__passed(), __failMsg()).toBe(true); });
 check('Test có assertion', () => expect(__asserts().some(a => a.pass), 'Test chưa kiểm tra gì cả').toBe(true));
 `},
-{ id:'w4.18', week:4, pw:true, group:K2, num:'18', title:'Tổng hợp: luồng đặt lệnh từ đầu đến cuối',
+{ id:'w4.18', week:4, pw:true, group:K2, num:'15', title:'Tổng hợp: luồng đặt lệnh từ đầu đến cuối',
   desc:`<p>Viết một test end-to-end <code>'mua cổ phiếu Toyota'</code> đi qua nhiều trang, đúng như người dùng thật:</p>
 <ul>
 <li>Đăng nhập, chờ tới trang Bảng giá.</li>
@@ -7115,13 +7156,28 @@ Object.assign(LESSONS, {
 </ul>
 <h3>Locator là gì</h3>
 <p>Locator là "cách mô tả để tìm" một phần tử. Khác với <code>driver.findElement</code> của Selenium, tạo locator <strong>chưa</strong> đi tìm ngay. Playwright chỉ tìm khi bạn thao tác (click, fill) hoặc kiểm tra, và tự chờ tới khi phần tử sẵn sàng.</p>
+<h3>Đọc một dòng code Playwright</h3>
+<p>Mọi thao tác tuần này đều theo cùng một khuôn: <strong>tìm phần tử</strong>, rồi <strong>làm gì đó</strong> với nó.</p>
+${ANAT(["await", "Chờ thao tác làm xong rồi mới chạy dòng tiếp theo (tuần 3, bài 6). Thiếu <code>await</code> là lỗi hay gặp nhất."], " ", ["page", "Tab trình duyệt đang mở. Playwright đưa vào qua <code>async ({ page }) =&gt;</code>."], [".getByRole(", "<strong>Cách tìm</strong>: theo vai trò. Mọi cách tìm của Playwright đều bắt đầu bằng <code>getBy</code>: <code>getByLabel</code>, <code>getByText</code>..."], ["'button'", "<strong>Tìm cái gì</strong>: một nút bấm. Chữ đặt trong nháy đơn."], ", ", ["{ name: 'Đăng nhập' }", "<strong>Tùy chọn</strong>, luôn nằm trong ngoặc nhọn: tên của nút, tức chữ in trên nút."], ")", [".click()", "<strong>Làm gì</strong>: bấm vào. Thao tác khác: <code>.fill('chữ')</code> gõ chữ, <code>.check()</code> tích ô, <code>.selectOption('giá trị')</code> chọn trong danh sách."], ";")}
+<p>Đọc cả dòng: “chờ bấm xong vào <strong>nút</strong> có tên <strong>Đăng nhập</strong>”. Phần <code>page.getByRole(...)</code> là <strong>locator</strong>, phần <code>.click()</code> là <strong>thao tác</strong>.</p>
+<h3>Cách lấy locator cho một phần tử</h3>
+<ol>
+<li><strong>Nhìn xem phần tử là loại gì:</strong> nút, liên kết, ô nhập, ô tích, tiêu đề, dòng trong bảng...</li>
+<li><strong>Tìm chữ đi kèm:</strong> chữ trên nút hoặc liên kết, nhãn cạnh ô nhập, chữ mờ trong ô còn trống.</li>
+<li><strong>Chọn cách tìm theo bảng dưới</strong>, xét từ trên xuống, dùng dòng đầu tiên phù hợp.</li>
+<li><strong>Thử ngay</strong> trong ô <em>Thử locator</em> ở tab Trang web. Phải khớp đúng <strong>1</strong> phần tử: khớp 0 là sai chữ hoặc sai loại; khớp nhiều hơn thì thêm <code>exact: true</code> hoặc tìm trong một dòng cụ thể (bài 6).</li>
+</ol>
+${TRACE(['Bạn nhìn thấy', 'Dùng (ví dụ trên Sàn Demo)'], [["Nút, liên kết, tiêu đề, ô tích có chữ", "<code>getByRole('button', { name: 'Đăng nhập' })</code>"], ["Ô nhập có nhãn bên cạnh", "<code>getByLabel('Giá đặt')</code>"], ["Ô nhập chỉ có chữ mờ bên trong", "<code>getByPlaceholder('ban@congty.com')</code>"], ["Đoạn chữ thường: thông báo, mô tả", "<code>getByText('Quên mật khẩu?')</code>"], ["Không có chữ ổn định, ví dụ con số thay đổi", "<code>getByTestId('order-count')</code>"]])}
+<p>Không chắc thì bấm <em>Chọn phần tử</em> rồi bấm vào phần tử trên trang, công cụ sẽ gợi ý locator. Hãy đọc hiểu gợi ý theo khuôn ở trên, đừng chép máy móc.</p>
 <h3>getByText: tìm theo chữ nhìn thấy</h3>
 <p>Cách dễ nhất: nhìn thấy chữ gì trên màn hình thì tìm bằng chữ đó. Mặc định chỉ cần khớp một phần và không phân biệt hoa thường. Thêm <code>{ exact: true }</code> để khớp chính xác.</p>
+${ANAT(["page.getByText(", "Tìm phần tử theo chữ hiển thị trên màn hình."], ["'Quên mật khẩu?'", "Chữ cần tìm, chép như trên màn hình. Mặc định chỉ cần phần tử <strong>chứa</strong> chữ này, không phân biệt hoa thường."], ", ", ["{ exact: true }", "Không bắt buộc. Thêm vào khi cần khớp <strong>đúng từng chữ</strong>, kể cả hoa thường và dấu chấm hỏi."], ")")}
 {{ex0}}
 <h3>getByPlaceholder: tìm ô nhập theo chữ gợi ý</h3>
 <p>Chữ mờ trong ô nhập khi còn trống gọi là placeholder. Nhiều ô nhập không có chữ nào khác bên cạnh, khi đó placeholder là cách nhận biết tự nhiên nhất.</p>
+${ANAT(["page.getByPlaceholder(", "Tìm ô nhập theo chữ mờ bên trong nó."], ["'ban@congty.com'", "Chữ mờ, chép đúng như trên màn hình. Ô đã có chữ thì xóa hết để thấy lại chữ mờ."], ")", [".fill('an@test.vn')", "Thao tác: xóa nội dung cũ rồi gõ chữ mới vào ô."])}
 {{ex1}}
-<p class="note">Thứ tự học tuần này đi từ dễ đến khó. Còn thứ tự <strong>ưu tiên khi dùng</strong> theo khuyến nghị của Playwright là: getByRole → getByLabel → getByPlaceholder → getByText → getByTestId → CSS/XPath. Bạn sẽ hiểu vì sao sau bài 3.</p>`,
+<p class="note">Bài 1–5 học các cách <code>getBy...</code> theo thứ tự từ dễ đến khó. Khi dùng thật, hãy xét theo thứ tự trong bảng ở trên, đó là khuyến nghị của Playwright; bạn sẽ hiểu vì sao sau bài 3. CSS và XPath chỉ dùng khi mọi cách trên đều không được, nằm trong phần nâng cao cuối tuần (bài 21–23), không bắt buộc.</p>`,
 examples:[String.raw`test('thử getByText', async ({ page }) => {
   await page.goto('/login');
   console.log('"Quên mật khẩu":', await page.getByText('Quên mật khẩu').count());
@@ -7142,6 +7198,13 @@ String.raw`test('thử getByPlaceholder', async ({ page }) => {
 &lt;input id="qty"&gt;
 
 &lt;label&gt;&lt;input type="checkbox"&gt; Tôi đồng ý...&lt;/label&gt;</pre>
+${ANAT(["page.getByLabel(", "Tìm ô nhập theo nhãn gắn với nó."], ["'Mã cổ phiếu'", "Chữ của nhãn, chép như trên màn hình."], ")", [".selectOption('6758')", "Thao tác trên <strong>ô nhập</strong> tìm được (không phải trên nhãn). Đây là danh sách chọn nên dùng <code>selectOption</code>. Ô nhập chữ thì dùng <code>.fill()</code>, ô tích thì <code>.check()</code>."])}
+<h3>Cách lấy</h3>
+<ol>
+<li>Tìm chữ nằm ngay trên hoặc bên trái ô nhập. Với ô tích thì là chữ bên phải.</li>
+<li>Thử <code>page.getByLabel('chữ đó')</code> trong ô Thử locator. Khớp 1 là xong.</li>
+<li>Khớp 0 thì chữ đó chỉ là chữ trang trí, chưa được gắn làm nhãn. Chuột phải → Inspect để kiểm tra có thẻ <code>&lt;label&gt;</code> không; nếu không có, chuyển sang <code>getByPlaceholder</code> hoặc báo dev.</li>
+</ol>
 {{ex0}}
 <p class="note">Góc QA: nếu một ô nhập không tìm được bằng <code>getByLabel</code>, rất có thể nó cũng khó dùng với người khiếm thị dùng trình đọc màn hình. Đây là một bug về accessibility đáng báo cho dev.</p>`,
 examples:[String.raw`test('thử getByLabel', async ({ page }) => {
@@ -7156,6 +7219,15 @@ examples:[String.raw`test('thử getByLabel', async ({ page }) => {
 <h3>Vai trò (role) là gì</h3>
 <p>Mỗi phần tử có một vai trò theo chuẩn accessibility: thẻ <code>button</code> có vai trò <code>button</code>, <code>a href</code> là <code>link</code>, <code>h1</code> đến <code>h6</code> là <code>heading</code>, ô nhập chữ là <code>textbox</code>, ô tích là <code>checkbox</code>... Đây là cách trình đọc màn hình "nhìn" trang web.</p>
 <p>Kèm theo vai trò là <strong>tên</strong> (accessible name): với nút, liên kết, tiêu đề thì là chữ bên trong; với ô nhập thì là nhãn của nó.</p>
+${ANAT(["page.getByRole(", "Tìm theo vai trò."], ["'button'", "<strong>Vai trò</strong>: phần tử là loại gì. Luôn là từ tiếng Anh viết thường, tra ở bảng cuối bài."], ", { ", ["name", "Từ khóa cố định, luôn viết đúng là <code>name</code>."], ": ", ["'Đăng nhập'", "<strong>Tên</strong>: chữ người dùng nhìn thấy trên nút. Với ô nhập là chữ của nhãn."], " })")}
+<p>Đọc cả dòng: “tìm <strong>nút</strong> có tên <strong>Đăng nhập</strong>”. Chỉ cần trả lời hai câu hỏi: nó là cái gì, và trên nó ghi chữ gì.</p>
+<h3>Cách lấy role và name</h3>
+<ol>
+<li><strong>Role</strong>: bấm để gửi hoặc thực hiện việc gì → <code>button</code>; bấm để sang trang khác → <code>link</code>; chữ to làm tiêu đề → <code>heading</code>; ô gõ chữ → <code>textbox</code>. Xem thêm bảng cuối bài.</li>
+<li><strong>Name</strong>: chữ trên nút, liên kết, tiêu đề; nhãn của ô nhập.</li>
+<li>Thử trong ô Thử locator. Không chắc role là gì thì dùng <em>Chọn phần tử</em>, gợi ý đầu tiên thường là <code>getByRole</code> với đúng role và name.</li>
+</ol>
+<p class="note">Trên trang thật: chuột phải → Inspect → mở tab <strong>Accessibility</strong> trong DevTools của Chrome, mục <em>Computed Properties</em> ghi sẵn <strong>Role</strong> và <strong>Name</strong> của phần tử đang chọn.</p>
 {{ex0}}
 <h3>Vì sao getByRole được ưu tiên</h3>
 <ul>
@@ -7175,6 +7247,8 @@ examples:[String.raw`test('getByRole phân biệt tiêu đề và nút', async (
 
 'w4.4': { html:`
 <h3>Tùy chọn của getByRole</h3>
+<p>Mọi tùy chọn nằm chung trong <strong>một</strong> cặp ngoặc nhọn, cách nhau bằng dấu phẩy:</p>
+${ANAT("page.getByRole('button', { ", ["name: 'Mua'", "Tên của nút."], ", ", ["exact: true", "Tên phải khớp chính xác. Không có dòng này thì “Mua” khớp cả nút “Mua ký quỹ” nếu trang có."], " })")}
 {{ex0}}
 <ul>
 <li><code>name</code>: mặc định khớp một phần, không phân biệt hoa thường. Có thể dùng regex như <code>/toyota/i</code>.</li>
@@ -7184,6 +7258,7 @@ examples:[String.raw`test('getByRole phân biệt tiêu đề và nút', async (
 </ul>
 <h3>Bảng dữ liệu</h3>
 <p>Dòng có vai trò <code>row</code>, ô tiêu đề là <code>columnheader</code>, ô thường là <code>cell</code>. Tên của một dòng là toàn bộ chữ trong dòng nối lại, nên tìm dòng theo một chữ bất kỳ trong dòng rất tiện.</p>
+${ANAT("page.getByRole(", ["'row'", "Một dòng của bảng."], ", ", ["{ name: 'Sony' }", "Chữ có trong dòng: tên công ty, mã <code>'6758'</code>... Chọn chữ chỉ xuất hiện ở đúng dòng cần tìm."], ")")}
 <h3>aria-label</h3>
 <p>Ô tìm kiếm trên bảng giá không có nhãn hiển thị, nhưng có <code>aria-label="Tìm kiếm"</code>. Thuộc tính này cung cấp tên cho phần tử, nên <code>getByRole</code> và <code>getByLabel</code> đều dùng được.</p>`,
 examples:[String.raw`test('tùy chọn của getByRole', async ({ page }) => {
@@ -7200,6 +7275,9 @@ examples:[String.raw`test('tùy chọn của getByRole', async ({ page }) => {
 <h3>data-testid: thỏa thuận giữa QA và dev</h3>
 <p>Khi không có chữ hay vai trò nào ổn định (ví dụ một con số thay đổi liên tục), team có thể thống nhất gắn thuộc tính riêng cho test:</p>
 <pre>&lt;span data-testid="order-count"&gt;3&lt;/span&gt;</pre>
+${ANAT(["page.getByTestId(", "Tìm theo thuộc tính <code>data-testid</code> trong HTML."], ["'order-count'", "Giá trị của thuộc tính, chép đúng từng ký tự. Không viết phần <code>data-testid=</code>."], ")")}
+<h3>Cách lấy</h3>
+<p>Người dùng không nhìn thấy testid, nên phải chuột phải vào phần tử → Inspect, rồi tìm thuộc tính <code>data-testid</code> trong HTML. Không thấy thì phần tử đó không có testid: dùng cách khác, hoặc đề nghị dev thêm vào.</p>
 {{ex0}}
 <h3>Khi nào nên dùng</h3>
 <ul>
@@ -7247,7 +7325,7 @@ examples:[String.raw`test('CSS nâng cao', async ({ page }) => {
 <p>XPath là ngôn ngữ đường dẫn trong cây HTML. Nó làm được một việc CSS không làm được: <strong>tìm cha dựa vào con</strong>, ví dụ dòng có ô chứa chữ "DH-1002".</p>
 ${TRACE(['Cú pháp', 'Ý nghĩa'], [['<code>//td</code>', 'mọi td ở bất kỳ đâu'], ['<code>//td[text()="DH-1002"]</code>', 'td có chữ đúng bằng'], ['<code>//td[contains(text(), "DH")]</code>', 'td có chữ chứa'], ['<code>//tr[td[text()="DH-1002"]]</code>', 'tr có con td thỏa điều kiện'], ['<code>//span[contains(@class, "badge")]</code>', 'span có class chứa badge'], ['<code>//th[text()="Mã"]/following-sibling::th[1]</code>', 'th đứng ngay sau'], ['<code>/..</code>', 'đi lên cha']])}
 {{ex0}}
-<p class="note">Góc QA: nhiều project Selenium cũ dùng XPath rất nhiều. Trong Playwright, cùng việc "tìm nút trong dòng có chữ X" thường viết gọn và dễ đọc hơn bằng <code>filter</code> (bài 9). Hãy coi XPath là phương án cuối.</p>`,
+<p class="note">Góc QA: nhiều project Selenium cũ dùng XPath rất nhiều. Trong Playwright, cùng việc "tìm nút trong dòng có chữ X" thường viết gọn và dễ đọc hơn bằng <code>filter</code> (bài 6). Hãy coi XPath là phương án cuối.</p>`,
 examples:[String.raw`test('thử XPath', async ({ page }) => {
   await page.goto('/orders');
   const row = page.locator('//tr[td[text()="DH-1002"]]');
@@ -7258,7 +7336,9 @@ examples:[String.raw`test('thử XPath', async ({ page }) => {
 
 'w4.9': { html:`
 <h3>Nối locator</h3>
-<p>Gọi <code>getBy...</code> hoặc <code>locator</code> trên một locator khác thì chỉ tìm <strong>bên trong</strong> phần tử đó.</p>
+<p>Gọi <code>getBy...</code> trên một locator khác thì chỉ tìm <strong>bên trong</strong> phần tử đó. Đây là cách lấy một nút trong số nhiều nút giống hệt nhau:</p>
+${ANAT(["page.getByRole('row')", "Bước 1: lấy tất cả các dòng của bảng."], "\n  ", [".filter({ hasText: 'Sony' })", "Bước 2: chỉ giữ dòng có chữ “Sony”. Còn lại đúng 1 dòng."], "\n  ", [".getByRole('button', { name: 'Mua' })", "Bước 3: tìm nút “Mua” <strong>bên trong</strong> dòng đó."])}
+<p>Đọc như chỉ đường: “vào bảng, tìm dòng có chữ Sony, lấy nút Mua trong dòng ấy”. Xuống dòng trước mỗi dấu chấm cho dễ đọc.</p>
 {{ex0}}
 <h3>filter</h3>
 <p><code>filter</code> không tìm sâu hơn mà <strong>lọc bớt</strong> tập phần tử hiện có:</p>
@@ -7268,7 +7348,8 @@ examples:[String.raw`test('thử XPath', async ({ page }) => {
 <li><code>has</code>: giữ phần tử có chứa một locator con, ví dụ dòng có nút "Hủy" đang bật.</li>
 </ul>
 <h3>nth, first, last</h3>
-<p>Chọn theo vị trí, đếm từ 0. Dùng khi thứ tự thực sự có ý nghĩa (dòng đầu của bảng đã sắp xếp). Nếu không, thứ tự dễ đổi khi dữ liệu thay đổi, nên ưu tiên lọc theo nội dung.</p>`,
+<p>Chọn theo vị trí, đếm từ 0. Dùng khi thứ tự thực sự có ý nghĩa (dòng đầu của bảng đã sắp xếp). Nếu không, thứ tự dễ đổi khi dữ liệu thay đổi, nên ưu tiên lọc theo nội dung.</p>
+<p>Chú ý <code>getByRole('row')</code> tính cả dòng tiêu đề ở vị trí 0. Muốn chỉ lấy dòng dữ liệu thì lọc thêm <code>.filter({ has: page.getByRole('cell') })</code>: dòng tiêu đề chỉ có <code>columnheader</code>, không có <code>cell</code>.</p>`,
 examples:[String.raw`test('nối và lọc locator', async ({ page }) => {
   await page.goto('/dashboard');
   const sonyRow = page.getByRole('row').filter({ hasText: 'Sony' });
@@ -7276,9 +7357,9 @@ examples:[String.raw`test('nối và lọc locator', async ({ page }) => {
   await sonyRow.getByRole('button', { name: 'Theo dõi' }).click();
   await expect(sonyRow.getByRole('button', { name: 'Đang theo dõi' })).toBeVisible();
 
-  const rising = page.locator('tbody tr').filter({ has: page.locator('td.up') });
-  console.log('Số mã tăng:', await rising.count());
-  console.log('Dòng đầu:', await page.locator('tbody tr').first().textContent());
+  const dataRows = page.getByRole('row').filter({ has: page.getByRole('cell') });
+  console.log('Số dòng dữ liệu:', await dataRows.count());
+  console.log('Dòng đầu:', await dataRows.first().textContent());
 });`]},
 
 'w4.10': { html:`
@@ -7286,6 +7367,12 @@ examples:[String.raw`test('nối và lọc locator', async ({ page }) => {
 <p>Khi bạn click, fill hay kiểm tra một phần tử, Playwright yêu cầu locator khớp <strong>đúng một</strong> phần tử. Khớp nhiều hơn sẽ báo lỗi ngay thay vì đoán bừa.</p>
 {{ex0}}
 <p>Selenium <code>findElement</code> lặng lẽ lấy phần tử đầu tiên, nên test có thể click nhầm mà không ai biết. Strict mode của Playwright buộc bạn viết locator rõ ràng.</p>
+<h3>Khớp nhiều phần tử thì sửa thế nào</h3>
+<ol>
+<li>Các phần tử chỉ giống <strong>một phần</strong> tên (“Mua” và “Mua ký quỹ”): thêm <code>exact: true</code>.</li>
+<li>Các phần tử <strong>giống hệt</strong> nhau, mỗi dòng một nút “Hủy”: tìm dòng theo dữ liệu định danh rồi tìm nút trong dòng, như bài 6: <code>page.getByRole('row').filter({ hasText: 'DH-1002' }).getByRole('button', { name: 'Hủy' })</code>.</li>
+<li>Tránh thêm <code>.first()</code> hay <code>.nth()</code> chỉ để hết lỗi: khi dữ liệu đổi thứ tự, test sẽ bấm nhầm mà vẫn chạy.</li>
+</ol>
 <h3>Thế nào là locator bền vững</h3>
 ${TRACE(['Nên dựa vào', 'Tránh dựa vào'], [['Chữ người dùng nhìn thấy', 'Id, class sinh tự động'], ['Vai trò và tên', 'Thứ tự dòng, vị trí trên trang'], ['Dữ liệu định danh (số hiệu lệnh, mã)', 'Cấu trúc lồng nhau dài: div &gt; div &gt; div'], ['data-testid đã thống nhất', 'XPath tuyệt đối /html/body/div[2]/...']])}
 <p class="note">Góc QA: phần lớn test "flaky" ngoài lỗi thời gian là do locator yếu. Viết locator tốt từ đầu tiết kiệm rất nhiều thời gian bảo trì về sau.</p>`,
@@ -7400,19 +7487,20 @@ examples:[String.raw`test('select và radio', async ({ page }) => {
 <h3>Hãy chờ đúng điều kiện</h3>
 <p>Assertion của Playwright tự thử lại cho tới khi đúng. Muốn chờ bảng tải xong, chỉ cần kiểm tra điều bạn mong đợi:</p>
 {{ex1}}
-<h3>Phần tử bị ẩn vẫn có trong HTML</h3>
-<p>Khi tìm kiếm, các dòng không khớp bị ẩn chứ không bị xóa. <code>locator('tbody tr')</code> vẫn đếm chúng. Có hai cách chỉ đếm dòng đang hiển thị: dùng <code>getByRole('row')</code> (bỏ qua phần tử ẩn) hoặc thêm <code>.filter({ visible: true })</code>.</p>`,
+<h3>Chỉ đếm dòng dữ liệu đang hiển thị</h3>
+<p>Khi tìm kiếm, các dòng không khớp bị ẩn chứ không bị xóa khỏi HTML. <code>getByRole</code> tự bỏ qua phần tử bị ẩn, nên chỉ đếm những gì người dùng nhìn thấy.</p>
+${ANAT(["page.getByRole('row')", "Mọi dòng đang hiển thị, <strong>kể cả</strong> dòng tiêu đề."], "\n  ", [".filter({ has: page.getByRole('cell') })", "Chỉ giữ dòng có chứa ô dữ liệu (<code>cell</code>). Dòng tiêu đề chỉ có <code>columnheader</code> nên bị loại."])}`,
 examples:[String.raw`test('cách chờ không nên dùng', async ({ page }) => {
   await page.goto('/dashboard');
   await page.waitForTimeout(500);   // chờ cứng 0,5 giây: có lúc chưa đủ
-  console.log('Số dòng:', await page.locator('tbody tr').count());
+  console.log('Số dòng:', await page.getByRole('row').count());
 });`,
 String.raw`test('chờ đúng điều kiện', async ({ page }) => {
   await page.goto('/dashboard');
-  await expect(page.locator('tbody tr')).toHaveCount(6);
+  const rows = page.getByRole('row').filter({ has: page.getByRole('cell') });
+  await expect(rows).toHaveCount(6);        // tự chờ bảng tải xong
   await page.getByPlaceholder('Tìm mã cổ phiếu').fill('toy');
-  console.log('Tất cả tr:', await page.locator('tbody tr').count());
-  console.log('Đang hiển thị:', await page.locator('tbody tr').filter({ visible: true }).count());
+  console.log('Dòng đang hiển thị:', await rows.count());
 });`]},
 
 'w4.16': { html:`
@@ -7454,7 +7542,7 @@ for (const code of codes) {
 <li>Method <code>async</code> vì bên trong có <code>await</code>.</li>
 </ul>
 <p class="note">Góc QA: POM là câu hỏi gần như chắc chắn gặp trong phỏng vấn SDET. Nguyên tắc chung: page object chứa locator và thao tác, còn <strong>assertion để ở trong test</strong>, để page object dùng lại được cho cả test thành công lẫn thất bại.</p>
-<p class="note">Bài 19–21 mở rộng Page Object thành cả một cấu trúc project: BasePage, constants, dữ liệu JSON và fixture.</p>`,
+<p class="note">Bài 16–18 mở rộng Page Object thành cả một cấu trúc project: BasePage, constants, dữ liệu JSON và fixture.</p>`,
 examples:[String.raw`class DashboardPage {
   readonly searchBox: Locator;
   readonly rows: Locator;
@@ -7644,13 +7732,13 @@ String.raw`test('so sánh với filter', async ({ page }) => {
 <ul>
 <li>Mẫu quan trọng nhất của bài: <strong>lấy dòng theo nội dung, rồi tìm bên trong dòng</strong>. Dùng được cho mọi bảng dữ liệu.</li>
 <li><code>exact: true</code> cho nút Mua để sau này nếu có nút "Mua ký quỹ" thì không bị lẫn.</li>
-<li><code>getByRole('row')</code> có cả dòng tiêu đề ở vị trí 0, nên dòng dữ liệu thứ 3 là <code>nth(3)</code>. Dùng <code>locator('tbody tr').nth(2)</code> rõ nghĩa hơn.</li>
+<li><code>getByRole('row')</code> có cả dòng tiêu đề ở vị trí 0, nên dòng dữ liệu thứ 3 là <code>nth(3)</code>. Muốn đếm từ dòng dữ liệu thì lọc trước: <code>page.getByRole('row').filter({ has: page.getByRole('cell') }).nth(2)</code>. Dòng tiêu đề chỉ có <code>columnheader</code>, không có <code>cell</code>, nên bị loại.</li>
 </ul>`,
 examples:[LOC_HEAD + String.raw`const locators = (page: Page) => ({
   buyButtons: page.getByRole('button', { name: 'Mua', exact: true }),
   sonyBuy: page.getByRole('row').filter({ hasText: 'Sony' }).getByRole('button', { name: 'Mua' }),
   keyenceWatch: page.getByRole('row').filter({ hasText: 'Keyence' }).getByRole('button', { name: 'Theo dõi' }),
-  thirdRow: page.locator('tbody tr').nth(2),
+  thirdRow: page.getByRole('row').nth(3),
 });`]},
 
 'w4.10': { html:`
@@ -7660,6 +7748,7 @@ examples:[LOC_HEAD + String.raw`const locators = (page: Page) => ({
 <ul>
 <li>Mỗi locator neo vào dữ liệu định danh (số hiệu lệnh, mã cổ phiếu), thứ không đổi khi tải lại trang hay khi thêm lệnh mới.</li>
 <li><code>detail9984</code>: nếu dùng <code>#detail-xxxxx</code>, bộ chấm tải lại trang, id đổi, locator khớp 0 phần tử.</li>
+<li><code>status1003</code>: nhãn trạng thái không phải nút hay liên kết nên không có role riêng. Tìm dòng trước rồi tìm theo chữ trong dòng. Khi viết test, kiểm tra trạng thái thường gọn hơn: <code>await expect(row).toContainText('Chờ khớp')</code>.</li>
 <li><code>cancelButtons</code> khớp 3 là đúng yêu cầu. Chỉ khi thao tác (click) mới cần đúng 1; đếm hay <code>toHaveCount</code> thì nhiều phần tử không sao.</li>
 </ul>
 <h3>Gom lại thành hàm dùng chung</h3>
@@ -7667,7 +7756,7 @@ examples:[LOC_HEAD + String.raw`const locators = (page: Page) => ({
 examples:[LOC_HEAD + String.raw`const locators = (page: Page) => ({
   cancel1002: page.getByRole('row').filter({ hasText: 'DH-1002' }).getByRole('button', { name: 'Hủy' }),
   detail9984: page.getByRole('row').filter({ hasText: '9984' }).getByRole('button', { name: 'Chi tiết' }),
-  status1003: page.getByRole('row').filter({ hasText: 'DH-1003' }).locator('.badge'),
+  status1003: page.getByRole('row').filter({ hasText: 'DH-1003' }).getByText('Chờ khớp'),
   cancelButtons: page.getByRole('button', { name: 'Hủy' }),
 });`,
 String.raw`const orderRow = (page: Page, id: string) => page.getByRole('row').filter({ hasText: id });
@@ -7775,19 +7864,19 @@ test('đặt lệnh bán', async ({ page }) => {
 <h3>Giải thích</h3>
 <ul>
 <li>Dòng <code>toHaveCount(6)</code> đầu tiên vừa kiểm tra dữ liệu vừa là "điểm chờ": bảng tải lâu hay nhanh test đều chạy đúng.</li>
-<li><code>getByRole('row')</code> bỏ qua dòng bị ẩn nhưng tính cả dòng tiêu đề, vì vậy sau khi lọc còn 2. Dùng <code>filter({ visible: true })</code> trên <code>tbody tr</code> cho con số trực quan hơn.</li>
+<li><code>getByRole('row')</code> tự bỏ qua dòng bị ẩn nhưng tính cả dòng tiêu đề. <code>filter({ has: page.getByRole('cell') })</code> loại dòng tiêu đề (chỉ có <code>columnheader</code>), nên con số đúng bằng số dòng dữ liệu người dùng nhìn thấy.</li>
 <li>Khi tìm kiếm bị hỏng, vẫn còn 6 dòng hiển thị nên <code>toHaveCount(1)</code> fail.</li>
 </ul>`,
 examples:[String.raw`import { test, expect } from '@playwright/test';
 
 test('tìm kiếm mã cổ phiếu', async ({ page }) => {
   await page.goto('/dashboard');
-  const visibleRows = page.locator('tbody tr').filter({ visible: true });
-  await expect(visibleRows).toHaveCount(6);
+  const rows = page.getByRole('row').filter({ has: page.getByRole('cell') });
+  await expect(rows).toHaveCount(6);
 
   await page.getByPlaceholder('Tìm mã cổ phiếu').fill('Sony');
-  await expect(visibleRows).toHaveCount(1);
-  await expect(visibleRows).toContainText('13,200');
+  await expect(rows).toHaveCount(1);
+  await expect(rows).toContainText('13,200');
 });`]},
 
 'w4.16': { html:`
@@ -8072,7 +8161,7 @@ const TREE_HTML = `<div class="ftree"><ul>
 <div class="fview" id="fview"><p class="muted-s">Bấm vào tên một tệp ở trên để xem nó dùng để làm gì và nội dung mẫu.</p></div>`;
 
 const EX4C = [
-{ id:'w4.19', week:4, pw:true, exports:['BasePage', 'LoginPage', 'ROUTES', 'MESSAGES'], group:K3, num:'19', title:'Nhiều tệp: BasePage và constants',
+{ id:'w4.19', week:4, pw:true, exports:['BasePage', 'LoginPage', 'ROUTES', 'MESSAGES'], group:K3, num:'16', title:'Nhiều tệp: BasePage và constants',
   desc:`<p>Đọc bài giảng trước để hiểu vai trò từng thư mục. Trong sân tập chỉ có một editor, nên mỗi tệp được đánh dấu bằng dòng <code>// @file: đường/dẫn</code>. Thanh <strong>Tệp</strong> phía trên editor giúp nhảy nhanh giữa các tệp.</p>
 <ul>
 <li><code>constants/routes.ts</code>: <code>ROUTES</code> gồm <code>login</code>, <code>dashboard</code>, <code>order</code>, <code>orders</code>.</li>
@@ -8173,7 +8262,7 @@ check('Tệp test không viết cứng URL và câu thông báo', () => { const 
 check('2 test đều pass', () => { expect(__pw.tests.length >= 2).toBe(true); expect(__passed(), __failMsg()).toBe(true); });
 check('Test phát hiện được bug "sai nội dung thông báo"', async () => { const r = await H.rerun('login-error-text'); expect(r.some(t => t.status === 'failed')).toBe(true); });
 `},
-{ id:'w4.20', week:4, pw:true, exports:['OrderPage'], group:K3, num:'20', title:'Dữ liệu test trong tệp JSON',
+{ id:'w4.20', week:4, pw:true, exports:['OrderPage'], group:K3, num:'17', title:'Dữ liệu test trong tệp JSON',
   desc:`<p>Tách dữ liệu ra khỏi code: mỗi lệnh trong <code>test-data/orders.json</code> trở thành một test.</p>
 <ul>
 <li><code>test-data/orders.json</code>: ít nhất <strong>3</strong> lệnh, có cả mua và bán. Mỗi lệnh gồm <code>code</code>, <code>side</code> (<code>"buy"</code> hoặc <code>"sell"</code>), <code>qty</code> và <code>expected</code> (câu thông báo mong đợi, ví dụ <code>"Đặt lệnh thành công: BÁN 6758 x200"</code>).</li>
@@ -8240,7 +8329,7 @@ check('Tệp test không viết cứng mã cổ phiếu', () => expect(/['"]\d{4
 check('Mọi test đều kiểm tra thông báo', () => expect(__pw.tests.every(t => t.asserts.some(a => a.pass && /^(toHaveText|toContainText)$/.test(a.matcher)))).toBe(true));
 check('Test phát hiện được bug "luôn đặt lệnh mua"', async () => { const r = await H.rerun('order-side-ignored'); expect(r.some(t => t.status === 'failed')).toBe(true); });
 `},
-{ id:'w4.21', week:4, pw:true, group:K3, num:'21', title:'Fixture: tự động tạo Page Object',
+{ id:'w4.21', week:4, pw:true, group:K3, num:'18', title:'Fixture: tự động tạo Page Object',
   desc:`<p>Các page object đã được viết sẵn. Nhiệm vụ của bạn:</p>
 <ul>
 <li><code>fixtures/test.fixture.ts</code>: dùng <code>base.extend</code> tạo hàm <code>test</code> mới có hai fixture <code>loginPage</code> và <code>orderPage</code>.</li>
@@ -8325,7 +8414,7 @@ EX.push(...EX4C);
 Object.assign(LESSONS, {
 'w4.19': { html:`
 <h3>Vì sao phải chia thành nhiều tệp</h3>
-<p>Bài 17 gom mọi thứ của trang đăng nhập vào một class. Khi project có hàng trăm test, cần thêm quy ước: tệp nào chứa gì, thư mục nào được dùng thư mục nào. Mục tiêu chung: <strong>khi ứng dụng thay đổi, chỉ phải sửa ở một chỗ</strong>.</p>
+<p>Bài 14 gom mọi thứ của trang đăng nhập vào một class. Khi project có hàng trăm test, cần thêm quy ước: tệp nào chứa gì, thư mục nào được dùng thư mục nào. Mục tiêu chung: <strong>khi ứng dụng thay đổi, chỉ phải sửa ở một chỗ</strong>.</p>
 <h3>Cấu trúc thường gặp</h3>
 <p>Bấm vào từng tệp để xem vai trò và nội dung mẫu:</p>
 ${TREE_HTML}
@@ -8371,7 +8460,7 @@ examples:[L(
 
 'w4.20': { html:`
 <h3>Tách dữ liệu khỏi code</h3>
-<p>Ở bài 16, dữ liệu nằm ngay trong tệp test. Khi có vài chục test case, nên chuyển dữ liệu sang tệp JSON:</p>
+<p>Ở bài 13, dữ liệu nằm ngay trong tệp test. Khi có vài chục test case, nên chuyển dữ liệu sang tệp JSON:</p>
 <ul>
 <li>BA hoặc QA manual đọc và bổ sung được mà không cần biết TypeScript.</li>
 <li>Thêm một test case chỉ là thêm một dòng dữ liệu.</li>
@@ -8402,7 +8491,7 @@ examples:[L(
 
 'w4.21': { html:`
 <h3>Fixture là gì</h3>
-<p>Bạn đã dùng fixture ngay từ bài 11: <code>{ page }</code> trong <code>async ({ page }) =&gt;</code> chính là một fixture do Playwright chuẩn bị sẵn cho mỗi test (mở tab mới, đóng sau khi xong). Playwright cho phép tự định nghĩa thêm fixture của riêng mình.</p>
+<p>Bạn đã dùng fixture ngay từ bài 8: <code>{ page }</code> trong <code>async ({ page }) =&gt;</code> chính là một fixture do Playwright chuẩn bị sẵn cho mỗi test (mở tab mới, đóng sau khi xong). Playwright cho phép tự định nghĩa thêm fixture của riêng mình.</p>
 <h3>Tự tạo fixture với extend</h3>
 {{ex0}}
 <ul>
@@ -8962,7 +9051,7 @@ const REG_FILES = {
 };
 
 const EX4D = [
-{ id:'w4.22', week:4, pw:true, route:'/login', files: LOGIN_FILES, open:'constants/routes.ts', projectName:'sandemo-login', group:K4, num:'22', title:'Dự án POM: luồng Đăng nhập',
+{ id:'w4.22', week:4, pw:true, route:'/login', files: LOGIN_FILES, open:'constants/routes.ts', projectName:'sandemo-login', group:K4, num:'19', title:'Dự án POM: luồng Đăng nhập',
   desc:`<p>Tự dựng một project Playwright hoàn chỉnh cho chức năng Đăng nhập. Mỗi tệp trong cây thư mục bên trái editor hiện chỉ có phần mô tả; bạn tự viết toàn bộ code, kể cả các dòng <code>import</code>/<code>export</code> để nối các tệp với nhau.</p>
 <p><strong>Thứ tự nên làm</strong> (từ tệp không phụ thuộc ai tới tệp dùng mọi thứ):</p>
 <pre>.env → constants/ → locators/ → types/ → utils/ → test-data/
@@ -9003,13 +9092,13 @@ check('Số test = 1 + số trường hợp sai, tất cả pass', () => { expec
 check('Phát hiện bug "đăng nhập xong không chuyển trang"', async () => { const r = await H.rerun('login-no-redirect'); expect(r.some(t => t.status === 'failed')).toBe(true); });
 check('Phát hiện bug "sai câu thông báo"', async () => { const r = await H.rerun('login-error-text'); expect(r.some(t => t.status === 'failed')).toBe(true); });
 `},
-{ id:'w4.23', week:4, pw:true, route:'/register', files: REG_FILES, open:'constants/routes.ts', projectName:'sandemo-register', group:K4, num:'23', title:'Dự án POM: luồng Đăng ký',
+{ id:'w4.23', week:4, pw:true, route:'/register', files: REG_FILES, open:'constants/routes.ts', projectName:'sandemo-register', group:K4, num:'20', title:'Dự án POM: luồng Đăng ký',
   desc:`<p>Project thứ hai: chức năng <strong>Đăng ký tài khoản</strong> ở trang <code>/register</code> (từ trang Đăng nhập bấm "Tạo tài khoản mới"). Mở tab Trang web và tự khám phá trang trước khi viết code:</p>
 <ul>
 <li>Thử bỏ trống, nhập sai từng ô để thấy các thông báo lỗi.</li>
 <li>Đăng ký thành công sẽ chuyển về trang Đăng nhập kèm một thông báo; tài khoản vừa tạo đăng nhập được ngay.</li>
 </ul>
-<p>Điểm mới so với bài 22:</p>
+<p>Điểm mới so với bài 19:</p>
 <ul>
 <li><strong>Dữ liệu không được trùng:</strong> mỗi lần chạy phải đăng ký một email mới, vì vậy cần hàm <code>uniqueEmail()</code>.</li>
 <li><strong>Trường hợp sai mô tả bằng phần khác biệt:</strong> mỗi case trong <code>register.json</code> chỉ ghi các trường bị làm sai (<code>overrides</code>), phần còn lại lấy từ một người dùng hợp lệ.</li>
@@ -9047,6 +9136,91 @@ check('Phát hiện bug "không kiểm tra mật khẩu nhập lại"', async ()
 ];
 for (const ex of EX4D) ex.starter = JSON.stringify(ex.files);
 EX.push(...EX4D);
+
+/* ---------- Nâng cao, không bắt buộc: CSS và XPath. Không tính vào tiến độ. ---------- */
+const K5 = 'Nâng cao (không bắt buộc): CSS và XPath';
+const EX4_OPT = [
+{ id:'w4.6', week:4, pw:true, kind:'locator', route:'/order', exports:['locators'], group:K5, num:'21', optional:true, title:'CSS selector cơ bản',
+  desc:`<p>Dùng <code>page.locator('css')</code> trên trang Đặt lệnh:</p>
+<ul>
+<li><code>orderForm</code>: thẻ <code>form</code> theo <strong>id</strong>.</li>
+<li><code>sideRadios</code>: <strong>cả hai</strong> nút radio Mua/Bán, theo thuộc tính <code>name</code> (locator này khớp 2 phần tử là đúng).</li>
+<li><code>submitButton</code>: nút gửi form, theo thuộc tính <code>type</code>.</li>
+<li><code>toast</code>: khung thông báo, theo <strong>class</strong>.</li>
+</ul>`,
+  hints:[
+    'Theo id: <code>#ten-id</code>. Theo class: <code>.ten-class</code>. Theo thuộc tính: <code>[ten="gia-tri"]</code>.',
+    'Có thể ghép thẻ với thuộc tính: <code>input[name="side"]</code>, <code>button[type="submit"]</code>.',
+    'Mở Inspect để đọc id của form và class của khung thông báo (khung này đang bị ẩn nhưng vẫn có trong HTML).'],
+  starter: LOC_HEAD + String.raw`const locators = (page: Page) => ({
+  orderForm: page.locator('TODO'),
+  sideRadios: page.locator('TODO'),
+  submitButton: page.locator('TODO'),
+  toast: page.locator('TODO'),
+});
+`,
+  tests: String.raw`
+const r = { kinds: ['css'], kindLabel: 'page.locator() với CSS selector' };
+check('orderForm', () => H.locator('orderForm', '#order-form', r));
+check('sideRadios (2 phần tử)', () => H.locator('sideRadios', 'input[name="side"]', r));
+check('submitButton', () => H.locator('submitButton', '#order-form button[type=submit]', r));
+check('toast', () => H.locator('toast', '.toast', r));
+`},
+{ id:'w4.7', week:4, pw:true, kind:'locator', route:'/dashboard', exports:['locators'], group:K5, num:'22', optional:true, title:'CSS selector nâng cao',
+  desc:`<p>Trên bảng giá, dùng CSS để lấy <strong>nhóm</strong> phần tử (mỗi locator khớp nhiều phần tử):</p>
+<ul>
+<li><code>rows</code>: tất cả 6 dòng dữ liệu (không tính dòng tiêu đề).</li>
+<li><code>priceCells</code>: 6 ô ở cột "Giá" (cột thứ 3).</li>
+<li><code>risingCells</code>: các ô "Thay đổi" đang tăng giá (có class <code>up</code>).</li>
+<li><code>watchButtons</code>: 6 nút "Theo dõi". Id của chúng sinh ngẫu nhiên, nhưng luôn bắt đầu bằng <code>watch-</code>.</li>
+</ul>`,
+  hints:[
+    'Dấu cách nghĩa là "nằm bên trong": <code>tbody tr</code> là các <code>tr</code> nằm trong <code>tbody</code>.',
+    '<code>:nth-child(3)</code> chọn phần tử là con thứ 3 của cha nó. Ví dụ <code>tbody td:nth-child(3)</code>.',
+    '<code>[id^="watch-"]</code> nghĩa là id <strong>bắt đầu bằng</strong> "watch-". Tương tự <code>*=</code> là chứa, <code>$=</code> là kết thúc bằng.'],
+  starter: LOC_HEAD + String.raw`const locators = (page: Page) => ({
+  rows: page.locator('TODO'),
+  priceCells: page.locator('TODO'),
+  risingCells: page.locator('TODO'),
+  watchButtons: page.locator('TODO'),
+});
+`,
+  tests: String.raw`
+const r = { kinds: ['css'], kindLabel: 'page.locator() với CSS selector' };
+check('rows (6 dòng)', () => H.locator('rows', 'tbody tr', r));
+check('priceCells (6 ô)', () => H.locator('priceCells', 'tbody td:nth-child(3)', r));
+check('risingCells', () => H.locator('risingCells', 'td.up', r));
+check('watchButtons (6 nút)', () => H.locator('watchButtons', '[id^="watch-"]', r));
+`},
+{ id:'w4.8', week:4, pw:true, kind:'locator', route:'/orders', exports:['locators'], group:K5, num:'23', optional:true, title:'XPath',
+  desc:`<p>XPath hữu ích khi cần đi theo quan hệ giữa các phần tử mà CSS không làm được, ví dụ "tìm dòng có ô chứa chữ X". Dùng <code>page.locator('//...')</code> trên trang Lệnh của tôi:</p>
+<ul>
+<li><code>row1002</code>: dòng có số hiệu "DH-1002".</li>
+<li><code>cancel1003</code>: nút "Hủy" trong dòng "DH-1003".</li>
+<li><code>badges</code>: tất cả nhãn trạng thái (thẻ <code>span</code> có class chứa <code>badge</code>), khớp 3 phần tử.</li>
+<li><code>typeHeader</code>: ô tiêu đề cột <strong>ngay sau</strong> cột "Mã".</li>
+</ul>`,
+  hints:[
+    '<code>//tr[td[text()="DH-1002"]]</code>: một <code>tr</code> có con <code>td</code> với chữ đúng bằng "DH-1002".',
+    'Đi tiếp xuống bên trong: <code>//tr[td[text()="DH-1003"]]//button[text()="Hủy"]</code>. Class nhiều giá trị dùng <code>contains(@class, "badge")</code>.',
+    'Anh em đứng sau: <code>//th[text()="Mã"]/following-sibling::th[1]</code>.'],
+  starter: LOC_HEAD + String.raw`const locators = (page: Page) => ({
+  row1002: page.locator('//TODO'),
+  cancel1003: page.locator('//TODO'),
+  badges: page.locator('//TODO'),
+  typeHeader: page.locator('//TODO'),
+});
+`,
+  tests: String.raw`
+const r = { kinds: ['xpath'], kindLabel: 'XPath (chuỗi bắt đầu bằng //)' };
+const rowOf = id => d => [...d.querySelectorAll('tbody tr')].filter(tr => tr.cells[0].textContent === id);
+check('row1002', () => H.locator('row1002', rowOf('DH-1002'), r));
+check('cancel1003', () => H.locator('cancel1003', d => rowOf('DH-1003')(d).map(tr => tr.querySelector('button.danger')), r));
+check('badges (3 phần tử)', () => H.locator('badges', 'span.badge', r));
+check('typeHeader', () => H.locator('typeHeader', d => [d.querySelectorAll('th')[2]], r));
+`},
+];
+EX.push(...EX4_OPT);
 
 Object.assign(LESSONS, {
 'w4.22': { html:`
@@ -11357,7 +11531,8 @@ const consoleEl = $('#paneConsole'), testsEl = $('#paneTests'), badgeEl = $('#te
 const runBtn = $('#runBtn'), checkBtn = $('#checkBtn'), markBtn = $('#markBtn'), resetBtn = $('#resetBtn'), copyBtn = $('#copyBtn');
 let current = EX[1];
 const WEEK_SUB = { 1: 'Tuần 1: nền tảng cho SDET', 2: 'Tuần 2: ôn tập qua thuật toán kinh điển', 3: 'Tuần 3: JavaScript hiện đại (ES6+)', 4: 'Tuần 4: Automation với Playwright + TypeScript', 5: 'Tuần 5: CI/CD pipeline với GitHub Actions' };
-function graded(w){ return EX.filter(e => !e.free && e.week === w); }
+// Bài optional hiện trong danh sách nhưng không tính vào thanh tiến độ và số bài xong.
+function graded(w){ return EX.filter(e => !e.free && !e.optional && e.week === w); }
 function exLabel(ex){ return ex.free ? 'Luyện tự do' : (ex.week > 1 ? 'Tuần ' + ex.week + ', bài ' : 'Bài ') + ex.num; }
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -11414,6 +11589,7 @@ function renderBrief(){
   const sol = SOLUTIONS[ex.id];
   if ((briefView === 'lesson' && !lesson) || (briefView === 'solution' && !sol) || (briefView === 'app' && !ex.pw) || (briefView === 'ci' && !ex.ci)) briefView = 'task';
   let tag = ex.free ? '<span class="tag">Không chấm điểm</span>' : ex.tests ? '<span class="tag auto">Có chấm tự động</span>' : '<span class="tag">Tự đánh giá</span>';
+  if (ex.optional) tag += '<span class="tag">Nâng cao, không bắt buộc</span>';
   if (sol && state.revealed[ex.id]) tag += '<span class="tag">Đã xem lời giải</span>';
   let body;
   if (briefView === 'ci'){
