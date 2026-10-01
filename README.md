@@ -1,6 +1,6 @@
 # Lộ trình tự học SDET cho team QC/QA: JavaScript, Playwright, CI/CD và AI
 
-Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA có nhu cầu học và từng bước thực hành theo hướng SDET. Nội dung được chia thành 6 tuần, từ JavaScript nền tảng đến Playwright, CI/CD và dùng AI trong automation testing. Bạn có thể học và làm bài trực tiếp trên trình duyệt, không cần cài đặt gì.
+Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA có nhu cầu học và từng bước thực hành theo hướng SDET. Nội dung được chia thành 7 tuần, từ JavaScript nền tảng đến Playwright, CI/CD, dùng AI trong automation testing, và tuần cuối ôn tập để đi phỏng vấn. Bạn có thể học và làm bài trực tiếp trên trình duyệt, không cần cài đặt gì.
 
 **Dùng thử:** https://TEN-CUA-BAN.github.io/sdet-bootcamp/
 
@@ -14,6 +14,7 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 | 4 | Playwright + TypeScript: locator getBy..., assertion, Page Object Model, fixture, dự án POM hoàn chỉnh (21 bài bắt buộc + CSS/XPath nâng cao không bắt buộc) |
 | 5 | CI/CD với GitHub Actions: secrets, artifact, matrix, sharding, lịch chạy |
 | 6 | AI trong automation testing: dùng AI an toàn, viết prompt, kiểm chứng test case, test và locator do AI viết, Playwright MCP và Playwright Agents |
+| 7 | Ôn tập và phỏng vấn: trắc nghiệm JavaScript, Playwright, CI/CD, câu hỏi phỏng vấn kiến thức và tình huống, bài code và bài thi thực hành cuối khóa |
 
 ## Tính năng
 
@@ -22,6 +23,7 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 - Bộ chấm "cài bug" vào trang để kiểm tra test có thực sự bắt được lỗi không
 - Mô phỏng GitHub Actions: chạy workflow YAML, xem từng job, từng bước và log
 - Tiến độ lưu tự động trong trình duyệt
+- Hoàn thành mọi bài bắt buộc của 7 tuần để nhận chứng nhận hoàn thành, tải về dạng ảnh PNG hoặc in ra PDF
 
 ## Về dự án
 
