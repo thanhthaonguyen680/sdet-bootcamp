@@ -11,7 +11,7 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 | 1 | JavaScript nền tảng (25 bài) |
 | 2 | Ôn tập qua 18 bài thuật toán cơ bản |
 | 3 | JavaScript nâng cao cho Playwright: arrow function, destructuring, method của mảng, async/await (7 bài bắt buộc + 11 bài nâng cao không bắt buộc) |
-| 4 | Playwright + TypeScript: locator getBy..., assertion, Page Object Model, fixture, dự án POM hoàn chỉnh (20 bài bắt buộc + CSS/XPath nâng cao không bắt buộc) |
+| 4 | Playwright + TypeScript: locator getBy..., assertion, Page Object Model, fixture, dự án POM hoàn chỉnh (21 bài bắt buộc + CSS/XPath nâng cao không bắt buộc) |
 | 5 | CI/CD với GitHub Actions: secrets, artifact, matrix, sharding, lịch chạy |
 
 ## Tính năng
