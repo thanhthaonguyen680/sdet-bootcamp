@@ -483,9 +483,9 @@ test('isTrading là true', () => expect(isTrading).toBe(true));
 test('Có dùng typeof', () => expect(__source.includes("typeof"), 'Chưa thấy typeof trong code').toBe(true));
 test('Không dùng var', () => expect(/\bvar\b/.test(__source), 'Hãy dùng const hoặc let thay cho var').toBe(false));
 `},
-{ id:'1.2', group:'1. Biến và kiểu dữ liệu', num:'1.2', manual:true, title:'Dự đoán kết quả so sánh',
-  desc:`<p>Đọc từng dòng, ghi dự đoán vào phần comment, <strong>sau đó</strong> mới bấm Chạy để so sánh.</p>
-<p>Với câu nào đoán sai, hãy tìm hiểu lý do. Bài này không chấm tự động, bấm <em>Đánh dấu đã xong</em> khi bạn đã hiểu hết.</p>`,
+{ id:'1.2', group:'1. Biến và kiểu dữ liệu', num:'1.2', title:'Dự đoán kết quả so sánh',
+  desc:`<p>Đọc từng dòng, ghi dự đoán vào sau chữ <code>Dự đoán:</code>, <strong>sau đó</strong> mới bấm Chạy để so sánh.</p>
+<p>Ghi đúng giá trị sẽ được in ra, ví dụ <code>// Dự đoán: true</code> hoặc <code>// Dự đoán: object</code>. Câu nào đoán sai, hãy tìm hiểu lý do rồi sửa lại dự đoán. Xong thì bấm <em>Kiểm tra bài</em>.</p>`,
   hint:`<code>==</code> tự ép kiểu hai vế rồi mới so sánh, còn <code>===</code> so sánh cả kiểu. <code>typeof null</code> trả về <code>"object"</code> là một lỗi thiết kế từ thời đầu của JavaScript.`,
   starter:String.raw`console.log(1 == "1");           // Dự đoán:
 console.log(1 === "1");          // Dự đoán:
@@ -495,6 +495,14 @@ console.log(typeof null);        // Dự đoán:
 console.log(typeof []);          // Dự đoán:
 console.log(0 == false);         // Dự đoán:
 console.log("" == 0);            // Dự đoán:
+`,
+  tests:String.raw`
+// Đọc dự đoán ghi sau "Dự đoán:" trên dòng chứa đúng phép so sánh, bỏ dấu nháy, không phân biệt hoa thường.
+const __cases = [['1 == "1"', 'true'], ['1 === "1"', 'false'], ['null == undefined', 'true'], ['null === undefined', 'false'], ['typeof null', 'object'], ['typeof []', 'object'], ['0 == false', 'true'], ['"" == 0', 'true']];
+const __lineOf = expr => __source.split('\n').find(l => l.includes('console.log(' + expr + ')'));
+const __guess = expr => { const m = (__lineOf(expr) || '').match(/Dự đoán:?\s*(.*)$/i); return m ? m[1].trim().replace(/^["'\x60]|["'\x60]$/g, '').trim().toLowerCase() : ''; };
+test('Giữ nguyên 8 phép so sánh của đề', () => { const miss = __cases.filter(c => !__lineOf(c[0])).map(c => c[0]); expect(miss.length === 0, 'Không thấy dòng console.log(' + miss.join('), console.log(') + '). Chỉ ghi dự đoán, đừng sửa phép so sánh').toBe(true); });
+for (const [expr, ans] of __cases) test(expr, () => { const g = __guess(expr); expect(g === ans, g ? 'Dự đoán "' + g + '" chưa đúng. Bấm Chạy để xem kết quả thật, rồi đọc lại bài giảng xem vì sao' : 'Chưa ghi dự đoán sau "Dự đoán:"').toBe(true); });
 `},
 { id:'1.3', group:'1. Biến và kiểu dữ liệu', num:'1.3', title:'Truthy và falsy',
   desc:`<p>Viết function <code>checkTruthy(x)</code> trả về <code>"chạy"</code> nếu <code>if (x)</code> được thực thi, ngược lại trả về <code>"không chạy"</code>.</p>
@@ -3249,14 +3257,14 @@ console.log(typeof isTrading); // boolean`]},
 </ul>
 <h3>Rút ra</h3>
 <p>Luôn dùng <code>===</code> và <code>!==</code>. Trong test, so sánh lỏng có thể khiến API trả <code>"0"</code> thay vì <code>0</code> mà test vẫn pass.</p>`,
-examples:[String.raw`console.log(1 == "1");           // true
-console.log(1 === "1");          // false
-console.log(null == undefined);  // true
-console.log(null === undefined); // false
-console.log(typeof null);        // "object"
-console.log(typeof []);          // "object"
-console.log(0 == false);         // true
-console.log("" == 0);            // true`]},
+examples:[String.raw`console.log(1 == "1");           // Dự đoán: true
+console.log(1 === "1");          // Dự đoán: false
+console.log(null == undefined);  // Dự đoán: true
+console.log(null === undefined); // Dự đoán: false
+console.log(typeof null);        // Dự đoán: object
+console.log(typeof []);          // Dự đoán: object
+console.log(0 == false);         // Dự đoán: true
+console.log("" == 0);            // Dự đoán: true`]},
 
 '1.3': { html:`
 <h3>Lời giải</h3>
