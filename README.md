@@ -1,6 +1,6 @@
-# Lộ trình tự học SDET cho team QC/QA: JavaScript, Playwright và CI/CD
+# Lộ trình tự học SDET cho team QC/QA: JavaScript, Playwright, CI/CD và AI
 
-Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA có nhu cầu học và từng bước thực hành theo hướng SDET. Nội dung được chia thành 5 tuần, từ JavaScript nền tảng đến Playwright và CI/CD. Bạn có thể học và làm bài trực tiếp trên trình duyệt, không cần cài đặt gì.
+Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA có nhu cầu học và từng bước thực hành theo hướng SDET. Nội dung được chia thành 6 tuần, từ JavaScript nền tảng đến Playwright, CI/CD và dùng AI trong automation testing. Bạn có thể học và làm bài trực tiếp trên trình duyệt, không cần cài đặt gì.
 
 **Dùng thử:** https://TEN-CUA-BAN.github.io/sdet-bootcamp/
 
@@ -13,6 +13,7 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 | 3 | JavaScript nâng cao cho Playwright: arrow function, destructuring, method của mảng, async/await (7 bài bắt buộc + 11 bài nâng cao không bắt buộc) |
 | 4 | Playwright + TypeScript: locator getBy..., assertion, Page Object Model, fixture, dự án POM hoàn chỉnh (21 bài bắt buộc + CSS/XPath nâng cao không bắt buộc) |
 | 5 | CI/CD với GitHub Actions: secrets, artifact, matrix, sharding, lịch chạy |
+| 6 | AI trong automation testing: dùng AI an toàn, viết prompt, kiểm chứng test case, test và locator do AI viết, Playwright MCP và Playwright Agents |
 
 ## Tính năng
 

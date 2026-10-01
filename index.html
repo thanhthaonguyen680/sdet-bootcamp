@@ -323,6 +323,9 @@ kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-r
   .top{gap:10px;padding:8px 12px;flex-wrap:wrap}
   .brand p{display:none}
   .progress{order:3;flex-basis:100%}
+  .brand{flex:1;min-width:0}
+  .weeks{order:2;flex-basis:100%;display:grid;grid-template-columns:repeat(6,1fr)}
+  .weeks button{padding:6px 0;font-size:13px}
   .menu-btn{display:inline-block}
   .layout{display:block}
   .side{position:fixed;z-index:20;top:0;bottom:0;left:0;width:282px;max-height:none;padding-top:calc(12px + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-100%);transition:transform .22s ease;box-shadow:none}
@@ -361,6 +364,7 @@ kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-r
       <button data-week="3" aria-pressed="false" data-tip-title="Tuần 3: JavaScript nâng cao" data-tip="Cú pháp dùng hằng ngày trong Playwright: arrow function, destructuring, map/filter, async/await. 7 bài bắt buộc, phần còn lại là nâng cao.">Tuần 3</button>
       <button data-week="4" aria-pressed="false" data-tip-title="Tuần 4: Playwright + TypeScript" data-tip="Viết test tự động trên trang Sàn Demo: locator, assertion, Page Object Model, fixture, đến một dự án POM hoàn chỉnh.">Tuần 4</button>
       <button data-week="5" aria-pressed="false" data-tip-title="Tuần 5: CI/CD với GitHub Actions" data-tip="Cho bộ test tự chạy khi push code: workflow, secrets, artifact, matrix, sharding và chạy theo lịch.">Tuần 5</button>
+      <button data-week="6" aria-pressed="false" data-tip-title="Tuần 6: AI trong automation testing" data-tip="Nhờ AI viết test case, viết test và debug nhanh hơn, và kỹ năng quan trọng nhất: kiểm chứng những gì AI đưa ra.">Tuần 6</button>
     </div>
     <div class="progress">
       <div class="strip" id="strip" role="group" aria-label="Tiến độ từng bài"></div>
@@ -5803,7 +5807,9 @@ const APP_ROUTES = {
         } else {
           const ov = dialog('Xác nhận hủy lệnh', '<p>Bạn có chắc muốn hủy lệnh ' + id + '?</p>', '<button type="button" class="btn ghost" data-close>Quay lại</button><button type="button" class="btn danger" data-confirm>Xác nhận hủy</button>');
           ov.querySelector('[data-confirm]').addEventListener('click', () => {
-            o.status = 'Đã hủy'; ov.remove(); draw();
+            // Bug cài sẵn: hủy nhầm một lệnh chờ khớp khác, nhưng thông báo vẫn ghi đúng số hiệu.
+            const target = app.bug('cancel-wrong-order') ? (app.state.orders.find(x => x.status === 'Chờ khớp' && x.id !== id) || o) : o;
+            target.status = 'Đã hủy'; ov.remove(); draw();
             const t = doc.querySelector('.toast'); t.textContent = 'Đã hủy lệnh ' + id; t.hidden = false;
           });
         }
@@ -6255,8 +6261,15 @@ function pwFmt(v){ return v instanceof RegExp ? String(v) : typeof v === 'string
 function pwMakeExpect(getRec){
   const expectFn = (target, message) => {
     const rec = getRec();
-    if (target instanceof PWLocator) return pwLocatorAsserts(target, rec, message);
-    if (target instanceof PWPage) return pwPageAsserts(target, rec, message);
+    // Như Playwright thật: expect(locator) có cả matcher chung (toBeTruthy, toBe...). Chúng kiểm tra bản thân object locator, nên toBeTruthy() luôn đúng.
+    const withGeneric = (api) => {
+      const g = pwValueAsserts(target, rec, message);
+      for (const k of Object.keys(g)) if (k !== 'not' && !(k in api)) api[k] = g[k];
+      for (const k of Object.keys(g.not)) if (!(k in api.not)) api.not[k] = g.not[k];
+      return api;
+    };
+    if (target instanceof PWLocator) return withGeneric(pwLocatorAsserts(target, rec, message));
+    if (target instanceof PWPage) return withGeneric(pwPageAsserts(target, rec, message));
     return pwValueAsserts(target, rec, message);
   };
   expectFn.soft = expectFn;
@@ -12017,6 +12030,798 @@ jobs:
 });
 
 /* =========================================================
+   TUẦN 6: AI TRONG AUTOMATION TESTING
+   Câu trả lời của AI được ghi sẵn trong đề (không gọi AI thật),
+   lấy từ những lỗi AI hay mắc. Bài 8 hướng dẫn dùng AI thật trên máy.
+   ========================================================= */
+const A1 = 'Dùng AI an toàn và đúng cách', A2 = 'AI viết test, bạn kiểm chứng', A3 = 'Đưa AI vào công việc hằng ngày';
+const AWAIT_LINT = String.raw`
+const __noAwait = () => __code.split('\n').filter(l => (/\.(click|fill|check|uncheck|goto|selectOption|press|setChecked)\(/.test(l) || /expect\(.*\)\.(not\.)?to(HaveText|ContainText|BeVisible|BeHidden|HaveValue|HaveURL|HaveCount|BeChecked|BeEnabled|BeDisabled)\(/.test(l)) && !/\bawait\b/.test(l)).map(l => l.trim());
+`;
+const EX6 = [
+{ id:'w6.1', week:6, group:A1, num:'1', title:'Che dữ liệu nhạy cảm trước khi hỏi AI',
+  desc:`<p>Test đăng nhập bị lỗi và bạn muốn dán log vào AI để nhờ phân tích. Nhưng trong log có mật khẩu, token và email thật. Trước khi dán, hãy viết 2 function để che chúng đi:</p>
+<ul>
+<li><code>maskSecrets(text, secrets)</code>: thay <strong>mọi</strong> chỗ xuất hiện của từng giá trị trong mảng <code>secrets</code> bằng <code>***</code>. Bỏ qua phần tử là chuỗi rỗng.</li>
+<li><code>maskEmails(text)</code>: thay mọi địa chỉ email bằng <code>[email]</code>.</li>
+</ul>
+<pre>maskSecrets("pw=X1; again X1", ["X1"])  → "pw=***; again ***"
+maskEmails("Gửi an@congty.vn nhé")      → "Gửi [email] nhé"</pre>
+<p class="note">Phần còn lại của log (mã lỗi, đường dẫn, thời gian) phải giữ nguyên, vì AI cần chúng để phân tích.</p>`,
+  hints:[
+    '<code>replaceAll(cái_cần_thay, "***")</code> thay mọi chỗ xuất hiện (bài 5.2 tuần 1). Duyệt mảng <code>secrets</code> bằng <code>for...of</code>, mỗi vòng thay một giá trị.',
+    'Chuỗi rỗng phải bỏ qua: <code>"abc".replaceAll("", "*")</code> chèn dấu sao vào giữa mọi ký tự. Đầu vòng lặp: <code>if (!s) continue;</code>',
+    'Email: <code>text.replace(/[^\\s@"]+@[^\\s@"]+\\.[^\\s@"]+/g, "[email]")</code>. Mẫu này nghĩa là: một cụm không có khoảng trắng, @ hay dấu nháy, rồi @, rồi tên miền có dấu chấm.'],
+  starter:String.raw`const log = '[10:41] POST /api/login {"email":"khach.hang@congty.vn","password":"Matkhau@2026"}\n[10:41] 401 Unauthorized\n[10:42] Retry với token=sk-test-8f2a91c0\n[10:42] Liên hệ hỗ trợ: an.nguyen@congty.vn';
+const secrets = ["Matkhau@2026", "sk-test-8f2a91c0"];
+
+function maskSecrets(text, secrets) {
+
+}
+
+function maskEmails(text) {
+
+}
+
+console.log(maskEmails(maskSecrets(log, secrets)));
+`,
+  tests:String.raw`
+const __log = '[10:41] POST /api/login {"email":"khach.hang@congty.vn","password":"Matkhau@2026"}\n[10:41] 401 Unauthorized\n[10:42] Retry với token=sk-test-8f2a91c0\n[10:42] Liên hệ hỗ trợ: an.nguyen@congty.vn';
+test('Thay mọi chỗ xuất hiện của một secret', () => expect(maskSecrets('pw=X1; again X1', ['X1'])).toBe('pw=***; again ***'));
+test('Thay nhiều secret khác nhau', () => expect(maskSecrets('a=AAA b=BBB', ['AAA', 'BBB'])).toBe('a=*** b=***'));
+test('Bỏ qua secret là chuỗi rỗng', () => expect(maskSecrets('abc', ['', 'b']), 'Chuỗi rỗng phải được bỏ qua, nếu không *** bị chèn vào giữa mọi ký tự').toBe('a***c'));
+test('Mảng secrets rỗng thì giữ nguyên', () => expect(maskSecrets('abc', [])).toBe('abc'));
+test('maskEmails thay mọi email', () => expect(maskEmails('Gửi an@congty.vn và b.c@cong-ty.com.vn nhé')).toBe('Gửi [email] và [email] nhé'));
+test('Log mẫu không còn dữ liệu nhạy cảm, phần cần cho AI vẫn còn', () => { const r = maskEmails(maskSecrets(__log, ['Matkhau@2026', 'sk-test-8f2a91c0'])); for (const bad of ['Matkhau@2026', 'sk-test-8f2a91c0', '@congty.vn']) expect(r.includes(bad), 'Vẫn còn "' + bad + '"').toBe(false); for (const keep of ['401 Unauthorized', '/api/login', '[10:42]']) expect(r.includes(keep), 'Đã xóa mất "' + keep + '", AI cần phần này để phân tích').toBe(true); });
+`},
+{ id:'w6.2', week:6, group:A1, num:'2', title:'Viết prompt có cấu trúc',
+  desc:`<p>Một prompt tốt có 5 phần. Viết function <code>buildPrompt(p)</code> ghép object <code>{ role, context, task, constraints, format }</code> thành chuỗi theo đúng mẫu:</p>
+<pre>Vai trò: ...
+Bối cảnh: ...
+Nhiệm vụ: ...
+Ràng buộc:
+- ...
+- ...
+Định dạng: ...</pre>
+<p>Mỗi phần một dòng, nối bằng <code>"\\n"</code>. Nếu <code>constraints</code> là mảng rỗng thì bỏ cả mục "Ràng buộc".</p>
+<p>Sau đó điền object <code>orderPrompt</code> để nhờ AI viết test case cho form <strong>Đặt lệnh</strong> của Sàn Demo. Bộ chấm kiểm tra prompt có đủ thông tin để AI không phải đoán:</p>
+<ul>
+<li>Vai trò là QA / kiểm thử viên.</li>
+<li>Bối cảnh nêu đủ 2 quy tắc của form: khối lượng phải là <strong>bội số của 100</strong>, phải tích <strong>đồng ý</strong> điều khoản mới đặt được.</li>
+<li>Nhiệm vụ là viết <strong>test case</strong>; ít nhất 2 ràng buộc, trong đó có nhắc <strong>giá trị biên</strong>; định dạng đầu ra là <strong>bảng</strong> hoặc <strong>JSON</strong>.</li>
+</ul>`,
+  hints:[
+    'Tạo mảng <code>lines</code>, <code>push</code> từng dòng: <code>"Vai trò: " + p.role</code>... Cuối cùng <code>return lines.join("\\n");</code>',
+    'Mục ràng buộc: <code>if (p.constraints.length &gt; 0) { lines.push("Ràng buộc:"); for (const c of p.constraints) lines.push("- " + c); }</code>',
+    'Ví dụ ràng buộc tốt: "Ưu tiên giá trị biên và trường hợp sai", "Không tự thêm quy tắc không có trong bối cảnh", "Mỗi test case chỉ kiểm tra một điều".'],
+  starter:String.raw`function buildPrompt(p) {
+
+}
+
+const orderPrompt = {
+  role: "",
+  context: "",
+  task: "",
+  constraints: [],
+  format: "",
+};
+
+console.log(buildPrompt(orderPrompt));
+`,
+  tests:String.raw`
+const __p = { role: 'Bạn là QA', context: 'Trang X', task: 'Viết test case', constraints: ['A', 'B'], format: 'Bảng' };
+const __low = x => String(x || '').toLowerCase();
+test('buildPrompt ghép đúng thứ tự và định dạng', () => expect(buildPrompt(__p)).toBe('Vai trò: Bạn là QA\nBối cảnh: Trang X\nNhiệm vụ: Viết test case\nRàng buộc:\n- A\n- B\nĐịnh dạng: Bảng'));
+test('Không có ràng buộc thì bỏ cả mục Ràng buộc', () => expect(buildPrompt({ ...__p, constraints: [] })).toBe('Vai trò: Bạn là QA\nBối cảnh: Trang X\nNhiệm vụ: Viết test case\nĐịnh dạng: Bảng'));
+test('orderPrompt: vai trò là QA / kiểm thử', () => expect(/qa|kiểm thử|tester/.test(__low(orderPrompt.role)), 'Hãy cho AI biết nó đóng vai QA').toBe(true));
+test('orderPrompt: bối cảnh nêu đủ 2 quy tắc của form', () => { const c = __low(orderPrompt.context); expect(c.includes('bội số của 100'), 'Bối cảnh chưa nêu quy tắc "bội số của 100"').toBe(true); expect(c.includes('đồng ý'), 'Bối cảnh chưa nêu quy tắc phải tích đồng ý').toBe(true); });
+test('orderPrompt: nhiệm vụ là viết test case', () => expect(__low(orderPrompt.task).includes('test case'), 'Nhiệm vụ chưa nói rõ cần test case').toBe(true));
+test('orderPrompt: ít nhất 2 ràng buộc, có nhắc giá trị biên', () => { const cs = orderPrompt.constraints || []; expect(cs.length >= 2, 'Cần ít nhất 2 ràng buộc').toBe(true); expect(cs.some(c => __low(c).includes('biên')), 'Chưa có ràng buộc nào nhắc giá trị biên').toBe(true); });
+test('orderPrompt: chỉ rõ định dạng đầu ra', () => expect(/bảng|json/.test(__low(orderPrompt.format)), 'Định dạng nên là bảng hoặc JSON để dễ đọc và dễ chuyển thành test').toBe(true));
+`},
+{ id:'w6.3', week:6, group:A1, num:'3', title:'AI sinh test case: bổ sung và sửa',
+  desc:`<p>Bạn dùng prompt ở bài 2 và AI trả về 4 test case cho ô <strong>Khối lượng</strong> (đã chuyển sang dạng dữ liệu trong code). Quy tắc thật của form chỉ có một: khối lượng phải <strong>lớn hơn 0</strong> và là <strong>bội số của 100</strong>.</p>
+<p>Hãy tạo mảng <code>finalCases</code>: giữ ca đúng của AI, sửa ca sai, và bổ sung các ca còn thiếu. Mỗi ca có dạng <code>{ name, qty, expected }</code>, với <code>expected</code> là <code>"ok"</code> hoặc <code>"error"</code>.</p>
+<p>Bộ chấm kiểm tra:</p>
+<ul>
+<li>Mọi <code>expected</code> đúng theo quy tắc thật, kể cả ca AI tự bịa quy tắc.</li>
+<li>Có đủ: ca bằng 0, ca số âm, ca sát biên (99 hoặc 101), ca biên nhỏ nhất hợp lệ (100), ca số thập phân.</li>
+<li>Ít nhất 6 ca, không trùng khối lượng, ca nào cũng có tên.</li>
+</ul>`,
+  hints:[
+    'Đọc kỹ từng ca của AI và đối chiếu với quy tắc trong đề. Có một ca AI tự nghĩ ra một giới hạn mà đề không hề nói tới.',
+    'Phân vùng: nhỏ hơn hoặc bằng 0 (lỗi), dương nhưng không chia hết cho 100 (lỗi), dương và chia hết cho 100 (hợp lệ). Mỗi vùng lấy giá trị ở biên: 0, 99, 100, 101.',
+    'Thập phân: <code>100.5 % 100</code> bằng <code>0.5</code>, nên là lỗi. Có thể bắt đầu bằng <code>const finalCases = [...aiCases]</code> rồi sửa và thêm, hoặc viết lại từ đầu.'],
+  starter:String.raw`// Câu trả lời của AI, đã chuyển thành dữ liệu:
+const aiCases = [
+  { name: "khối lượng hợp lệ", qty: 100, expected: "ok" },
+  { name: "khối lượng lẻ", qty: 150, expected: "error" },
+  { name: "vượt quá khối lượng tối đa", qty: 1000000, expected: "error" },
+  { name: "khối lượng 200", qty: 200, expected: "ok" },
+];
+
+const finalCases = [
+  // giữ, sửa và bổ sung ở đây
+];
+
+for (const c of finalCases) console.log(c.qty, "→", c.expected, "|", c.name);
+`,
+  tests:String.raw`
+const __rule = q => (!q || q <= 0 || q % 100 !== 0) ? 'error' : 'ok';
+const __cs = () => (typeof finalCases !== 'undefined' && Array.isArray(finalCases)) ? finalCases : [];
+test('Có ít nhất 6 trường hợp', () => expect(__cs().length >= 6, 'Hiện có ' + __cs().length + ' trường hợp').toBe(true));
+test('Đã sửa ca AI tự bịa quy tắc', () => { const big = __cs().find(c => c.qty === 1000000); expect(!big || big.expected === 'ok', 'Đề không có giới hạn tối đa: 1000000 là bội số của 100 nên hợp lệ. AI đã tự thêm quy tắc').toBe(true); });
+test('Mọi expected đúng theo quy tắc thật', () => { const wrong = __cs().filter(c => c.expected !== __rule(c.qty)); expect(wrong.length === 0, 'Sai: ' + wrong.map(c => c.name + ' (qty ' + c.qty + ' phải là "' + __rule(c.qty) + '")').join('; ')).toBe(true); });
+test('Có ca khối lượng bằng 0', () => expect(__cs().some(c => c.qty === 0)).toBe(true));
+test('Có ca số âm', () => expect(__cs().some(c => c.qty < 0)).toBe(true));
+test('Có ca sát biên: 99 hoặc 101', () => expect(__cs().some(c => c.qty === 99 || c.qty === 101)).toBe(true));
+test('Có ca biên nhỏ nhất hợp lệ: 100', () => expect(__cs().some(c => c.qty === 100)).toBe(true));
+test('Có ca số thập phân', () => expect(__cs().some(c => typeof c.qty === 'number' && !Number.isInteger(c.qty))).toBe(true));
+test('Không trùng khối lượng, ca nào cũng có tên', () => { const cs = __cs(); expect(new Set(cs.map(c => c.qty)).size, 'Có khối lượng bị trùng').toBe(cs.length); expect(cs.every(c => typeof c.name === 'string' && c.name.trim() !== ''), 'Có ca chưa có tên').toBe(true); });
+`},
+
+{ id:'w6.4', week:6, pw:true, route:'/order', group:A2, num:'4', title:'Sửa test do AI viết',
+  desc:`<p>Bạn nhờ AI: <em>"Viết test Playwright đặt lệnh BÁN 100 cổ phiếu 7203 trên trang /order"</em>. Code AI trả về nằm sẵn trong editor. Bấm <strong>Chạy</strong>: test pass. Nhưng test này có ít nhất 5 vấn đề, và nếu ứng dụng có bug thì nó vẫn pass.</p>
+<p>Hãy sửa lại sao cho:</p>
+<ul>
+<li>Không chờ cứng bằng <code>waitForTimeout</code>.</li>
+<li>Chỉ dùng <code>getBy...</code>, không dùng <code>page.locator</code> với CSS.</li>
+<li>Mọi thao tác và mọi <code>expect</code> trên locator đều có <code>await</code>.</li>
+<li>Kiểm tra <strong>nội dung</strong> thông báo, không dùng <code>toBeTruthy()</code>.</li>
+</ul>
+<p class="note">Bộ chấm sẽ chạy lại test trên phiên bản có bug: chọn Bán nhưng ứng dụng vẫn đặt lệnh MUA. Test của bạn phải fail ở phiên bản đó.</p>`,
+  hints:[
+    'Đọc lại bài giảng: mỗi dòng của AI ứng với một lỗi trong bảng "5 lỗi AI hay mắc". Sửa từng dòng một, bấm Chạy sau mỗi lần sửa.',
+    'Locator: <code>getByLabel(\'Mã cổ phiếu\')</code>, <code>getByLabel(\'Bán\')</code>, <code>getByLabel(\'Khối lượng\')</code>, <code>getByLabel(\'Tôi đồng ý\')</code>, <code>getByRole(\'button\', { name: \'Đặt lệnh\' })</code>, thông báo là <code>getByRole(\'status\')</code>.',
+    '<code>await expect(page.getByRole(\'status\')).toContainText(\'BÁN 7203 x100\');</code> Với bug "luôn đặt lệnh mua", thông báo sẽ ghi MUA nên test fail đúng như mong muốn.'],
+  starter:String.raw`import { test, expect } from '@playwright/test';
+
+// Code do AI viết. Chạy thì pass, nhưng có ít nhất 5 vấn đề.
+test('đặt lệnh bán 7203', async ({ page }) => {
+  await page.goto('/order');
+  await page.waitForTimeout(2000);
+  await page.locator('#symbol').selectOption('7203');
+  page.getByLabel('Bán').check();
+  await page.locator('#qty').fill('100');
+  await page.locator('#agree').check();
+  await page.locator('.btn.primary').click();
+  expect(page.locator('.toast')).toBeTruthy();
+});
+`,
+  tests: PWG + AWAIT_LINT + String.raw`
+check('Test pass', () => expect(__passed(), __failMsg()).toBe(true));
+check('Không chờ cứng bằng waitForTimeout', () => expect(/waitForTimeout/.test(__code), 'Chờ cứng làm test chậm và vẫn có thể fail khi máy chậm. Assertion của Playwright đã tự chờ').toBe(false));
+check('Chỉ dùng getBy..., không dùng CSS', () => expect(/\.locator\(/.test(__code), 'Vẫn còn page.locator(...). Locator theo id, class dễ vỡ khi dev đổi HTML').toBe(false));
+check('Mọi thao tác và expect trên locator đều có await', () => { const bad = __noAwait(); expect(bad.length === 0, 'Thiếu await: ' + bad.join(' | ')).toBe(true); });
+check('Kiểm tra nội dung thông báo, không dùng toBeTruthy', () => { expect(/toBeTruthy|toBeDefined/.test(__code), 'expect(locator).toBeTruthy() luôn đúng vì locator luôn là một object, nó không kiểm tra gì cả').toBe(false); expect(__okAssert(/^(toHaveText|toContainText)$/), 'Hãy kiểm tra chữ trong thông báo bằng toHaveText hoặc toContainText').toBe(true); });
+check('Phát hiện bug "luôn đặt lệnh mua"', async () => { const r = await H.rerun('order-side-ignored'); expect(r.some(t => t.status === 'failed'), 'Ứng dụng đặt nhầm thành lệnh MUA mà test vẫn pass. Hãy kiểm tra chữ BÁN trong thông báo').toBe(true); });
+`},
+{ id:'w6.5', week:6, pw:true, kind:'locator', route:'/order', exports:['locators'], group:A2, num:'5', title:'Locator do AI bịa ra',
+  desc:`<p>Bạn nhờ AI viết locator cho form <strong>Đặt lệnh</strong>. AI không nhìn thấy trang của bạn, nên nó đoán tên theo những trang "thường gặp". Kết quả: một số locator đúng, một số AI tự bịa.</p>
+<p>Bấm <strong>Chạy</strong> để xem mỗi locator khớp bao nhiêu phần tử, hoặc thử từng cái trong ô <strong>Thử locator</strong> ở tab Trang web. Sửa những locator sai để mỗi locator khớp đúng 1 phần tử, chỉ dùng <code>getBy...</code>.</p>
+<ul>
+<li><code>symbolSelect</code>: ô chọn mã cổ phiếu.</li>
+<li><code>qtyInput</code>, <code>priceInput</code>: ô khối lượng, ô giá đặt.</li>
+<li><code>agreeCheckbox</code>: ô tích đồng ý điều khoản.</li>
+<li><code>sellRadio</code>: nút chọn loại lệnh Bán.</li>
+<li><code>submitButton</code>: nút gửi lệnh.</li>
+</ul>
+<p class="note">Đừng sửa những locator đã đúng. Một phần của kỹ năng là phân biệt AI sai ở đâu và đúng ở đâu.</p>`,
+  hints:[
+    'Locator khớp 0 phần tử là dấu hiệu AI bịa tên. So chữ trong locator với chữ thật trên trang: nhãn ô là "Khối lượng" chứ không phải "Số lượng".',
+    'Ô giá không có placeholder, nhưng có nhãn "Giá đặt". Nút Bán có nhãn tiếng Việt "Bán", không phải "Sell".',
+    '<code>page.getByLabel(\'Khối lượng\')</code>, <code>page.getByLabel(\'Giá đặt\')</code>, <code>page.getByRole(\'radio\', { name: \'Bán\' })</code>, <code>page.getByRole(\'button\', { name: \'Đặt lệnh\' })</code>.'],
+  starter: LOC_HEAD + String.raw`// Locator do AI viết. Một số đúng, một số AI tự bịa.
+const locators = (page: Page) => ({
+  symbolSelect: page.getByRole('combobox', { name: 'Mã cổ phiếu' }),
+  qtyInput: page.getByLabel('Số lượng'),
+  priceInput: page.getByPlaceholder('Nhập giá'),
+  agreeCheckbox: page.getByRole('checkbox', { name: 'đồng ý' }),
+  sellRadio: page.getByRole('radio', { name: 'Sell' }),
+  submitButton: page.getByRole('button', { name: 'Submit' }),
+});
+`,
+  tests: String.raw`
+const r = { kinds: ['role', 'label', 'placeholder', 'text', 'testid'], kindLabel: 'một cách getBy... (không dùng CSS)' };
+check('symbolSelect: ô chọn mã cổ phiếu', () => H.locator('symbolSelect', '#symbol', r));
+check('qtyInput: ô khối lượng', () => H.locator('qtyInput', '#qty', r));
+check('priceInput: ô giá đặt', () => H.locator('priceInput', '#price', r));
+check('agreeCheckbox: ô tích đồng ý', () => H.locator('agreeCheckbox', '#agree', r));
+check('sellRadio: nút chọn Bán', () => H.locator('sellRadio', 'input[name="side"][value="sell"]', r));
+check('submitButton: nút Đặt lệnh', () => H.locator('submitButton', '#order-form button[type=submit]', r));
+`},
+{ id:'w6.6', week:6, pw:true, route:'/orders', group:A2, num:'6', title:'Khi AI chẩn đoán sai lỗi',
+  desc:`<p>Test hủy lệnh <strong>DH-1002</strong> bị fail. Bạn dán lỗi vào 2 công cụ AI và nhận được 2 cách sửa (ghi trong comment ở đầu code). Cả hai đều <strong>không</strong> sửa đúng nguyên nhân: một cách che lỗi, một cách bấm nhầm nút.</p>
+<p>Hãy tự tìm nguyên nhân và sửa test cho đúng:</p>
+<ul>
+<li>Không chờ cứng, không tăng timeout, không dùng <code>.first()</code>, <code>.last()</code>, <code>.nth()</code>.</li>
+<li>Bấm đúng nút Hủy của lệnh DH-1002.</li>
+<li>Kiểm tra kết quả ở <strong>đúng dòng</strong> DH-1002, không kiểm tra chung chung cả trang.</li>
+</ul>
+<p class="note">Bộ chấm chạy lại test trên phiên bản có bug: ứng dụng báo "Đã hủy lệnh DH-1002" nhưng thực ra hủy một lệnh khác. Test của bạn phải fail ở phiên bản đó.</p>`,
+  hints:[
+    'Đọc kỹ dòng lỗi: "resolved to 3 elements". Trang có 3 nút Hủy giống hệt nhau, mỗi dòng một nút. Thời gian chờ không liên quan gì.',
+    'Tìm dòng trước, rồi tìm nút trong dòng (bài 6 tuần 4): <code>page.getByRole(\'row\').filter({ hasText: \'DH-1002\' })</code>.',
+    'Kiểm tra trạng thái trong dòng đó: <code>await expect(row).toContainText(\'Đã hủy\');</code> Chữ "Đã hủy" ở chỗ khác trên trang (thông báo, ô lọc, lệnh khác) không chứng minh được DH-1002 đã bị hủy.'],
+  starter:String.raw`import { test, expect } from '@playwright/test';
+
+// Test đang fail với lỗi:
+//   strict mode violation: getByRole('button', { name: 'Hủy' }) resolved to 3 elements
+//
+// AI 1: "Trang tải chậm. Thêm await page.waitForTimeout(3000) trước khi bấm Hủy."
+// AI 2: "Có nhiều nút Hủy. Thêm .first() để lấy nút đầu tiên."
+// Cả hai đều chưa đúng. Hãy tự sửa.
+test('hủy lệnh DH-1002', async ({ page }) => {
+  await page.goto('/orders');
+  await page.getByRole('button', { name: 'Hủy' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Xác nhận hủy' }).click();
+  await expect(page.getByText('Đã hủy')).toBeVisible();
+});
+`,
+  tests: PWG + String.raw`
+const __orders = () => (((__pw.tests[0] || {}).state) || { orders: [] }).orders;
+const __st = id => (__orders().find(o => o.id === id) || {}).status;
+check('Test pass', () => expect(__passed(), __failMsg()).toBe(true));
+check('Không dùng cách sửa của AI 1: chờ cứng hay tăng timeout', () => expect(/waitForTimeout|setTimeout|timeout\s*:/.test(__code), 'Lỗi là locator khớp 3 phần tử, chờ lâu hơn không làm nó khớp 1').toBe(false));
+check('Không dùng cách sửa của AI 2: .first(), .last(), .nth()', () => expect(/\.(first|last|nth)\(/.test(__code), 'Chọn theo vị trí sẽ bấm nhầm khi thứ tự lệnh thay đổi').toBe(false));
+check('Tìm nút Hủy trong dòng của DH-1002', () => expect(/DH-1002/.test(__code) && /getByRole\(\s*['"]row['"]/.test(__code), 'Hãy tìm dòng DH-1002 bằng getByRole(\'row\') rồi tìm nút Hủy bên trong').toBe(true));
+check('DH-1002 bị hủy, các lệnh khác giữ nguyên', () => { expect(__st('DH-1002'), 'Trạng thái DH-1002').toBe('Đã hủy'); expect(__st('DH-1003'), 'DH-1003 không được bị hủy').toBe('Chờ khớp'); expect(__st('DH-1001'), 'DH-1001 không được thay đổi').toBe('Đã khớp'); });
+check('Phát hiện bug "hủy nhầm lệnh"', async () => { const r = await H.rerun('cancel-wrong-order'); expect(r.some(t => t.status === 'failed'), 'Ứng dụng hủy nhầm lệnh khác mà test vẫn pass. Hãy kiểm tra trạng thái trong đúng dòng DH-1002').toBe(true); });
+`},
+{ id:'w6.7', week:6, pw:true, route:'/login', exports:['LoginPage'], group:A2, num:'7', title:'Refactor sang Page Object cùng AI',
+  desc:`<p>Bạn nhờ AI: <em>"Chuyển test đăng nhập sai mật khẩu sang Page Object Model"</em>. AI trả về class <code>LoginPage</code> và test nằm sẵn trong editor. Code trông gọn gàng, nhưng chạy thử sẽ lỗi; và kể cả khi hết lỗi, test vẫn quá yếu.</p>
+<p>Hãy sửa để:</p>
+<ul>
+<li>Mỗi locator trong class trỏ đúng 1 phần tử, chỉ dùng <code>getBy...</code>.</li>
+<li><code>login()</code> chờ thao tác bấm xong (có <code>await</code>).</li>
+<li>Test kiểm tra đúng <strong>nội dung</strong> thông báo lỗi, không chỉ kiểm tra có hiện hay không.</li>
+</ul>
+<p class="note">Bộ chấm dùng class của bạn để đăng nhập thật, và chạy lại test trên phiên bản có bug: thông báo lỗi bị đổi thành một câu chung chung.</p>`,
+  hints:[
+    'Bấm Chạy và đọc lỗi đầu tiên. Nhãn ô mật khẩu trên trang là tiếng Việt. <code>getByText(\'Đăng nhập\')</code> khớp cả tiêu đề, nút và chữ "Ghi nhớ đăng nhập".',
+    'Khung lỗi có role "alert": <code>page.getByRole(\'alert\')</code>. Nút: <code>page.getByRole(\'button\', { name: \'Đăng nhập\' })</code>.',
+    'Câu lỗi khi sai mật khẩu: <code>Email hoặc mật khẩu không đúng</code>. Dùng <code>toHaveText</code> để bắt được bug đổi câu thông báo.'],
+  starter:String.raw`import { test, expect, Page, Locator } from '@playwright/test';
+
+// Page Object do AI viết. Chạy thử sẽ thấy lỗi.
+class LoginPage {
+  readonly emailInput: Locator;
+  readonly passwordInput: Locator;
+  readonly submitButton: Locator;
+  readonly errorMessage: Locator;
+
+  constructor(private page: Page) {
+    this.emailInput = page.getByLabel('Email');
+    this.passwordInput = page.getByLabel('Password');
+    this.submitButton = page.getByText('Đăng nhập');
+    this.errorMessage = page.locator('.error-message');
+  }
+
+  async goto() {
+    await this.page.goto('/login');
+  }
+
+  async login(email: string, password: string) {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    this.submitButton.click();
+  }
+}
+
+test('đăng nhập sai mật khẩu', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  await loginPage.goto();
+  await loginPage.login('thao@sandemo.test', 'sai-mat-khau');
+  await expect(loginPage.errorMessage).toBeVisible();
+});
+`,
+  tests: PWG + AWAIT_LINT + String.raw`
+const LP = () => __pw.exports.LoginPage;
+check('Có class LoginPage', () => expect(typeof LP() === 'function', 'Chưa có class LoginPage').toBe(true));
+check('passwordInput trỏ đúng ô mật khẩu', async () => { const lp = new (LP())(H.page()); await lp.goto(); const e = H.resolve(lp.passwordInput); expect(e.length === 1 && e[0] === H.doc().getElementById('password'), 'passwordInput đang khớp ' + e.length + ' phần tử').toBe(true); });
+check('submitButton khớp đúng 1 nút Đăng nhập', async () => { const lp = new (LP())(H.page()); await lp.goto(); const e = H.resolve(lp.submitButton); expect(e.length === 1 && e[0].matches('button[type=submit]'), 'submitButton đang khớp ' + e.length + ' phần tử').toBe(true); });
+check('errorMessage trỏ đúng khung thông báo lỗi', async () => { const lp = new (LP())(H.page()); await lp.goto(); await lp.login('thao@sandemo.test', 'sai'); const e = H.resolve(lp.errorMessage); expect(e.length === 1 && e[0] === H.doc().querySelector('.error'), 'errorMessage đang khớp ' + e.length + ' phần tử').toBe(true); });
+check('login() đăng nhập được bằng tài khoản đúng', async () => { const lp = new (LP())(H.page()); await lp.goto(); await lp.login('thao@sandemo.test', 'Demo@123'); expect(await H.waitUrl('/dashboard'), 'login() chưa đăng nhập được, URL: ' + H.url()).toBe(true); });
+check('Không dùng CSS, mọi thao tác đều có await', () => { expect(/\.locator\(/.test(__code), 'Vẫn còn page.locator(...)').toBe(false); const bad = __noAwait(); expect(bad.length === 0, 'Thiếu await: ' + bad.join(' | ')).toBe(true); });
+check('Test pass', () => expect(__passed(), __failMsg()).toBe(true));
+check('Phát hiện bug "sai câu thông báo"', async () => { const r = await H.rerun('login-error-text'); expect(r.some(t => t.status === 'failed'), 'Thông báo lỗi bị đổi mà test vẫn pass. toBeVisible() chỉ kiểm tra có hiện, hãy kiểm tra đúng câu chữ').toBe(true); });
+`},
+
+{ id:'w6.8', week:6, group:A3, num:'8', title:'Dùng AI thật trên máy của bạn',
+  desc:`<p>Đọc bài giảng (hướng dẫn cài đặt và dùng thử từng công cụ), rồi trả lời 6 câu dưới đây bằng chữ cái <code>A</code>, <code>B</code>, <code>C</code> hoặc <code>D</code> trong object <code>answers</code>.</p>
+<ol>
+<li>Bạn muốn AI tự mở Sàn Demo, nhìn trang thật rồi viết test với locator có thật. Công cụ phù hợp nhất?<br>A. Chat AI trên web &nbsp; B. Playwright MCP &nbsp; C. Gợi ý code khi gõ trong VS Code &nbsp; D. Công cụ dịch</li>
+<li>Trong Playwright Agents, agent nào lo việc sửa test đang fail?<br>A. planner &nbsp; B. generator &nbsp; C. healer &nbsp; D. reporter</li>
+<li>Agent sửa một test fail bằng cách đổi <code>toHaveText('Đặt lệnh thành công: BÁN ...')</code> thành <code>toBeVisible()</code>. Bạn nên?<br>A. Chấp nhận vì test đã pass &nbsp; B. Kiểm tra lại: có thể ứng dụng có bug thật, assertion yếu đi để che bug &nbsp; C. Xóa test &nbsp; D. Tăng timeout</li>
+<li>Được dán gì vào một công cụ AI công cộng mà công ty chưa duyệt?<br>A. Log có mật khẩu test &nbsp; B. Dữ liệu khách hàng thật &nbsp; C. Đoạn code mẫu đã bỏ thông tin nội bộ và dữ liệu nhạy cảm &nbsp; D. Tệp .env</li>
+<li>Trước khi commit test do AI viết, việc nào quan trọng nhất?<br>A. Đọc hiểu từng dòng, chạy test, và thử làm sai dữ liệu hoặc cài bug để chắc test có thể fail &nbsp; B. Chỉ cần test pass &nbsp; C. Nhờ một AI khác xem &nbsp; D. Đổi tên biến cho đẹp</li>
+<li>AI gợi ý <code>await page.locator('div &gt; div:nth-child(3) &gt; button').click()</code>. Bạn nên?<br>A. Giữ vì chạy được &nbsp; B. Thay bằng <code>getByRole</code> với tên nút người dùng nhìn thấy &nbsp; C. Thêm <code>waitForTimeout</code> &nbsp; D. Thêm <code>.first()</code></li>
+</ol>`,
+  hints:[
+    'Câu 1 và 2 có trong phần "4 cách dùng AI" và "Playwright Agents" của bài giảng.',
+    'Câu 3 và 5 cùng một ý: test pass chưa đủ, test phải có khả năng fail khi ứng dụng sai.',
+    'Câu 4 và 6 ôn lại bài 1 và tuần 4: không đưa dữ liệu nhạy cảm cho AI; locator nên dựa vào thứ người dùng nhìn thấy.'],
+  starter:String.raw`// Trả lời bằng "A", "B", "C" hoặc "D"
+const answers = {
+  q1: "",
+  q2: "",
+  q3: "",
+  q4: "",
+  q5: "",
+  q6: "",
+};
+
+console.log(answers);
+`,
+  tests:String.raw`
+const __a = k => String((typeof answers === 'object' && answers && answers[k]) || '').trim().toUpperCase();
+test('Câu 1', () => expect(__a('q1'), 'Chưa đúng. Công cụ nào cho AI điều khiển và nhìn thấy trình duyệt thật?').toBe('B'));
+test('Câu 2', () => expect(__a('q2'), 'Chưa đúng. Xem lại vai trò của 3 agent: lập kế hoạch, viết test, sửa test').toBe('C'));
+test('Câu 3', () => expect(__a('q3'), 'Chưa đúng. Test pass nhờ assertion yếu đi thì có thể đang che một bug thật').toBe('B'));
+test('Câu 4', () => expect(__a('q4'), 'Chưa đúng. Chỉ đưa cho AI những gì bạn sẵn sàng công khai').toBe('C'));
+test('Câu 5', () => expect(__a('q5'), 'Chưa đúng. Một test không bao giờ fail thì không bảo vệ được gì').toBe('A'));
+test('Câu 6', () => expect(__a('q6'), 'Chưa đúng. Ôn lại thứ tự ưu tiên locator ở tuần 4').toBe('B'));
+`},
+{ id:'w6.9', week:6, group:A3, num:'9', title:'Tổng hợp: tự động review code AI',
+  desc:`<p>Biến checklist review của tuần này thành code. Viết function <code>reviewTest(code)</code> nhận đoạn code Playwright (dạng chuỗi) và trả về mảng <strong>mã lỗi</strong> tìm thấy, theo đúng thứ tự trong bảng, mỗi mã một lần:</p>
+<div class="tbl"><table><tr><th>Mã</th><th>Dấu hiệu</th></tr>
+<tr><td><code>wait-cung</code></td><td>có <code>waitForTimeout</code></td></tr>
+<tr><td><code>thieu-await</code></td><td>có dòng chứa <code>.click(</code>, <code>.fill(</code>, <code>.check(</code>, <code>.goto(</code> hoặc <code>.selectOption(</code> mà không có chữ <code>await</code></td></tr>
+<tr><td><code>css-locator</code></td><td>có <code>page.locator(</code></td></tr>
+<tr><td><code>chon-bua</code></td><td>có <code>.first()</code> hoặc <code>.nth(</code></td></tr>
+<tr><td><code>assert-yeu</code></td><td>có <code>toBeTruthy()</code> hoặc <code>toBeDefined()</code></td></tr>
+<tr><td><code>mat-khau</code></td><td>có dòng chứa <code>.fill('</code> hoặc <code>.fill("</code> và chứa chữ <code>password</code> hoặc <code>mật khẩu</code> (không phân biệt hoa thường)</td></tr>
+</table></div>
+<p>Bỏ qua các dòng comment (bắt đầu bằng <code>//</code> sau khi bỏ khoảng trắng đầu dòng). Code không có lỗi thì trả về <code>[]</code>.</p>`,
+  hints:[
+    'Tách thành mảng dòng và bỏ comment: <code>const lines = code.split("\\n").filter(l =&gt; !l.trim().startsWith("//"));</code> Sau đó mỗi mã lỗi là một câu <code>if</code> riêng, xét theo đúng thứ tự trong bảng.',
+    'Hỏi "có dòng nào thỏa không" bằng <code>some</code> (tuần 3): <code>lines.some(l =&gt; l.includes("waitForTimeout"))</code>.',
+    'thieu-await: <code>[".click(", ".fill(", ".check(", ".goto(", ".selectOption("].some(a =&gt; l.includes(a)) &amp;&amp; !l.includes("await")</code>. mat-khau: chuyển dòng về chữ thường bằng <code>toLowerCase()</code> trước khi tìm.'],
+  starter:String.raw`function reviewTest(code) {
+  const issues = [];
+
+  return issues;
+}
+
+const aiCode = [
+  "test('đăng nhập', async ({ page }) => {",
+  "  await page.goto('/login');",
+  "  await page.waitForTimeout(1000);",
+  "  await page.getByLabel('Mật khẩu').fill('Demo@123');",
+  "  page.getByRole('button', { name: 'Đăng nhập' }).click();",
+  "  expect(page.locator('.welcome')).toBeTruthy();",
+  "});",
+].join("\n");
+
+console.log(reviewTest(aiCode));
+`,
+  tests:String.raw`
+const __j = (...l) => l.join('\n');
+test('Code sạch → []', () => expect(reviewTest(__j("test('x', async ({ page }) => {", "  await page.goto('/order');", "  await page.getByLabel('Khối lượng').fill('100');", "  await expect(page.getByRole('status')).toContainText('BÁN');", "});"))).toEqual([]));
+test('Code AI mẫu → đủ 5 lỗi, đúng thứ tự', () => expect(reviewTest(__j("test('đăng nhập', async ({ page }) => {", "  await page.goto('/login');", "  await page.waitForTimeout(1000);", "  await page.getByLabel('Mật khẩu').fill('Demo@123');", "  page.getByRole('button', { name: 'Đăng nhập' }).click();", "  expect(page.locator('.welcome')).toBeTruthy();", "});"))).toEqual(['wait-cung', 'thieu-await', 'css-locator', 'assert-yeu', 'mat-khau']));
+test('Phát hiện .first() và .nth(', () => { expect(reviewTest("  await page.getByRole('button').first().click();")).toEqual(['chon-bua']); expect(reviewTest("  await page.getByRole('row').nth(2).click();")).toEqual(['chon-bua']); });
+test('Mỗi mã chỉ xuất hiện một lần', () => expect(reviewTest(__j("  page.goto('/a');", "  page.getByLabel('x').fill('1');", "  page.getByText('y').click();"))).toEqual(['thieu-await']));
+test('Bỏ qua dòng comment', () => expect(reviewTest(__j("  // await page.waitForTimeout(1000);", "  // page.locator('#a').click();", "  await page.getByText('a').click();"))).toEqual([]));
+test('mat-khau không phân biệt hoa thường, cả nháy kép', () => { expect(reviewTest('  await page.getByLabel("Password").fill("Secret@1");')).toEqual(['mat-khau']); expect(reviewTest("  await page.getByLabel('Mật khẩu').fill(process.env.PASSWORD);")).toEqual([]); });
+`},
+];
+EX.push(...EX6);
+
+Object.assign(LESSONS, {
+'w6.1': { html:`
+<h3>Tuần 6: AI là trợ lý, bạn là người chịu trách nhiệm</h3>
+<p>AI viết code rất nhanh, nhưng nó không biết ứng dụng của bạn, không nhìn thấy trang của bạn (trừ khi được cấp công cụ), và đôi khi <strong>tự bịa</strong> ra thông tin nghe rất hợp lý. Hiện tượng này gọi là "ảo giác" (hallucination). Vì vậy tuần này tập trung vào kỹ năng quan trọng nhất: <strong>nhờ AI làm phần việc tay chân, và kiểm chứng mọi thứ AI đưa ra</strong>.</p>
+${TRACE(['AI làm tốt', 'AI hay sai'], [['Viết nháp test case, test, dữ liệu test', 'Tự thêm quy tắc nghiệp vụ không có thật'], ['Giải thích lỗi, đọc log dài', 'Đoán locator theo tên "thường gặp" (Submit, Số lượng...)'], ['Chuyển code sang cấu trúc khác (POM, fixture)', 'Sửa lỗi bằng cách che lỗi: chờ cứng, .first(), assertion yếu'], ['Gợi ý trường hợp bạn chưa nghĩ tới', 'Viết test pass cả khi ứng dụng có bug']])}
+<p>Trong trang này, câu trả lời của AI được <strong>ghi sẵn</strong> trong đề, lấy từ những lỗi AI hay mắc thật. Bài 8 hướng dẫn cách dùng AI thật trên máy của bạn.</p>
+<h3>Quy tắc bảo mật</h3>
+<p>Mọi thứ bạn dán vào công cụ AI đều được gửi ra ngoài công ty, và có thể được lưu lại. Trước khi dùng, hãy hỏi team công ty cho phép công cụ nào. Với công cụ chưa được duyệt, <strong>không</strong> dán:</p>
+<ul>
+<li>Mật khẩu, token, API key, nội dung tệp <code>.env</code>.</li>
+<li>Dữ liệu khách hàng thật: tên, email, số điện thoại, số tài khoản.</li>
+<li>Code và tài liệu nội bộ khi công ty chưa cho phép.</li>
+</ul>
+<p>Cần nhờ AI phân tích log thì <strong>che dữ liệu nhạy cảm trước</strong>, nhưng giữ lại phần AI cần: mã lỗi, đường dẫn, thời gian. Bài tập này viết đúng công cụ đó.</p>
+{{ex0}}
+<p class="note">Góc QA: dữ liệu test cũng nên giả ngay từ đầu (email dạng <code>...@sandemo.test</code>, tên "Nguyễn Kiểm Thử"). Dữ liệu giả thì dán vào đâu cũng không lo lộ.</p>`,
+examples:[String.raw`const line = "token=abc123, again token=abc123";
+console.log(line.replace("abc123", "***"));     // chỉ thay chỗ đầu
+console.log(line.replaceAll("abc123", "***"));  // thay tất cả
+
+console.log("abc".replaceAll("", "*"));         // bẫy: chuỗi rỗng chèn * khắp nơi`]},
+
+'w6.2': { html:`
+<h3>Prompt mơ hồ thì AI phải đoán</h3>
+<p>Prompt "viết test case cho form đặt lệnh" buộc AI tự đoán form có những ô gì, quy tắc là gì, bạn muốn bao nhiêu ca, trình bày thế nào. Đoán sai ở đâu thì kết quả sai ở đó. Prompt tốt trả lời trước những câu AI sẽ phải đoán.</p>
+<h3>5 phần của một prompt tốt</h3>
+${ANAT(["Vai trò: Bạn là QA có 5 năm kinh nghiệm test ứng dụng chứng khoán.", "<strong>Vai trò</strong>: AI trả lời theo góc nhìn và mức độ chi tiết của vai đó."], "\n", ["Bối cảnh: Form Đặt lệnh có ô Khối lượng (bội số của 100)...", "<strong>Bối cảnh</strong>: mọi quy tắc nghiệp vụ AI cần biết. Thiếu quy tắc nào, AI sẽ tự nghĩ ra quy tắc đó."], "\n", ["Nhiệm vụ: Viết test case cho ô Khối lượng.", "<strong>Nhiệm vụ</strong>: một việc cụ thể, có phạm vi rõ."], "\n", ["Ràng buộc:\n- Ưu tiên giá trị biên\n- Không tự thêm quy tắc", "<strong>Ràng buộc</strong>: điều phải làm và không được làm. Đây là chỗ bạn chặn trước các lỗi AI hay mắc."], "\n", ["Định dạng: Bảng gồm tên, dữ liệu, kết quả mong đợi.", "<strong>Định dạng</strong>: hình dạng câu trả lời, để dễ đọc và dễ chuyển thành code."])}
+<h3>So sánh</h3>
+${TRACE(['Prompt kém', 'Prompt tốt'], [['"Viết test cho trang đặt lệnh"', 'Nêu vai trò, quy tắc của form, phạm vi cần test'], ['Không nói dùng locator gì', '"Chỉ dùng getByRole, getByLabel; không dùng CSS, không waitForTimeout"'], ['Nhận về một đoạn văn dài', '"Trả về bảng" hoặc "trả về JSON theo mẫu {...}"'], ['Một câu hỏi lớn', 'Chia nhỏ: test case trước, rồi code cho từng ca']])}
+<p>Thêm một ràng buộc rất hữu ích: <em>"Nếu thiếu thông tin thì hỏi lại, đừng tự giả định"</em>. AI sẽ liệt kê những gì nó chưa chắc thay vì âm thầm đoán.</p>
+{{ex0}}`,
+examples:[String.raw`const parts = ["Vai trò: QA", "Nhiệm vụ: viết test case"];
+const extra = ["Ưu tiên giá trị biên", "Không tự thêm quy tắc"];
+for (const e of extra) parts.push("- " + e);
+console.log(parts.join("\n"));`]},
+
+'w6.3': { html:`
+<h3>AI viết test case nhanh, nhưng không đủ và không luôn đúng</h3>
+<p>Với cùng prompt, mỗi lần hỏi AI trả về một danh sách hơi khác nhau. Thường gặp 3 vấn đề:</p>
+<ul>
+<li><strong>Bịa quy tắc</strong>: AI thêm "khối lượng tối đa", "không quá 10 lệnh một ngày"... vì các form tương tự hay có, dù đề của bạn không hề nói.</li>
+<li><strong>Thiếu giá trị biên</strong>: có ca 150 (lẻ) nhưng thiếu 0, 99, 101.</li>
+<li><strong>Trùng ý</strong>: 100 và 200 cùng một vùng hợp lệ, thêm ca 200 không phát hiện thêm bug nào.</li>
+</ul>
+<h3>Cách kiểm chứng: phân vùng và giá trị biên</h3>
+<p>Đây là kỹ thuật bạn đã dùng khi viết test case thủ công. Chia dữ liệu thành các vùng có cùng kết quả, rồi lấy giá trị ở ranh giới mỗi vùng:</p>
+${TRACE(['Vùng', 'Kết quả', 'Giá trị nên thử'], [['Nhỏ hơn hoặc bằng 0', 'lỗi', '0, -100'], ['Dương, không chia hết cho 100', 'lỗi', '99, 101, 150, 100.5'], ['Dương, chia hết cho 100', 'hợp lệ', '100 (biên nhỏ nhất), một số lớn']])}
+<p>Rồi đối chiếu <strong>từng</strong> ca của AI với quy tắc trong yêu cầu gốc. Ca nào dựa trên quy tắc không có trong yêu cầu thì hỏi lại BA, đừng tự tin theo AI.</p>
+{{ex0}}
+<p class="note">Góc QA: ghi test case ở dạng dữ liệu (mảng object, JSON) như bài này giúp chuyển thẳng sang test theo dữ liệu (bài 13 tuần 4). AI cũng làm việc tốt hơn khi bạn yêu cầu trả về đúng dạng đó.</p>`,
+examples:[String.raw`const rule = q => (!q || q <= 0 || q % 100 !== 0) ? "error" : "ok";
+for (const q of [0, -100, 99, 100, 101, 100.5, 1000000]) {
+  console.log(q, "→", rule(q));
+}`]},
+
+'w6.4': { html:`
+<h3>5 lỗi AI hay mắc khi viết Playwright</h3>
+<p>AI học từ rất nhiều code trên mạng, trong đó có cả code cũ và code viết ẩu. Vì vậy test do AI viết hay có những lỗi sau:</p>
+${TRACE(['AI viết', 'Vì sao có hại', 'Sửa thành'], [['<code>waitForTimeout(2000)</code>', 'Chậm, và vẫn fail khi máy chậm hơn 2 giây', 'Bỏ đi: thao tác và assertion đã tự chờ'], ['<code>locator(\'#qty\')</code>, <code>\'.btn.primary\'</code>', 'Dev đổi id, class là test vỡ', '<code>getByLabel</code>, <code>getByRole</code>'], ['Thiếu <code>await</code> trước thao tác', 'Dòng sau chạy khi thao tác chưa xong, test lúc pass lúc fail', 'Thêm <code>await</code>'], ['<code>expect(locator).toBeTruthy()</code>', 'Locator luôn là object nên luôn đúng, không kiểm tra gì', '<code>await expect(locator).toContainText(...)</code>'], ['Chỉ kiểm tra "có hiện"', 'Hiện sai nội dung test vẫn pass', 'Kiểm tra đúng chữ, đúng giá trị']])}
+<h3>Test pass chưa chắc là test tốt</h3>
+<p>Test của AI trong bài này <strong>pass</strong>. Nhưng nếu ứng dụng có bug "chọn Bán mà vẫn đặt lệnh Mua", nó vẫn pass, vì nó không kiểm tra gì cả. Một test có giá trị phải <strong>fail khi ứng dụng sai</strong>. Cách nhanh để biết: tự làm sai dữ liệu mong đợi một chút rồi chạy, test phải fail.</p>
+${ANAT(["await", "Chờ assertion có kết quả. Thiếu <code>await</code> thì test kết thúc trước khi kịp kiểm tra."], " ", ["expect(page.getByRole('status'))", "Thứ cần kiểm tra: khung thông báo."], ["\n  .toContainText('BÁN 7203 x100')", "Điều phải đúng: thông báo có đúng loại lệnh, mã và khối lượng. Bug đổi Bán thành Mua sẽ làm dòng này fail."], ";")}
+<p class="note">Góc QA: khi review code AI, đọc từng dòng và tự hỏi "nếu dòng này sai thì test có phát hiện được không?". Bài 9 sẽ biến câu hỏi đó thành một công cụ review tự động.</p>`,
+examples:[]},
+
+'w6.5': { html:`
+<h3>AI không nhìn thấy trang của bạn</h3>
+<p>Khi bạn chỉ mô tả bằng lời, AI viết locator theo những trang nó "từng thấy": nút tên <code>Submit</code>, ô tên <code>Số lượng</code>, ô có placeholder <code>Nhập giá</code>. Locator đó đúng cú pháp, chạy không báo lỗi cú pháp, nhưng <strong>khớp 0 phần tử</strong>.</p>
+<h3>Kiểm chứng từng locator</h3>
+<ol>
+<li>Chép locator vào ô <strong>Thử locator</strong> ở tab Trang web (trên máy thật: <code>npx playwright codegen</code> hoặc nút "Pick locator" trong VS Code).</li>
+<li>Khớp 1: giữ nguyên. Khớp 0: AI bịa tên, so với chữ thật trên trang. Khớp nhiều: thêm <code>exact: true</code> hoặc tìm trong một vùng nhỏ hơn.</li>
+<li>Không sửa những locator đã đúng, chỉ vì "AI viết thì chắc sai".</li>
+</ol>
+${ANAT("page.getByRole('radio', { name: ", ["'Sell'", "AI đoán theo trang tiếng Anh. Chữ thật trên trang là <strong>Bán</strong>."], " })  →  khớp 0 phần tử")}
+<h3>Cho AI nhìn thấy trang</h3>
+<p>Cách giảm locator bịa từ gốc: đưa cho AI thông tin thật của trang. Ví dụ dán đoạn HTML của form (chuột phải → Inspect → Copy element), hoặc dùng <strong>Playwright MCP</strong> để AI tự mở trang và đọc cây accessibility (bài 8). Khi đó AI viết locator theo đúng nhãn, đúng role của trang.</p>
+<p class="note">Góc QA: locator khớp 0 phần tử là lỗi dễ thấy. Nguy hiểm hơn là locator khớp <em>nhầm</em> 1 phần tử khác. Luôn nhìn phần tử được khoanh trên trang, đừng chỉ nhìn con số.</p>`,
+examples:[]},
+
+'w6.6': { html:`
+<h3>Câu trả lời của AI là giả thuyết, không phải kết luận</h3>
+<p>Dán lỗi vào AI thường nhận được một cách sửa rất tự tin. Nhưng AI không chạy test của bạn, không thấy trang lúc lỗi xảy ra. Nó đưa ra cách sửa <strong>phổ biến nhất</strong> cho kiểu lỗi đó, mà cách phổ biến nhất thường là cách che lỗi.</p>
+${TRACE(['Gợi ý thường gặp của AI', 'Vì sao nguy hiểm'], [['Thêm <code>waitForTimeout</code>, tăng timeout', 'Che lỗi thời gian, không sửa được lỗi locator; test chậm đi'], ['Thêm <code>.first()</code>, <code>.nth()</code>', 'Bấm theo vị trí, dữ liệu đổi thứ tự là bấm nhầm'], ['Bọc <code>try/catch</code> rồi bỏ qua lỗi', 'Test luôn pass, không phát hiện được gì'], ['Đổi <code>toHaveText</code> thành <code>toBeVisible</code>', 'Assertion yếu đi, bug thật lọt qua'], ['<code>test.skip</code> hoặc xóa test', 'Mất luôn phần kiểm tra']])}
+<h3>Hỏi AI để debug cho đúng cách</h3>
+<ul>
+<li>Đưa đủ thông tin: <strong>thông báo lỗi đầy đủ</strong>, đoạn code test, và mô tả trang.</li>
+<li>Hỏi <em>"các nguyên nhân có thể, xếp theo khả năng, và cách kiểm tra từng nguyên nhân"</em> thay vì <em>"sửa giúp tôi"</em>.</li>
+<li>Tự kiểm tra giả thuyết: đọc kỹ dòng lỗi, mở trace hoặc trang, thử locator.</li>
+</ul>
+<p>Trong bài này, dòng lỗi đã nói rõ nguyên nhân: <code>resolved to 3 elements</code>. Đó là lỗi locator, không phải lỗi thời gian.</p>
+<p class="note">Góc QA: kiểm tra kết quả ở đúng nơi. "Có chữ Đã hủy trên trang" khác với "dòng DH-1002 có trạng thái Đã hủy". Ứng dụng có thể hiện thông báo đúng nhưng sửa sai dữ liệu.</p>`,
+examples:[]},
+
+'w6.7': { html:`
+<h3>Nhờ AI refactor</h3>
+<p>Refactor là đổi cấu trúc code mà <strong>không đổi hành vi</strong>. AI làm việc này nhanh: gom locator vào class, tách hàm, đặt tên lại. Prompt nên có:</p>
+<ul>
+<li>Code hiện tại <strong>đang chạy đúng</strong> (để AI có điểm xuất phát chính xác).</li>
+<li>Cấu trúc mong muốn: tên class, tên method, dùng <code>getBy...</code>.</li>
+<li>Ràng buộc: "Giữ nguyên các assertion", "Không đổi locator nếu không cần".</li>
+</ul>
+<h3>Review kết quả refactor</h3>
+<ol>
+<li><strong>Chạy test trước và sau</strong>: cùng kết quả mới là refactor đúng.</li>
+<li><strong>Kiểm tra từng locator</strong> AI viết lại: AI hay "tiện tay" đổi nhãn sang tiếng Anh hoặc đổi sang CSS.</li>
+<li><strong>Kiểm tra mọi <code>await</code></strong> trong method: thiếu một <code>await</code> trong Page Object thì mọi test dùng nó đều chập chờn.</li>
+<li><strong>So assertion</strong>: AI hay làm yếu assertion khi viết lại (<code>toHaveText</code> thành <code>toBeVisible</code>).</li>
+</ol>
+${ANAT("async login(email: string, password: string) {\n  await this.emailInput.fill(email);\n  await this.passwordInput.fill(password);\n  ", ["this.submitButton.click();", "Thiếu <code>await</code>: method kết thúc trước khi bấm xong. Test gọi <code>login()</code> rồi kiểm tra ngay có thể thấy trang cũ."], "\n}")}
+<p class="note">Góc QA: lỗi trong Page Object nguy hiểm hơn lỗi trong một test, vì hàng chục test cùng dùng nó.</p>`,
+examples:[]},
+
+'w6.8': { html:`
+<h3>4 cách dùng AI cho automation test</h3>
+${TRACE(['Cách dùng', 'Công cụ ví dụ', 'Hợp với'], [['Chat hỏi đáp', 'ChatGPT, Claude, Gemini, Copilot Chat', 'Test case, giải thích lỗi, học khái niệm'], ['AI trong VS Code', 'GitHub Copilot, Claude Code, Cursor', 'Viết và sửa code ngay trong project'], ['AI điều khiển trình duyệt', 'Playwright MCP', 'AI tự mở trang, đọc trang thật, viết test với locator có thật'], ['Agent chuyên cho test', 'Playwright Agents: planner, generator, healer', 'Lập kế hoạch, sinh test, tự sửa test fail']])}
+<p class="note">Trước khi cài, hỏi team công ty được phép dùng công cụ nào và với dữ liệu nào (bài 1). Các lệnh dưới đây đúng ở thời điểm viết bài; công cụ AI thay đổi nhanh, hãy xem tài liệu chính thức nếu lệnh không chạy.</p>
+<h3>1. Chat AI: bắt đầu từ prompt mẫu</h3>
+<p>Không cần cài gì. Mở công cụ chat công ty cho phép, dùng cấu trúc 5 phần của bài 2. Ba prompt nên thử với Sàn Demo:</p>
+<ul>
+<li><em>"Bạn là QA. Form Đặt lệnh có các quy tắc: ... Liệt kê test case dạng bảng, ưu tiên giá trị biên, không tự thêm quy tắc."</em></li>
+<li><em>"Viết test Playwright TypeScript cho luồng: ... Chỉ dùng getByRole, getByLabel; không dùng CSS, không waitForTimeout; kiểm tra đúng nội dung thông báo."</em></li>
+<li><em>"Test này fail với lỗi: ... Liệt kê các nguyên nhân có thể, xếp theo khả năng, và cách kiểm tra từng nguyên nhân."</em></li>
+</ul>
+<h3>2. AI trong VS Code</h3>
+<ol>
+<li>Cài extension <strong>GitHub Copilot</strong> (hoặc công cụ công ty cho phép), đăng nhập.</li>
+<li>Mở project Playwright đã làm ở tuần 4. Gõ tên test, AI gợi ý phần thân; bấm Tab để nhận.</li>
+<li>Mở khung chat, chọn tệp test và hỏi: <em>"Review test này theo checklist: await, locator, assertion"</em>.</li>
+</ol>
+<h3>3. Playwright MCP: cho AI nhìn thấy trang</h3>
+<p>MCP là cách cấp "công cụ" cho AI. Playwright MCP cho AI mở trình duyệt, bấm, gõ và đọc cây accessibility của trang thật, nên AI viết locator theo nhãn và role có thật thay vì đoán.</p>
+${ANAT(["claude mcp add playwright", "Đăng ký một máy chủ MCP tên <code>playwright</code> với công cụ AI (ví dụ này dùng Claude Code; VS Code và các công cụ khác có mục cấu hình MCP tương tự)."], " ", ["npx @playwright/mcp@latest", "Lệnh khởi động máy chủ Playwright MCP. Cần cài Node.js."])}
+<p>Sau đó thử yêu cầu: <em>"Mở trang đặt lệnh, đặt một lệnh mua 100 cổ phiếu 7203, rồi viết test Playwright cho đúng luồng vừa làm."</em> Đọc kỹ test AI viết ra bằng checklist của tuần này.</p>
+<h3>4. Playwright Agents</h3>
+<p>Từ phiên bản 1.56, Playwright có sẵn bộ agent dùng cùng công cụ AI:</p>
+<ul>
+<li><strong>planner</strong>: khám phá ứng dụng và viết kế hoạch test (dạng Markdown).</li>
+<li><strong>generator</strong>: biến kế hoạch thành tệp test Playwright.</li>
+<li><strong>healer</strong>: chạy test, test nào fail thì tìm cách sửa.</li>
+</ul>
+<p>Cài vào project bằng lệnh <code>npx playwright init-agents --loop=vscode</code> (đổi <code>vscode</code> thành công cụ AI bạn dùng). Hãy đặc biệt cẩn thận với <strong>healer</strong>: "sửa cho pass" có thể là che một bug thật, đúng như các cách sửa sai ở bài 6.</p>`,
+examples:[]},
+
+'w6.9': { html:`
+<h3>Quy trình làm việc với AI</h3>
+${TRACE(['Bước', 'Bạn làm', 'AI làm'], [['1. Hiểu yêu cầu', 'Đọc yêu cầu, hỏi BA chỗ chưa rõ', ''], ['2. Test case', 'Viết prompt có bối cảnh, kiểm chứng bằng phân vùng và biên', 'Liệt kê nháp'], ['3. Code test', 'Đưa locator thật hoặc dùng MCP, review từng dòng', 'Viết nháp'], ['4. Chạy và thử làm sai', 'Chạy, rồi cố tình làm sai dữ liệu để chắc test fail được', ''], ['5. Debug', 'Coi câu trả lời của AI là giả thuyết, tự kiểm tra', 'Gợi ý nguyên nhân'], ['6. Commit', 'Chỉ commit code bạn hiểu và giải thích được', '']])}
+<h3>Checklist review code AI</h3>
+<ul>
+<li>Không có <code>waitForTimeout</code>.</li>
+<li>Mọi thao tác và mọi <code>expect</code> trên locator đều có <code>await</code>.</li>
+<li>Locator dùng <code>getBy...</code> theo chữ người dùng nhìn thấy, không dùng CSS, không chọn theo vị trí.</li>
+<li>Assertion kiểm tra đúng nội dung, không dùng <code>toBeTruthy()</code> trên locator.</li>
+<li>Không viết cứng mật khẩu, token; lấy từ <code>.env</code>.</li>
+<li>Test fail khi ứng dụng sai.</li>
+</ul>
+<p>Năm mục đầu có thể kiểm tra tự động bằng cách đọc code, đúng như bài tập này. Trong project thật, việc đó do <strong>ESLint</strong> với plugin <code>eslint-plugin-playwright</code> đảm nhận, chạy trong CI ở tuần 5 để chặn code yếu trước khi merge. Mục cuối thì chỉ có bạn kiểm tra được.</p>
+{{ex0}}`,
+examples:[String.raw`const code = "await page.goto('/a');\n// page.waitForTimeout(1)\npage.getByText('x').click();";
+const lines = code.split("\n").filter(l => !l.trim().startsWith("//"));
+console.log(lines);
+console.log("Có dòng thiếu await:", lines.some(l => l.includes(".click(") && !l.includes("await")));`]},
+});
+
+Object.assign(SOLUTIONS, {
+'w6.1': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><code>maskSecrets</code> thay lần lượt từng secret bằng <code>replaceAll</code>. Gán lại vào <code>result</code> mỗi vòng, vì chuỗi không bị sửa tại chỗ mà luôn trả về chuỗi mới.</li>
+<li><code>if (!s) continue;</code> bỏ qua chuỗi rỗng. Thiếu dòng này, <code>replaceAll("", "***")</code> chèn dấu sao vào giữa mọi ký tự.</li>
+<li>Mẫu email loại trừ dấu nháy <code>"</code>, nên trong log dạng JSON chỉ phần email bị thay, cấu trúc JSON vẫn giữ nguyên để AI đọc được.</li>
+</ul>`,
+examples:[String.raw`const log = '[10:41] POST /api/login {"email":"khach.hang@congty.vn","password":"Matkhau@2026"}\n[10:41] 401 Unauthorized\n[10:42] Retry với token=sk-test-8f2a91c0\n[10:42] Liên hệ hỗ trợ: an.nguyen@congty.vn';
+const secrets = ["Matkhau@2026", "sk-test-8f2a91c0"];
+
+function maskSecrets(text, secrets) {
+  let result = text;
+  for (const s of secrets) {
+    if (!s) continue;
+    result = result.replaceAll(s, "***");
+  }
+  return result;
+}
+
+function maskEmails(text) {
+  return text.replace(/[^\s@"]+@[^\s@"]+\.[^\s@"]+/g, "[email]");
+}
+
+console.log(maskEmails(maskSecrets(log, secrets)));`]},
+
+'w6.2': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Gom các dòng vào mảng rồi <code>join("\\n")</code> dễ đọc hơn nối chuỗi bằng <code>+</code>, và dễ bỏ qua một mục khi cần.</li>
+<li>Bối cảnh nêu đủ quy tắc, nên AI không phải đoán. Ràng buộc "không tự thêm quy tắc" chặn trước đúng lỗi AI mắc ở bài 3.</li>
+<li>Định dạng JSON theo mẫu giúp chép thẳng câu trả lời vào code test theo dữ liệu.</li>
+</ul>`,
+examples:[String.raw`function buildPrompt(p) {
+  const lines = [];
+  lines.push("Vai trò: " + p.role);
+  lines.push("Bối cảnh: " + p.context);
+  lines.push("Nhiệm vụ: " + p.task);
+  if (p.constraints.length > 0) {
+    lines.push("Ràng buộc:");
+    for (const c of p.constraints) lines.push("- " + c);
+  }
+  lines.push("Định dạng: " + p.format);
+  return lines.join("\n");
+}
+
+const orderPrompt = {
+  role: "Bạn là QA có kinh nghiệm test ứng dụng giao dịch chứng khoán.",
+  context: "Form Đặt lệnh có ô Mã cổ phiếu, Loại lệnh (Mua/Bán), Khối lượng, Giá đặt. Khối lượng phải lớn hơn 0 và là bội số của 100. Phải tích ô đồng ý điều khoản thì nút Đặt lệnh mới bấm được.",
+  task: "Viết test case cho ô Khối lượng và ô đồng ý.",
+  constraints: [
+    "Ưu tiên giá trị biên và trường hợp sai",
+    "Không tự thêm quy tắc không có trong bối cảnh",
+    "Nếu thiếu thông tin thì hỏi lại, đừng tự giả định",
+  ],
+  format: "JSON dạng [{ name, qty, expected }] với expected là ok hoặc error",
+};
+
+console.log(buildPrompt(orderPrompt));`]},
+
+'w6.3': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Ca "vượt quá khối lượng tối đa" là AI <strong>bịa quy tắc</strong>: đề không có giới hạn tối đa. 1000000 chia hết cho 100 nên hợp lệ. Trong thực tế, gặp ca như vậy hãy hỏi lại BA thay vì tự quyết.</li>
+<li>Ca 200 của AI trùng vùng với ca 100, bỏ đi không làm mất khả năng phát hiện bug nào.</li>
+<li>Các ca thêm vào phủ đủ biên của mỗi vùng: 0, -100 (vùng nhỏ hơn hoặc bằng 0), 99, 101, 100.5 (dương nhưng không chia hết), 100 (biên nhỏ nhất hợp lệ).</li>
+</ul>`,
+examples:[String.raw`const finalCases = [
+  { name: "biên nhỏ nhất hợp lệ", qty: 100, expected: "ok" },
+  { name: "khối lượng rất lớn (không có giới hạn tối đa)", qty: 1000000, expected: "ok" },
+  { name: "bằng 0", qty: 0, expected: "error" },
+  { name: "số âm", qty: -100, expected: "error" },
+  { name: "sát biên dưới", qty: 99, expected: "error" },
+  { name: "sát biên trên", qty: 101, expected: "error" },
+  { name: "khối lượng lẻ", qty: 150, expected: "error" },
+  { name: "số thập phân", qty: 100.5, expected: "error" },
+];
+
+for (const c of finalCases) console.log(c.qty, "→", c.expected, "|", c.name);`]},
+
+'w6.4': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Đối chiếu từng dòng</h3>
+<ul>
+<li><code>waitForTimeout(2000)</code>: bỏ hẳn. <code>selectOption</code> và các thao tác sau đã tự chờ phần tử sẵn sàng.</li>
+<li>Bốn locator CSS đổi sang <code>getByLabel</code> và <code>getByRole</code> theo chữ trên trang.</li>
+<li><code>page.getByLabel('Bán').check()</code> thiếu <code>await</code>: thêm vào.</li>
+<li><code>expect(...).toBeTruthy()</code> thay bằng <code>await expect(...).toContainText('BÁN 7203 x100')</code>: kiểm tra đủ loại lệnh, mã và khối lượng.</li>
+</ul>`,
+examples:[{ run:false, code:String.raw`import { test, expect } from '@playwright/test';
+
+test('đặt lệnh bán 7203', async ({ page }) => {
+  await page.goto('/order');
+  await page.getByLabel('Mã cổ phiếu').selectOption('7203');
+  await page.getByLabel('Bán').check();
+  await page.getByLabel('Khối lượng').fill('100');
+  await page.getByLabel('Tôi đồng ý').check();
+  await page.getByRole('button', { name: 'Đặt lệnh' }).click();
+  await expect(page.getByRole('status')).toContainText('BÁN 7203 x100');
+});` }]},
+
+'w6.5': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>AI đúng ở đâu, sai ở đâu</h3>
+${TRACE(['Locator', 'AI viết', 'Kết luận'], [['symbolSelect', "<code>getByRole('combobox', { name: 'Mã cổ phiếu' })</code>", 'Đúng, giữ nguyên'], ['qtyInput', "<code>getByLabel('Số lượng')</code>", 'Bịa: nhãn thật là "Khối lượng"'], ['priceInput', "<code>getByPlaceholder('Nhập giá')</code>", 'Bịa: ô không có placeholder, dùng nhãn "Giá đặt"'], ['agreeCheckbox', "<code>getByRole('checkbox', { name: 'đồng ý' })</code>", 'Đúng: tên chỉ cần chứa "đồng ý", không phân biệt hoa thường'], ['sellRadio', "<code>getByRole('radio', { name: 'Sell' })</code>", 'Bịa: trang tiếng Việt, tên là "Bán"'], ['submitButton', "<code>getByRole('button', { name: 'Submit' })</code>", 'Bịa: chữ trên nút là "Đặt lệnh"']])}`,
+examples:[{ run:false, code: LOC_HEAD + String.raw`const locators = (page: Page) => ({
+  symbolSelect: page.getByRole('combobox', { name: 'Mã cổ phiếu' }),
+  qtyInput: page.getByLabel('Khối lượng'),
+  priceInput: page.getByLabel('Giá đặt'),
+  agreeCheckbox: page.getByRole('checkbox', { name: 'đồng ý' }),
+  sellRadio: page.getByRole('radio', { name: 'Bán' }),
+  submitButton: page.getByRole('button', { name: 'Đặt lệnh' }),
+});` }]},
+
+'w6.6': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Nguyên nhân thật nằm ngay trong dòng lỗi: locator khớp 3 nút Hủy. Cách sửa là thu hẹp phạm vi: tìm dòng DH-1002 rồi tìm nút trong dòng.</li>
+<li>Cách của AI 1 (chờ 3 giây) vẫn fail: sau 3 giây vẫn có 3 nút Hủy.</li>
+<li>Cách của AI 2 (<code>.first()</code>) chọn nút Hủy của DH-1001. Lệnh này đã khớp nên nút bị khóa: test treo tới hết giờ. Nếu thứ tự khác, nó còn hủy nhầm lệnh khác mà vẫn pass.</li>
+<li>Assertion kiểm tra trong đúng dòng DH-1002. Bug "hủy nhầm lệnh" vẫn hiện thông báo "Đã hủy lệnh DH-1002" nhưng dòng DH-1002 vẫn "Chờ khớp", nên test fail đúng như mong muốn.</li>
+</ul>`,
+examples:[{ run:false, code:String.raw`import { test, expect } from '@playwright/test';
+
+test('hủy lệnh DH-1002', async ({ page }) => {
+  await page.goto('/orders');
+  const row = page.getByRole('row').filter({ hasText: 'DH-1002' });
+  await row.getByRole('button', { name: 'Hủy' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Xác nhận hủy' }).click();
+  await expect(row).toContainText('Đã hủy');
+});` }]},
+
+'w6.7': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Đối chiếu với bản của AI</h3>
+<ul>
+<li><code>getByLabel('Password')</code>: nhãn trên trang là tiếng Việt, đổi thành <code>getByLabel('Mật khẩu')</code>.</li>
+<li><code>getByText('Đăng nhập')</code> khớp cả tiêu đề, nút và chữ "Ghi nhớ đăng nhập": đổi sang <code>getByRole('button', ...)</code>.</li>
+<li><code>locator('.error-message')</code>: class AI đoán không tồn tại. Khung lỗi có role <code>alert</code>.</li>
+<li><code>login()</code> thiếu <code>await</code> ở bước bấm.</li>
+<li><code>toBeVisible()</code> đổi thành <code>toHaveText(...)</code> để bắt được bug đổi câu thông báo.</li>
+</ul>`,
+examples:[{ run:false, code:String.raw`import { test, expect, Page, Locator } from '@playwright/test';
+
+class LoginPage {
+  readonly emailInput: Locator;
+  readonly passwordInput: Locator;
+  readonly submitButton: Locator;
+  readonly errorMessage: Locator;
+
+  constructor(private page: Page) {
+    this.emailInput = page.getByLabel('Email');
+    this.passwordInput = page.getByLabel('Mật khẩu');
+    this.submitButton = page.getByRole('button', { name: 'Đăng nhập' });
+    this.errorMessage = page.getByRole('alert');
+  }
+
+  async goto() {
+    await this.page.goto('/login');
+  }
+
+  async login(email: string, password: string) {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    await this.submitButton.click();
+  }
+}
+
+test('đăng nhập sai mật khẩu', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  await loginPage.goto();
+  await loginPage.login('thao@sandemo.test', 'sai-mat-khau');
+  await expect(loginPage.errorMessage).toHaveText('Email hoặc mật khẩu không đúng');
+});` }]},
+
+'w6.8': { html:`
+<h3>Đáp án</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li><strong>Câu 1 (B)</strong>: Playwright MCP cho AI mở và đọc trang thật, nên locator dựa trên nhãn, role có thật.</li>
+<li><strong>Câu 2 (C)</strong>: planner lập kế hoạch, generator viết test, healer sửa test fail.</li>
+<li><strong>Câu 3 (B)</strong>: test fail có thể vì ứng dụng sai. Làm yếu assertion để test pass là che bug.</li>
+<li><strong>Câu 4 (C)</strong>: chỉ đưa những gì bạn sẵn sàng công khai.</li>
+<li><strong>Câu 5 (A)</strong>: test phải fail được khi ứng dụng sai, và bạn phải hiểu từng dòng mình commit.</li>
+<li><strong>Câu 6 (B)</strong>: locator theo cấu trúc HTML vỡ ngay khi dev thêm một thẻ div.</li>
+</ul>`,
+examples:[String.raw`const answers = {
+  q1: "B",
+  q2: "C",
+  q3: "B",
+  q4: "C",
+  q5: "A",
+  q6: "B",
+};
+console.log(answers);`]},
+
+'w6.9': { html:`
+<h3>Lời giải</h3>
+{{ex0}}
+<h3>Giải thích</h3>
+<ul>
+<li>Bỏ comment trước, nên các dòng bị comment không bị báo nhầm.</li>
+<li>Mỗi mã lỗi là một câu <code>if</code> riêng, xét theo đúng thứ tự trong bảng, và <code>some</code> trả về <code>true/false</code> nên mỗi mã chỉ được thêm một lần.</li>
+<li><code>mat-khau</code> chỉ báo khi <code>fill</code> nhận một chuỗi viết cứng. <code>fill(process.env.PASSWORD)</code> là cách đúng nên không bị báo.</li>
+<li>Đây là phiên bản rất đơn giản của một linter. Trong project thật, dùng ESLint với <code>eslint-plugin-playwright</code>, nó hiểu cấu trúc code thay vì chỉ tìm chữ.</li>
+</ul>`,
+examples:[String.raw`function reviewTest(code) {
+  const lines = code.split("\n").filter(l => !l.trim().startsWith("//"));
+  const has = (text) => lines.some(l => l.includes(text));
+  const actions = [".click(", ".fill(", ".check(", ".goto(", ".selectOption("];
+  const issues = [];
+
+  if (has("waitForTimeout")) issues.push("wait-cung");
+  if (lines.some(l => actions.some(a => l.includes(a)) && !l.includes("await"))) issues.push("thieu-await");
+  if (has("page.locator(")) issues.push("css-locator");
+  if (has(".first()") || has(".nth(")) issues.push("chon-bua");
+  if (has("toBeTruthy()") || has("toBeDefined()")) issues.push("assert-yeu");
+  if (lines.some(l => {
+    const low = l.toLowerCase();
+    return (low.includes(".fill('") || low.includes('.fill("')) && (low.includes("password") || low.includes("mật khẩu"));
+  })) issues.push("mat-khau");
+
+  return issues;
+}
+
+const aiCode = [
+  "test('đăng nhập', async ({ page }) => {",
+  "  await page.goto('/login');",
+  "  await page.waitForTimeout(1000);",
+  "  await page.getByLabel('Mật khẩu').fill('Demo@123');",
+  "  page.getByRole('button', { name: 'Đăng nhập' }).click();",
+  "  expect(page.locator('.welcome')).toBeTruthy();",
+  "});",
+].join("\n");
+
+console.log(reviewTest(aiCode));`]},
+});
+
+/* =========================================================
    TRẠNG THÁI
    ========================================================= */
 const STORE_KEY = 'js-week1-practice-v1';
@@ -12035,7 +12840,7 @@ const briefEl = $('#brief'), sideEl = $('#side'), stripEl = $('#strip'), countEl
 const consoleEl = $('#paneConsole'), testsEl = $('#paneTests'), badgeEl = $('#testBadge');
 const runBtn = $('#runBtn'), checkBtn = $('#checkBtn'), markBtn = $('#markBtn'), resetBtn = $('#resetBtn'), copyBtn = $('#copyBtn');
 let current = EX[1];
-const WEEK_SUB = { 1: 'Tuần 1: nền tảng JavaScript', 2: 'Tuần 2: ôn tập qua thuật toán cơ bản', 3: 'Tuần 3: JavaScript nâng cao (ES6+)', 4: 'Tuần 4: Automation với Playwright + TypeScript', 5: 'Tuần 5: CI/CD pipeline với GitHub Actions' };
+const WEEK_SUB = { 1: 'Tuần 1: nền tảng JavaScript', 2: 'Tuần 2: ôn tập qua thuật toán cơ bản', 3: 'Tuần 3: JavaScript nâng cao (ES6+)', 4: 'Tuần 4: Automation với Playwright + TypeScript', 5: 'Tuần 5: CI/CD pipeline với GitHub Actions', 6: 'Tuần 6: AI trong automation testing' };
 // Bài optional hiện trong danh sách nhưng không tính vào thanh tiến độ và số bài xong.
 function graded(w){ return EX.filter(e => !e.free && !e.optional && e.week === w); }
 function exLabel(ex){ return ex.free ? 'Luyện tự do' : (ex.week > 1 ? 'Tuần ' + ex.week + ', bài ' : 'Bài ') + ex.num; }
@@ -12769,7 +13574,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTip(); }
    trên điện thoại nằm trong menu) thì tự bỏ qua.
    ========================================================= */
 const TOUR = [
-  { sel: '.weeks', title: 'Chọn tuần học', text: 'Khóa học có 5 tuần, từ JavaScript nền tảng đến Playwright và CI/CD. Rê chuột vào từng tuần để xem tuần đó học gì.' },
+  { sel: '.weeks', title: 'Chọn tuần học', text: 'Khóa học có 6 tuần, từ JavaScript nền tảng đến Playwright, CI/CD và dùng AI để viết test. Rê chuột vào từng tuần để xem tuần đó học gì.' },
   { sel: '#side', title: 'Danh sách bài', text: 'Các bài của tuần đang chọn. Chấm tròn cho biết trạng thái: xanh là đã pass, đỏ là chưa đạt, xám đậm là đang làm dở.' },
   { sel: '#menuBtn', title: 'Danh sách bài', text: 'Bấm vào đây để mở danh sách bài của tuần. Chấm tròn cho biết trạng thái: xanh là đã pass, đỏ là chưa đạt, xám đậm là đang làm dở.' },
   { sel: '.seg', title: 'Bài giảng, Đề bài, Lời giải', text: 'Bắt đầu từ Bài giảng: đọc và bấm Chạy ví dụ. Sau đó sang Đề bài để làm. Lời giải chỉ nên mở khi đã tự làm 15–20 phút.' },
