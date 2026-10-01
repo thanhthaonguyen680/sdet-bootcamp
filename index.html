@@ -337,12 +337,39 @@ kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-r
   .keys{display:none}
 }
 @media (prefers-reduced-motion:reduce){ .side,.toast{transition:none} }
-/* Trắc nghiệm */
-.desc ol.quiz{padding-left:22px;margin:0 0 12px}
-.desc ol.quiz > li{margin:0 0 16px}
-.desc ol.quiz pre{margin:6px 0 8px}
-.quiz-opts{list-style:none;padding-left:0 !important;margin:6px 0 0 !important}
-.quiz-opts li{margin:3px 0}
+/* Bài thi tuần 7: ẩn editor, phần đề chiếm toàn bộ khu vực chính */
+.main.exam-mode{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);grid-template-areas:"brief"}
+.main.exam-mode > .toolbar,.main.exam-mode > .editor,.main.exam-mode > .panel,.main.exam-mode > .splitter{display:none !important}
+.main.exam-mode .brief{border-left:0}
+.main.exam-mode #brief{max-width:860px;margin:0 auto}
+.exam-intro{margin:0 0 18px;color:var(--ink-2)}
+.exam-sec h3{margin:26px 0 10px;font-size:16px;font-weight:700}
+.exq{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:0 0 12px;background:var(--surface);min-width:0}
+.exq.is-right{border-color:var(--pass)}
+.exq.is-wrong{border-color:var(--fail)}
+.exq-q{margin:0 0 10px}
+.exq-q pre{margin:8px 0 0;padding:10px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;font-size:12.5px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.exq-q code,.exq-why code,.opt code{font-size:.86em;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.exq-n{display:block;font-size:12.5px;font-weight:700;color:var(--ink-3);margin-bottom:2px}
+.exq .opt{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin:6px 0 0;cursor:pointer}
+.exq .opt input{margin-top:4px;flex:none}
+.exq .opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.exq .opt.right,.exq .opt.right:has(input:checked){border-color:var(--pass);background:var(--pass-soft)}
+.exq .opt.wrong,.exq .opt.wrong:has(input:checked){border-color:var(--fail);background:var(--fail-soft)}
+.exq .opt:has(input:disabled){cursor:default}
+.exq-text{width:100%;height:40px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--ed-bg);color:var(--ink);font:14px var(--mono)}
+.exq-text:focus{outline:2px solid var(--accent);outline-offset:1px}
+.exq-why{margin:10px 0 0;font-size:13.5px;color:var(--ink-2)}
+.exq.is-right .exq-why b{color:var(--pass)}
+.exq.is-wrong .exq-why b{color:var(--fail)}
+.exam-score{display:flex;gap:20px;align-items:flex-start;padding:16px 18px;border-radius:12px;margin:0 0 8px;border:1px solid var(--line);background:var(--surface-2)}
+.exam-score.pass{border-color:var(--pass);background:var(--pass-soft)}
+.exam-score.fail{border-color:var(--fail);background:var(--fail-soft)}
+.exam-score .big{font-size:40px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.exam-score .big small{font-size:18px;color:var(--ink-2)}
+.exam-score ul{margin:8px 0 10px;padding-left:18px;font-size:14px}
+.exam-bar{position:sticky;bottom:-30px;display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 0 14px;margin-top:8px;background:var(--surface);border-top:1px solid var(--line)}
+.exam-bar span{font-size:14px;color:var(--ink-2)}
 /* Chứng nhận hoàn thành */
 .cert-nav{border:1px dashed var(--accent);border-radius:8px;margin-top:4px}
 .cert-nav .cert-sub{display:block;font-size:12px;font-weight:500;color:var(--ink-3)}
@@ -420,7 +447,7 @@ kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-r
       <button data-week="4" aria-pressed="false" data-tip-title="Tuần 4: Playwright + TypeScript" data-tip="Viết test tự động trên trang Sàn Demo: locator, assertion, Page Object Model, fixture, đến một dự án POM hoàn chỉnh.">Tuần 4</button>
       <button data-week="5" aria-pressed="false" data-tip-title="Tuần 5: CI/CD với GitHub Actions" data-tip="Cho bộ test tự chạy khi push code: workflow, secrets, artifact, matrix, sharding và chạy theo lịch.">Tuần 5</button>
       <button data-week="6" aria-pressed="false" data-tip-title="Tuần 6: AI trong automation testing" data-tip="Nhờ AI viết test case, viết test và debug nhanh hơn, và kỹ năng quan trọng nhất: kiểm chứng những gì AI đưa ra.">Tuần 6</button>
-      <button data-week="7" aria-pressed="false" data-tip-title="Tuần 7: Ôn tập và phỏng vấn" data-tip="Ôn lại toàn khóa qua trắc nghiệm, bài code và bài thi thực hành, kèm câu hỏi phỏng vấn automation hay gặp. Hoàn thành cả khóa để nhận chứng nhận.">Tuần 7</button>
+      <button data-week="7" aria-pressed="false" data-tip-title="Tuần 7: Ôn tập và phỏng vấn" data-tip="Bài thi 30 câu ôn lại toàn khóa: JavaScript, Playwright, CI/CD, AI và câu hỏi phỏng vấn automation. Đạt từ 24/30 và xong mọi bài bắt buộc để nhận chứng nhận.">Tuần 7</button>
     </div>
     <div class="progress">
       <div class="strip" id="strip" role="group" aria-label="Tiến độ từng bài"></div>
@@ -12878,485 +12905,96 @@ console.log(reviewTest(aiCode));`]},
 });
 
 /* =========================================================
-   TUẦN 7: ÔN TẬP VÀ PHỎNG VẤN
+   TUẦN 7: BÀI THI ÔN TẬP CUỐI KHÓA
+   Một bài thi 30 câu, không có ô soạn code. Câu có opts là trắc nghiệm,
+   câu không có opts là điền đáp án (so khớp bằng regex sau khi chuẩn hóa).
    ========================================================= */
-const R1 = 'Ôn tập lập trình', R2 = 'Ôn tập automation', R3 = 'Phỏng vấn automation';
-const QUIZ = {};
-// Bài trắc nghiệm: đề, code khởi đầu, bộ chấm và lời giải đều sinh từ cùng một danh sách câu hỏi.
-// Mỗi câu: { q: đề (HTML), opts: [4 lựa chọn], a: đáp án, hint: gợi ý khi sai, why: giải thích trong lời giải }.
-function quizExercise(base, intro, items){
-  const AB = 'ABCD';
-  base.desc = intro + '<ol class="quiz">' + items.map(it => '<li>' + it.q +
-    '<ul class="quiz-opts">' + it.opts.map((o, i) => '<li><b>' + AB[i] + '.</b> ' + o + '</li>').join('') + '</ul></li>').join('') + '</ol>';
-  base.starter = '// Trả lời bằng "A", "B", "C" hoặc "D"\nconst answers = {\n' + items.map((_, i) => '  q' + (i + 1) + ': "",').join('\n') + '\n};\n\nconsole.log(answers);\n';
-  base.tests = "const __a = k => String((typeof answers === 'object' && answers && answers[k]) || '').trim().toUpperCase();\n" +
-    items.map((it, i) => 'test(' + JSON.stringify('Câu ' + (i + 1)) + ', () => expect(__a("q' + (i + 1) + '"), ' + JSON.stringify('Chưa đúng. ' + it.hint) + ').toBe(' + JSON.stringify(it.a) + '));').join('\n');
-  QUIZ[base.id] = items;
-  return base;
-}
-const quizSolution = id => ({
-  html: '<h3>Đáp án</h3>{{ex0}}<h3>Giải thích</h3><ol>' + QUIZ[id].map(it => '<li><strong>' + it.a + '</strong>: ' + it.why + '</li>').join('') + '</ol>',
-  examples: ['const answers = {\n' + QUIZ[id].map((it, i) => '  q' + (i + 1) + ': "' + it.a + '",').join('\n') + '\n};\nconsole.log(answers);'],
-});
-
-const EX7 = [
-quizExercise({ id:'w7.1', week:7, group:R1, num:'1', title:'Trắc nghiệm JavaScript: đoán kết quả',
-  hints:[
-    'Mỗi câu ứng với một dòng trong bảng "bẫy hay gặp" ở bài giảng.',
-    'Không chắc thì chép đoạn code vào <strong>Sân chơi tự do</strong> rồi bấm Chạy. Nhưng hãy tự đoán trước, vì lúc phỏng vấn không có máy để chạy.',
-    'Câu thứ tự in ra: code đồng bộ chạy trước, rồi tới Promise (microtask), cuối cùng mới tới setTimeout.'] },
-  `<p>Phỏng vấn automation thường mở đầu bằng vài đoạn JavaScript ngắn: "đoạn này in ra gì?". Trả lời 8 câu bằng chữ cái trong object <code>answers</code> ở editor.</p>`, [
-  { q:"<pre>console.log(typeof NaN);</pre>", opts:["<code>\"NaN\"</code>", "<code>\"number\"</code>", "<code>\"undefined\"</code>", "<code>\"object\"</code>"], a:"B",
-    hint:"NaN nghĩa là “không phải số”, nhưng kiểu của nó thì sao?", why:"NaN là một giá trị đặc biệt của kiểu <code>number</code>, ví dụ kết quả của <code>Number('abc')</code>." },
-  { q:"<pre>console.log([1, 2, 3].map(x =&gt; x * 2).filter(x =&gt; x &gt; 2));</pre>", opts:["<code>[2, 4, 6]</code>", "<code>[4, 6]</code>", "<code>[2]</code>", "<code>[1, 2, 3]</code>"], a:"B",
-    hint:"Làm từng bước: map trước, rồi mới filter trên kết quả của map.", why:"<code>map</code> cho <code>[2, 4, 6]</code>, <code>filter</code> giữ phần tử lớn hơn 2: <code>[4, 6]</code>." },
-  { q:"<pre>console.log(0 || 'mặc định', 0 ?? 'mặc định');</pre>", opts:["<code>mặc định mặc định</code>", "<code>0 0</code>", "<code>mặc định 0</code>", "<code>0 mặc định</code>"], a:"C",
-    hint:"|| thay mọi giá trị falsy, ?? chỉ thay null và undefined.", why:"<code>0</code> là falsy nên <code>||</code> lấy vế phải; <code>??</code> chỉ thay <code>null/undefined</code> nên giữ <code>0</code>." },
-  { q:"<pre>function make() { let n = 0; return () =&gt; ++n; }\nconst a = make(), b = make();\na(); a();\nconsole.log(a(), b());</pre>", opts:["<code>3 1</code>", "<code>1 1</code>", "<code>3 3</code>", "<code>2 1</code>"], a:"A",
-    hint:"Mỗi lần gọi make() tạo ra một biến n riêng (closure).", why:"<code>a</code> và <code>b</code> có biến <code>n</code> riêng. <code>a</code> được gọi lần thứ 3 nên ra 3, <code>b</code> lần đầu ra 1." },
-  { q:"<pre>console.log('A');\nsetTimeout(() =&gt; console.log('B'), 0);\nPromise.resolve().then(() =&gt; console.log('C'));\nconsole.log('D');</pre>", opts:["<code>A B C D</code>", "<code>A D B C</code>", "<code>A D C B</code>", "<code>A C D B</code>"], a:"C",
-    hint:"Thứ tự ưu tiên: code đồng bộ, rồi microtask (Promise), rồi macrotask (setTimeout).", why:"A và D là code đồng bộ chạy trước; callback của Promise (C) là microtask, chạy trước setTimeout (B)." },
-  { q:"<pre>const a = { qty: 100 };\nconst b = { ...a };\nb.qty = 200;\nconsole.log(a.qty);</pre>", opts:["<code>100</code>", "<code>200</code>", "<code>undefined</code>", "Báo lỗi"], a:"A",
-    hint:"Spread tạo object mới hay dùng chung object cũ?", why:"<code>{ ...a }</code> tạo một object mới, sửa <code>b</code> không ảnh hưởng <code>a</code>. Lưu ý đây là bản sao nông: object lồng bên trong vẫn dùng chung." },
-  { q:"<pre>async function getPrice() { return 2850; }\nconst p = getPrice();\nconsole.log(p);</pre>", opts:["<code>2850</code>", "Một Promise (chưa phải số 2850)", "<code>undefined</code>", "Báo lỗi"], a:"B",
-    hint:"Function async luôn trả về gì?", why:"Function <code>async</code> luôn trả về Promise. Muốn lấy 2850 phải <code>await getPrice()</code>. Đây chính là lỗi quên await trong test." },
-  { q:"<pre>console.log([3, 10, 2].sort());</pre>", opts:["<code>[2, 3, 10]</code>", "<code>[10, 2, 3]</code>", "<code>[3, 10, 2]</code>", "<code>[2, 10, 3]</code>"], a:"B",
-    hint:"Không truyền hàm so sánh thì sort so sánh các phần tử dưới dạng gì?", why:"Mặc định <code>sort</code> đổi phần tử sang chuỗi rồi so: <code>\"10\" &lt; \"2\" &lt; \"3\"</code>. Sắp xếp số phải dùng <code>sort((a, b) =&gt; a - b)</code>." },
-]),
-{ id:'w7.2', week:7, group:R1, num:'2', title:'Code phỏng vấn: tổng hợp kết quả chạy test',
-  desc:`<p>Đề code hay gặp khi phỏng vấn automation: từ kết quả thô của một lần chạy, tạo báo cáo tóm tắt. Mỗi test có <code>attempts</code> là kết quả các lần chạy theo thứ tự (có retry):</p>
-<ul>
-<li><strong>skipped</strong>: <code>attempts</code> rỗng.</li>
-<li><strong>passed</strong>: mọi lần đều <code>"pass"</code>.</li>
-<li><strong>flaky</strong>: lần cuối <code>"pass"</code> nhưng trước đó có ít nhất một lần <code>"fail"</code>.</li>
-<li><strong>failed</strong>: lần cuối <code>"fail"</code>.</li>
-</ul>
-<p>Viết <code>summarizeRun(results)</code> trả về <code>{ total, passed, failed, flaky, skipped, passRate, failedNames }</code>:</p>
-<ul>
-<li><code>passRate</code>: phần trăm test cuối cùng pass (passed + flaky) trên số test có chạy (không tính skipped), làm tròn tới số nguyên. Không có test nào chạy thì là <code>0</code>.</li>
-<li><code>failedNames</code>: tên các test failed, giữ thứ tự ban đầu.</li>
-</ul>
-<pre>5 test: 2 passed, 1 flaky, 1 failed, 1 skipped
-→ passRate = (2 + 1) / 4 = 75</pre>`,
-  hints:[
-    'Duyệt từng test, phân loại bằng <code>if / else if</code>: rỗng trước, rồi tới lần cuối (<code>attempts[attempts.length - 1]</code>), rồi tới "có lần fail nào không" (<code>attempts.includes("fail")</code>).',
-    'Khởi tạo object kết quả với mọi số đếm bằng 0 và <code>failedNames: []</code>, rồi tăng dần trong vòng lặp.',
-    '<code>const ran = total - skipped;</code> <code>passRate = ran === 0 ? 0 : Math.round((passed + flaky) / ran * 100);</code>'],
-  starter:String.raw`const results = [
-  { name: "đăng nhập", attempts: ["pass"] },
-  { name: "đặt lệnh", attempts: ["fail", "pass"] },
-  { name: "hủy lệnh", attempts: ["fail", "fail"] },
-  { name: "tìm kiếm", attempts: [] },
-  { name: "đăng ký", attempts: ["pass"] },
-];
-
-function summarizeRun(results) {
-
-}
-
-console.log(summarizeRun(results));
-`,
-  tests:String.raw`
-const __r = [
-  { name: "đăng nhập", attempts: ["pass"] },
-  { name: "đặt lệnh", attempts: ["fail", "pass"] },
-  { name: "hủy lệnh", attempts: ["fail", "fail"] },
-  { name: "tìm kiếm", attempts: [] },
-  { name: "đăng ký", attempts: ["pass"] },
-];
-test('Dữ liệu mẫu', () => expect(summarizeRun(__r)).toEqual({ total: 5, passed: 2, failed: 1, flaky: 1, skipped: 1, passRate: 75, failedNames: ["hủy lệnh"] }));
-test('Mảng rỗng', () => expect(summarizeRun([])).toEqual({ total: 0, passed: 0, failed: 0, flaky: 0, skipped: 0, passRate: 0, failedNames: [] }));
-test('Toàn bộ skipped thì passRate là 0, không chia cho 0', () => expect(summarizeRun([{ name: "a", attempts: [] }]).passRate).toBe(0));
-test('Pass rồi fail ở lần sau là failed', () => expect(summarizeRun([{ name: "x", attempts: ["pass", "fail"] }]).failedNames).toEqual(["x"]));
-test('Fail nhiều lần rồi pass là flaky', () => { const r = summarizeRun([{ name: "x", attempts: ["fail", "fail", "pass"] }]); expect(r.flaky).toBe(1); expect(r.passRate).toBe(100); });
-test('Làm tròn passRate', () => expect(summarizeRun([{ name: "a", attempts: ["pass"] }, { name: "b", attempts: ["fail"] }, { name: "c", attempts: ["fail"] }]).passRate, '1/3 = 33.33...% phải làm tròn thành 33').toBe(33));
-test('failedNames giữ thứ tự ban đầu', () => expect(summarizeRun([{ name: "z", attempts: ["fail"] }, { name: "a", attempts: ["pass"] }, { name: "m", attempts: ["fail"] }]).failedNames).toEqual(["z", "m"]));
-`},
-{ id:'w7.3', week:7, group:R1, num:'3', title:'Code phỏng vấn: kiểm tra cấu trúc response API',
-  desc:`<p>Test API nhanh và ổn định hơn test giao diện, nên hay được hỏi khi phỏng vấn. Viết <code>checkResponse(res, rules)</code> kiểm tra response có đúng cấu trúc không.</p>
-<p><code>rules</code> là object: key là <strong>đường dẫn</strong> nối bằng dấu chấm, value là kiểu mong đợi (<code>"string"</code>, <code>"number"</code>, <code>"boolean"</code>, <code>"object"</code>, <code>"array"</code>). Trả về mảng thông báo lỗi theo đúng thứ tự trong <code>rules</code>:</p>
-<ul>
-<li>Giá trị không tồn tại (<code>undefined</code>) hoặc là <code>null</code>: <code>"đường.dẫn: thiếu"</code>.</li>
-<li>Sai kiểu: <code>"đường.dẫn: cần number, nhận string"</code>. Mảng được tính là <code>"array"</code>, không phải <code>"object"</code>.</li>
-</ul>
-<pre>checkResponse(
-  { status: 201, data: { order: { id: "DH-1004", qty: "100" } } },
-  { "status": "number", "data.order.qty": "number", "data.user.name": "string" }
-)
-→ ["data.order.qty: cần number, nhận string", "data.user.name: thiếu"]</pre>
-<p>Đi tới <code>data.user.name</code> khi <code>data.user</code> không tồn tại không được làm chương trình báo lỗi.</p>`,
-  hints:[
-    'Tách đường dẫn: <code>"data.order.qty".split(".")</code> cho <code>["data", "order", "qty"]</code>. Đi dần từng cấp: <code>let v = res; for (const key of parts) v = v?.[key];</code>',
-    'Duyệt rules bằng <code>for (const path in rules)</code> (tuần 1, bài 3.3), kiểu mong đợi là <code>rules[path]</code>.',
-    'Kiểu thật: <code>const actual = Array.isArray(v) ? "array" : typeof v;</code> Kiểm tra thiếu trước (<code>v === undefined || v === null</code>), rồi mới so kiểu.'],
-  starter:String.raw`const res = {
-  status: 201,
-  data: { order: { id: "DH-1004", code: "7203", qty: "100", side: "buy", tags: [] } },
-};
-const rules = {
-  "status": "number",
-  "data.order.id": "string",
-  "data.order.qty": "number",
-  "data.order.price": "number",
-  "data.order.tags": "array",
-  "data.user.name": "string",
-};
-
-function checkResponse(res, rules) {
-
-}
-
-console.log(checkResponse(res, rules));
-`,
-  tests:String.raw`
-const __res = { status: 201, data: { order: { id: "DH-1004", code: "7203", qty: "100", side: "buy", tags: [] } } };
-const __rules = { "status": "number", "data.order.id": "string", "data.order.qty": "number", "data.order.price": "number", "data.order.tags": "array", "data.user.name": "string" };
-test('Dữ liệu mẫu', () => expect(checkResponse(__res, __rules)).toEqual(["data.order.qty: cần number, nhận string", "data.order.price: thiếu", "data.user.name: thiếu"]));
-test('Đúng hết thì trả về []', () => expect(checkResponse({ ok: true, items: [1], meta: { page: 1 } }, { "ok": "boolean", "items": "array", "meta": "object", "meta.page": "number" })).toEqual([]));
-test('Mảng không được tính là object', () => expect(checkResponse({ data: [] }, { "data": "object" })).toEqual(["data: cần object, nhận array"]));
-test('null được tính là thiếu', () => expect(checkResponse({ user: null }, { "user": "object", "user.name": "string" })).toEqual(["user: thiếu", "user.name: thiếu"]));
-test('Không báo lỗi chương trình khi cấp giữa không tồn tại', () => expect(checkResponse({}, { "a.b.c": "string" })).toEqual(["a.b.c: thiếu"]));
-test('Giữ thứ tự theo rules', () => expect(checkResponse({ x: 1 }, { "z": "string", "x": "string" })).toEqual(["z: thiếu", "x: cần string, nhận number"]));
-`},
-
-quizExercise({ id:'w7.4', week:7, group:R2, num:'4', title:'Trắc nghiệm Playwright',
-  hints:[
-    'Bảng tóm tắt trong bài giảng có đủ ý cho cả 8 câu.',
-    'Nhiều câu xoay quanh một ý: Playwright tự chờ (auto-wait), nên gần như không bao giờ cần chờ cứng.',
-    'Ôn lại bài 3, 7, 12 và 14 của tuần 4 nếu còn phân vân.'] },
-  `<p>Các câu hỏi Playwright hay gặp khi phỏng vấn. Trả lời 8 câu bằng chữ cái trong object <code>answers</code>.</p>`, [
+const EXAM_PASS = 24;
+const EXAM = [
+{ title:'Phần 1. JavaScript', qs:[
+  { q:"Kết quả của <code>typeof NaN</code> là gì?", ph:"Gõ đúng chữ được in ra", match:/^number$/, show:"\"number\"",
+    why:"NaN là giá trị đặc biệt của kiểu number, ví dụ kết quả của <code>Number('abc')</code>." },
+  { q:"Đoạn code sau in ra gì?<pre>console.log([1, 2, 3].map(x =&gt; x * 2).filter(x =&gt; x &gt; 2));</pre>", opts:["<code>[2, 4, 6]</code>", "<code>[4, 6]</code>", "<code>[2]</code>", "<code>[1, 2, 3]</code>"], a:"B",
+    why:"<code>map</code> cho <code>[2, 4, 6]</code>, rồi <code>filter</code> giữ phần tử lớn hơn 2." },
+  { q:"Đoạn code sau in ra gì?<pre>console.log(0 || 'mặc định', 0 ?? 'mặc định');</pre>", opts:["<code>mặc định mặc định</code>", "<code>0 0</code>", "<code>mặc định 0</code>", "<code>0 mặc định</code>"], a:"C",
+    why:"<code>||</code> thay mọi giá trị falsy (kể cả 0); <code>??</code> chỉ thay <code>null</code> và <code>undefined</code>." },
+  { q:"Đoạn code sau in ra gì?<pre>function make() { let n = 0; return () =&gt; ++n; }\nconst a = make(), b = make();\na(); a();\nconsole.log(a(), b());</pre>", opts:["<code>3 1</code>", "<code>1 1</code>", "<code>3 3</code>", "<code>2 1</code>"], a:"A",
+    why:"Mỗi lần gọi <code>make()</code> tạo một biến <code>n</code> riêng (closure): <code>a</code> gọi lần thứ 3, <code>b</code> gọi lần đầu." },
+  { q:"Các chữ được in ra theo thứ tự nào? Gõ 4 chữ cái liền nhau, ví dụ <code>ABCD</code>.<pre>console.log('A');\nsetTimeout(() =&gt; console.log('B'), 0);\nPromise.resolve().then(() =&gt; console.log('C'));\nconsole.log('D');</pre>", ph:"Ví dụ: ABCD", letters:true, match:/^adcb$/, show:"ADCB",
+    why:"Code đồng bộ (A, D) chạy trước, rồi tới microtask của Promise (C), cuối cùng mới tới setTimeout (B)." },
+  { q:"Đoạn code sau in ra gì?<pre>const a = { qty: 100 };\nconst b = { ...a };\nb.qty = 200;\nconsole.log(a.qty);</pre>", opts:["<code>100</code>", "<code>200</code>", "<code>undefined</code>", "Báo lỗi"], a:"A",
+    why:"<code>{ ...a }</code> tạo một object mới, sửa <code>b</code> không ảnh hưởng <code>a</code> (bản sao nông)." },
+  { q:"Đoạn code sau in ra gì?<pre>async function getPrice() { return 2850; }\nconsole.log(getPrice());</pre>", opts:["<code>2850</code>", "Một Promise, chưa phải số 2850", "<code>undefined</code>", "Báo lỗi"], a:"B",
+    why:"Function <code>async</code> luôn trả về Promise; muốn lấy 2850 phải <code>await</code>. Đây chính là lỗi quên await trong test." },
+]},
+{ title:'Phần 2. Playwright và automation', qs:[
   { q:"Theo khuyến nghị của Playwright, nên ưu tiên cách tìm phần tử nào?", opts:["CSS theo class", "XPath", "<code>getByRole</code> theo vai trò và tên", "<code>nth-child</code> theo vị trí"], a:"C",
-    hint:"Cách nào gần với cách người dùng nhận biết phần tử nhất?", why:"<code>getByRole</code> dựa vào vai trò và tên người dùng nhìn thấy, bền khi dev đổi HTML, và gắn với accessibility." },
+    why:"<code>getByRole</code> dựa vào thứ người dùng nhìn thấy, bền khi dev đổi HTML." },
   { q:"Nút “Đặt lệnh” đang bị khóa. Dòng <code>await page.getByRole('button', { name: 'Đặt lệnh' }).click()</code> sẽ…", opts:["Báo lỗi ngay", "Chờ tới khi nút bấm được, hết thời gian chờ mới báo lỗi", "Bấm luôn dù nút đang khóa", "Bỏ qua dòng này"], a:"B",
-    hint:"Nhớ lại auto-wait: trước khi thao tác, Playwright kiểm tra những gì?", why:"Auto-wait: trước khi click, Playwright chờ phần tử hiển thị, ổn định và bấm được (enabled)." },
+    why:"Auto-wait: trước khi click, Playwright chờ phần tử hiển thị, ổn định và bấm được." },
   { q:"Khác nhau giữa <code>expect(await loc.textContent()).toBe('x')</code> và <code>await expect(loc).toHaveText('x')</code>?", opts:["Giống hệt nhau", "<code>toHaveText</code> tự thử lại tới khi đúng hoặc hết giờ; cách kia chỉ đọc đúng một lần", "Cách đầu nhanh hơn nên tốt hơn", "<code>toHaveText</code> chỉ dùng cho nút"], a:"B",
-    hint:"Assertion nào tự chờ trang cập nhật?", why:"<code>toHaveText</code> là web-first assertion, tự thử lại. Đọc <code>textContent</code> một lần dễ đọc sớm khi trang chưa cập nhật, gây flaky." },
+    why:"Web-first assertion tự thử lại; đọc giá trị một lần dễ đọc sớm khi trang chưa cập nhật, gây flaky." },
   { q:"Lỗi “strict mode violation” nghĩa là gì?", opts:["Trang tải chậm", "Locator khớp nhiều hơn 1 phần tử khi thao tác", "Sai mật khẩu", "Thiếu await"], a:"B",
-    hint:"Đọc lại bài 7 tuần 4.", why:"Khi thao tác, locator phải khớp đúng 1 phần tử. Khớp nhiều thì Playwright báo lỗi thay vì đoán bừa." },
+    why:"Khi thao tác, locator phải khớp đúng 1 phần tử; khớp nhiều thì Playwright báo lỗi thay vì đoán bừa." },
   { q:"Page Object Model giúp ích nhiều nhất ở điểm nào?", opts:["Test chạy nhanh hơn", "Gom locator và thao tác của một trang vào một chỗ, UI đổi thì sửa một nơi", "Không cần viết assertion nữa", "Thay thế cho fixture"], a:"B",
-    hint:"Nghĩ tới lúc dev đổi giao diện và bạn có 50 test dùng trang đó.", why:"POM tách “tìm và thao tác” khỏi kịch bản test, giảm trùng lặp và chi phí bảo trì." },
-  { q:"<code>{ page }</code> trong <code>test('...', async ({ page }) =&gt; {...})</code> là gì?", opts:["Một biến toàn cục dùng chung", "Fixture Playwright tạo và truyền vào; mỗi test một page mới, độc lập", "Trang dùng chung giữa mọi test trong tệp", "Tên tùy ý, đặt gì cũng được"], a:"B",
-    hint:"Đọc lại bài 18 tuần 4 về fixture.", why:"<code>page</code> là fixture có sẵn. Mỗi test nhận một browser context và page mới, nên các test không ảnh hưởng nhau." },
+    why:"POM tách phần “tìm và thao tác” khỏi kịch bản test, giảm trùng lặp và chi phí bảo trì." },
+  { q:"<code>{ page }</code> trong <code>test('...', async ({ page }) =&gt; { ... })</code> là gì?", opts:["Một biến toàn cục dùng chung", "Fixture Playwright tạo và truyền vào; mỗi test một page mới, độc lập", "Trang dùng chung giữa mọi test trong tệp", "Tên tùy ý, đặt gì cũng được"], a:"B",
+    why:"<code>page</code> là fixture có sẵn; mỗi test nhận một page mới nên các test không ảnh hưởng nhau." },
   { q:"Test lúc pass lúc fail vì có <code>waitForTimeout(1000)</code>. Cách sửa đúng?", opts:["Tăng lên 5000", "Thay bằng assertion chờ đúng điều kiện (<code>toBeVisible</code>, <code>toHaveText</code>...)", "Bật retries cho xanh", "Xóa test"], a:"B",
-    hint:"Chờ thời gian cố định thì luôn có lúc không đủ.", why:"Chờ đúng điều kiện vừa nhanh vừa ổn định. Tăng thời gian hay retries chỉ che lỗi." },
-  { q:"Công cụ nào xem lại từng bước, ảnh chụp, network và DOM của một test fail trên CI?", opts:["Trace Viewer", "<code>console.log</code>", "Codegen", "Một lệnh git"], a:"A",
-    hint:"Trong playwright.config có dòng <code>trace: 'on-first-retry'</code>.", why:"Trace Viewer (<code>npx playwright show-trace</code>) phát lại từng bước của test, rất hữu ích khi lỗi chỉ xảy ra trên CI." },
-]),
-{ id:'w7.5', week:7, pw:true, route:'/login', group:R2, num:'5', title:'Bài thi thực hành: luồng bán và hủy lệnh',
-  desc:`<p>Bài thi cuối khóa, gom kỹ năng của tuần 4 và tuần 6. Viết test <code>'bán Sony rồi hủy lệnh'</code> đi đúng như người dùng thật:</p>
-<ol>
-<li><strong>Đăng nhập</strong> bằng <code>thao@sandemo.test</code> / <code>Demo@123</code>, chờ tới Bảng giá.</li>
-<li><strong>Đặt lệnh</strong>: mở trang Đặt lệnh qua menu, chọn mã <code>6758</code>, chọn <strong>Bán</strong>, khối lượng <code>300</code>, tích đồng ý, đặt lệnh. Kiểm tra thông báo có <code>BÁN 6758 x300</code>.</li>
-<li><strong>Kiểm tra</strong>: mở Lệnh của tôi qua menu. Có 4 lệnh, và dòng của lệnh vừa đặt ở trạng thái "Chờ khớp".</li>
-<li><strong>Hủy</strong>: hủy đúng lệnh vừa đặt, xác nhận, kiểm tra dòng đó chuyển sang "Đã hủy".</li>
-</ol>
-<p>Yêu cầu: chỉ dùng <code>getBy...</code>, mọi thao tác và <code>expect</code> trên locator đều có <code>await</code>, không chờ cứng.</p>
-<p class="note">Bộ chấm chạy lại test trên 3 phiên bản có bug: luôn đặt lệnh mua, lệnh không được lưu, và hủy nhầm lệnh. Test phải fail ở cả 3.</p>`,
-  hints:[
-    'Chia test thành 4 bước bằng <code>test.step(\'Đăng nhập\', async () =&gt; { ... })</code>. Menu là liên kết: <code>page.getByRole(\'link\', { name: \'Đặt lệnh\' })</code>.',
-    'Lệnh cũ DH-1002 cũng là BÁN 6758. Tìm dòng của lệnh mới bằng nhiều điều kiện: <code>page.getByRole(\'row\').filter({ hasText: \'6758\' }).filter({ hasText: \'Bán\' }).filter({ hasText: \'300\' })</code>. Lưu vào một biến và dùng lại ở bước 4.',
-    'Số lệnh: <code>page.getByTestId(\'order-count\')</code>. Hủy: <code>row.getByRole(\'button\', { name: \'Hủy\' })</code>, rồi <code>page.getByRole(\'dialog\').getByRole(\'button\', { name: \'Xác nhận hủy\' })</code>.'],
-  starter:String.raw`import { test, expect } from '@playwright/test';
-
-test('bán Sony rồi hủy lệnh', async ({ page }) => {
-  await test.step('Đăng nhập', async () => {
-
-  });
-
-  await test.step('Đặt lệnh bán', async () => {
-
-  });
-
-  await test.step('Kiểm tra trong Lệnh của tôi', async () => {
-
-  });
-
-  await test.step('Hủy lệnh vừa đặt', async () => {
-
-  });
-});
-`,
-  tests: PWG + AWAIT_LINT + String.raw`
-const __s = () => ((__pw.tests[0] || {}).state) || { orders: [] };
-const __o = id => (__s().orders.find(o => o.id === id) || {});
-check('Test pass', () => expect(__passed(), __failMsg()).toBe(true));
-check('Không chờ cứng, không dùng CSS, đủ await', () => { expect(/waitForTimeout/.test(__code), 'Còn waitForTimeout').toBe(false); expect(/\.locator\(/.test(__code), 'Còn page.locator(...), hãy dùng getBy...').toBe(false); const bad = __noAwait(); expect(bad.length === 0, 'Thiếu await: ' + bad.join(' | ')).toBe(true); });
-check('Đã đăng nhập', () => expect(!!__s().user, 'Test chưa đăng nhập').toBe(true));
-check('Đặt đúng lệnh BÁN 6758 x300 và lệnh đó đã bị hủy', () => { const o = __o('DH-1004'); expect(o.code === '6758' && o.side === 'sell' && o.qty === 300, 'Chưa có lệnh BÁN 6758 x300 mới').toBe(true); expect(o.status, 'Trạng thái lệnh vừa đặt').toBe('Đã hủy'); });
-check('Các lệnh cũ giữ nguyên', () => { expect(__o('DH-1002').status, 'DH-1002 không được bị hủy').toBe('Chờ khớp'); expect(__o('DH-1003').status, 'DH-1003 không được bị hủy').toBe('Chờ khớp'); });
-check('Phát hiện bug "luôn đặt lệnh mua"', async () => { const r = await H.rerun('order-side-ignored'); expect(r.some(t => t.status === 'failed'), 'Ứng dụng đặt nhầm thành lệnh MUA mà test vẫn pass').toBe(true); });
-check('Phát hiện bug "lệnh không được lưu"', async () => { const r = await H.rerun('orders-not-saved'); expect(r.some(t => t.status === 'failed'), 'Lệnh không được lưu mà test vẫn pass').toBe(true); });
-check('Phát hiện bug "hủy nhầm lệnh"', async () => { const r = await H.rerun('cancel-wrong-order'); expect(r.some(t => t.status === 'failed'), 'Ứng dụng hủy nhầm lệnh khác mà test vẫn pass').toBe(true); });
-`},
-quizExercise({ id:'w7.6', week:7, group:R2, num:'6', title:'Trắc nghiệm CI/CD',
-  hints:[
-    'Bảng tóm tắt trong bài giảng có đủ ý cho cả 7 câu.',
-    'Câu về retries: Playwright có một trạng thái riêng cho test fail lần đầu nhưng pass khi chạy lại.',
-    'Ôn lại tuần 5 nếu còn phân vân, đặc biệt các bài về secrets, artifact, matrix và sharding.'] },
-  `<p>Câu hỏi về CI/CD với GitHub Actions hay gặp khi phỏng vấn automation. Trả lời 7 câu bằng chữ cái trong object <code>answers</code>.</p>`, [
+    why:"Chờ đúng điều kiện vừa nhanh vừa ổn định; tăng thời gian hay retries chỉ che lỗi." },
+  { q:"Điền tên matcher để kiểm tra dòng lệnh <strong>có chứa</strong> chữ “Đã hủy” (dòng còn nhiều chữ khác):<pre>await expect(row).________('Đã hủy');</pre>", ph:"Tên matcher", match:/^\.?tocontaintext/, show:"toContainText",
+    why:"<code>toContainText</code> kiểm tra có chứa; <code>toHaveText</code> đòi khớp toàn bộ chữ của dòng nên sẽ fail." },
+  { q:"Viết locator theo khuyến nghị của Playwright cho <strong>nút</strong> có chữ “Đăng nhập”.", ph:"page.getBy...", match:/^(page\.)?getbyrole\(button,\{name:đăngnhập(,exact:true)?\}\)$/, show:"page.getByRole('button', { name: 'Đăng nhập' })",
+    why:"Nút có vai trò <code>button</code>, tên là chữ trên nút. <code>getByText('Đăng nhập')</code> sẽ khớp cả tiêu đề và chữ “Ghi nhớ đăng nhập”." },
+]},
+{ title:'Phần 3. CI/CD với GitHub Actions', qs:[
   { q:"Mật khẩu tài khoản test dùng trong GitHub Actions nên để ở đâu?", opts:["Viết thẳng trong tệp workflow YAML", "GitHub Secrets, đọc qua <code>&#36;{{ secrets.TEN_BIEN }}</code>", "Commit tệp <code>.env</code> lên repo", "Ghi trong README"], a:"B",
-    hint:"Chỗ nào được mã hóa và che trong log?", why:"Secrets được mã hóa, không hiện trong log, và không nằm trong lịch sử Git." },
+    why:"Secrets được mã hóa, không hiện trong log và không nằm trong lịch sử Git." },
   { q:"Artifact trong GitHub Actions dùng để làm gì?", opts:["Lưu kết quả (report HTML, trace, ảnh) để tải về xem sau khi job xong", "Tăng tốc cài thư viện npm", "Chạy song song nhiều máy", "Lưu mật khẩu"], a:"A",
-    hint:"Máy CI bị xóa sau khi job xong. Muốn xem report thì sao?", why:"Máy CI chỉ tồn tại trong lúc chạy. Artifact giữ lại tệp kết quả để tải về. Còn cache mới là thứ giúp cài npm nhanh hơn." },
-  { q:"Với <code>retries: 2</code>, một test fail lần đầu và pass lần thứ hai. Playwright đánh dấu test đó là gì?", opts:["passed", "failed", "flaky", "skipped"], a:"C",
-    hint:"Có một trạng thái riêng cho trường hợp này.", why:"Test pass nhờ chạy lại được đánh dấu <strong>flaky</strong>: bộ test vẫn xanh nhưng cần điều tra nguyên nhân." },
-  { q:"<code>npx playwright test --shard=1/4</code> nghĩa là gì?", opts:["Chạy 1/4 số test trên máy này; 4 máy chạy song song, mỗi máy một phần", "Chạy toàn bộ test 4 lần", "Chạy trên 4 trình duyệt", "Chỉ chạy 1 test"], a:"A",
-    hint:"Shard nghĩa là một mảnh.", why:"Sharding chia bộ test thành nhiều phần cho nhiều máy chạy cùng lúc, giảm tổng thời gian chờ." },
+    why:"Máy CI bị xóa sau khi job xong; artifact giữ lại tệp kết quả. Cache mới là thứ giúp cài npm nhanh hơn." },
+  { q:"Với <code>retries: 2</code>, một test fail lần đầu và pass ở lần chạy lại. Playwright đánh dấu test đó bằng trạng thái gì?", ph:"Một từ tiếng Anh", match:/^flaky$/, show:"flaky",
+    why:"Test pass nhờ chạy lại là <strong>flaky</strong>: bộ test vẫn xanh nhưng cần điều tra nguyên nhân." },
+  { q:"Bộ test được chia cho 4 máy chạy song song. Điền giá trị cho máy <strong>thứ hai</strong>:<pre>npx playwright test --shard=____</pre>", ph:"Ví dụ: 1/2", match:/^(--shard=)?2\/4$/, show:"2/4",
+    why:"<code>--shard=2/4</code> nghĩa là chạy phần thứ 2 trong 4 phần của bộ test." },
   { q:"Matrix gồm <code>[chromium, firefox, webkit]</code> sẽ tạo ra gì?", opts:["3 job chạy song song, mỗi trình duyệt một job", "1 job chạy lần lượt 3 trình duyệt", "Chỉ chạy webkit", "Chạy 3 lần cùng một trình duyệt"], a:"A",
-    hint:"Matrix nhân bản job theo từng giá trị.", why:"Matrix tạo một job cho mỗi giá trị, các job chạy song song." },
-  { q:"Bộ smoke test (gắn tag <code>@smoke</code>) nên chạy khi nào?", opts:["Chỉ trước khi release", "Mỗi lần push hoặc mở PR vì nhanh; bộ đầy đủ chạy theo lịch hoặc trước khi merge", "Không bao giờ", "Chỉ trên máy cá nhân"], a:"B",
-    hint:"Smoke test nhỏ và nhanh để làm gì?", why:"Smoke test cho phản hồi nhanh ở mỗi thay đổi. Bộ đầy đủ tốn thời gian hơn nên chạy theo lịch (schedule) hoặc ở các mốc quan trọng." },
+    why:"Matrix tạo một job cho mỗi giá trị, các job chạy song song." },
   { q:"Trên CI nên dùng <code>npm ci</code> thay vì <code>npm install</code> vì…", opts:["Cài đúng phiên bản trong <code>package-lock.json</code>, mọi lần chạy giống nhau", "Bỏ qua tệp lock nên nhanh hơn", "Tự cập nhật thư viện mới nhất", "Hai lệnh giống hệt nhau"], a:"A",
-    hint:"CI cần kết quả giống nhau giữa các lần chạy.", why:"<code>npm ci</code> cài chính xác theo tệp lock và báo lỗi nếu lệch, bảo đảm máy CI giống máy dev." },
-]),
-
-quizExercise({ id:'w7.7', week:7, group:R3, num:'7', title:'Phỏng vấn: kiến thức kiểm thử và automation',
-  hints:[
-    'Bài giảng có định nghĩa ngắn và ví dụ cho từng khái niệm.',
-    'Khi phân vân giữa hai lựa chọn, chọn câu thể hiện tư duy về rủi ro và chi phí bảo trì.',
-    'Câu về giá trị biên: ôn lại bài 3 tuần 6.'] },
-  `<p>Câu hỏi kiến thức hay gặp khi phỏng vấn vị trí QA automation / SDET. Trả lời 8 câu bằng chữ cái trong object <code>answers</code>.</p>`, [
+    why:"<code>npm ci</code> cài chính xác theo tệp lock, bảo đảm máy CI giống máy dev." },
+]},
+{ title:'Phần 4. AI trong automation testing', qs:[
+  { q:"Một agent sửa test fail bằng cách đổi <code>toHaveText('Đặt lệnh thành công: BÁN ...')</code> thành <code>toBeVisible()</code>. Bạn nên làm gì?", opts:["Chấp nhận vì test đã pass", "Kiểm tra lại: có thể ứng dụng có bug thật, assertion yếu đi để che bug", "Xóa test", "Tăng timeout"], a:"B",
+    why:"Test pass nhờ assertion yếu đi thì có thể đang che một bug thật." },
+  { q:"Muốn AI tự mở Sàn Demo, đọc trang thật rồi viết test với locator có thật. Công cụ phù hợp nhất?", opts:["Chat AI trên web", "Playwright MCP", "Gợi ý code khi gõ trong VS Code", "Công cụ dịch"], a:"B",
+    why:"Playwright MCP cho AI điều khiển và đọc trình duyệt thật, nên locator dựa trên nhãn và role có thật." },
+]},
+{ title:'Phần 5. Kiến thức kiểm thử và phỏng vấn', qs:[
   { q:"Trong kim tự tháp test (test pyramid), tầng nào nên có <strong>nhiều</strong> test nhất?", opts:["Test E2E qua giao diện", "Unit test", "Test thủ công", "Test hiệu năng"], a:"B",
-    hint:"Tầng nào nhanh nhất, rẻ nhất, ổn định nhất?", why:"Unit test nhanh, rẻ, ổn định nên chiếm đáy kim tự tháp; E2E chậm và dễ vỡ hơn nên ít nhất, chỉ cho luồng quan trọng." },
-  { q:"Nên ưu tiên tự động hóa loại test nào trước?", opts:["Test chạy lặp lại nhiều, ổn định, giá trị cao (đăng nhập, đặt lệnh...)", "Test chỉ chạy một lần", "Test của màn hình đang thay đổi liên tục", "Test cần đánh giá cảm quan (giao diện đẹp hay không)"], a:"A",
-    hint:"Automation có lợi khi được chạy lại nhiều lần.", why:"Regression của luồng quan trọng chạy mỗi ngày nên tiết kiệm nhiều công nhất; màn hình đang đổi liên tục thì chi phí bảo trì cao." },
+    why:"Unit test nhanh, rẻ, ổn định nên nhiều nhất; E2E chậm và dễ vỡ hơn nên ít nhất." },
   { q:"Ô khối lượng nhận số dương là bội số của 100. Bộ giá trị biên tốt nhất?", opts:["100, 200, 300", "0, 99, 100, 101", "50, 150", "1000000"], a:"B",
-    hint:"Giá trị biên nằm ngay sát ranh giới giữa hợp lệ và không hợp lệ.", why:"0 (ngay dưới vùng dương), 99 và 101 (sát 100), 100 (biên nhỏ nhất hợp lệ). Ba số 100, 200, 300 cùng một vùng nên trùng ý." },
-  { q:"Severity và priority của bug khác nhau thế nào?", opts:["Giống nhau", "Severity là mức độ ảnh hưởng tới hệ thống; priority là mức độ cần sửa sớm theo nhu cầu kinh doanh", "Severity do dev đặt, priority do QA đặt", "Priority luôn bằng severity"], a:"B",
-    hint:"Lỗi chính tả trên trang chủ: ảnh hưởng nhỏ nhưng có cần sửa gấp không?", why:"Ví dụ lỗi chính tả ở logo trang chủ: severity thấp nhưng priority cao. Lỗi nặng ở tính năng hiếm dùng: severity cao nhưng priority có thể thấp hơn." },
-  { q:"Regression testing là gì?", opts:["Test tính năng mới lần đầu", "Chạy lại test để chắc thay đổi mới không làm hỏng chức năng đang chạy", "Test hiệu năng", "Test bảo mật"], a:"B",
-    hint:"“Regression” nghĩa là thụt lùi.", why:"Regression test bắt lỗi “hôm qua còn chạy, hôm nay hỏng”. Đây là chỗ automation mang lại giá trị lớn nhất." },
-  { q:"Bộ test automation pass hết nhưng người dùng vẫn báo bug. Nguyên nhân hay gặp nhất?", opts:["Assertion yếu hoặc thiếu: test không kiểm tra điều quan trọng, pass cả khi ứng dụng sai", "Máy chạy test chậm", "Playwright bị lỗi", "CI bị lỗi"], a:"A",
-    hint:"Nhớ lại tuần 6: test pass chưa chắc là test tốt.", why:"Test chỉ bảo vệ được những gì nó kiểm tra. Đó là lý do bộ chấm của khóa học luôn “cài bug” để thử test của bạn." },
-  { q:"Một báo cáo bug tốt cần có gì?", opts:["Chỉ cần tiêu đề", "Các bước tái hiện, kết quả mong đợi, kết quả thực tế, môi trường, bằng chứng (ảnh, video, trace)", "Tên dev gây ra bug", "Chỉ cần ảnh chụp màn hình"], a:"B",
-    hint:"Dev cần gì để tái hiện bug mà không phải hỏi lại?", why:"Đủ thông tin để người khác tái hiện được ngay. Với test automation, đính kèm trace là bằng chứng rất mạnh." },
-  { q:"Câu hỏi: “Vì sao không tự động hóa 100% test?”. Câu trả lời tốt nhất?", opts:["Vì không đủ thời gian", "Vì chi phí viết và bảo trì; có loại test cần con người (khám phá, trải nghiệm); có màn hình thay đổi liên tục không đáng tự động", "Vì công cụ không làm được", "Vì automation không tìm được bug"], a:"B",
-    hint:"Câu trả lời tốt nói về chi phí và lợi ích, không phải về công cụ.", why:"Câu trả lời thể hiện tư duy ROI: tự động hóa chỗ lợi nhiều nhất, giữ con người cho việc cần phán đoán." },
-]),
-quizExercise({ id:'w7.8', week:7, group:R3, num:'8', title:'Phỏng vấn: câu hỏi tình huống',
-  hints:[
-    'Câu hỏi tình huống chấm cách bạn suy nghĩ: tìm nguyên nhân gốc trước khi sửa.',
-    'Loại ngay những lựa chọn “che lỗi”: thêm retries, chờ cứng, xóa test.',
-    'Câu cuối: bài giảng có giới thiệu cách trả lời theo STAR.'] },
-  `<p>Nhà tuyển dụng hay đưa tình huống thật để xem cách bạn xử lý. Trả lời 7 câu bằng chữ cái trong object <code>answers</code>.</p>`, [
-  { q:"Một test thỉnh thoảng fail trên CI (khoảng 1/10 lần) nhưng chạy trên máy bạn luôn pass. Việc đầu tiên?", opts:["Thêm retries cho xanh", "Mở trace/report của lần fail để tìm nguyên nhân: thời gian, dữ liệu hay môi trường", "Xóa test", "Bấm chạy lại tới khi pass"], a:"B",
-    hint:"Sửa được gì khi chưa biết vì sao nó fail?", why:"Tìm nguyên nhân gốc trước. Retries chỉ nên là lưới an toàn tạm thời, không phải cách sửa." },
-  { q:"Dev đổi tên class CSS, 30 test bị vỡ cùng lúc. Bài học rút ra?", opts:["Dùng locator theo vai trò, nhãn, testid và gom vào Page Object", "Viết lại cả 30 test", "Yêu cầu dev không bao giờ đổi class", "Chuyển sang XPath tuyệt đối"], a:"A",
-    hint:"Làm sao để lần sau dev đổi giao diện chỉ phải sửa một chỗ?", why:"Locator bền vững cộng với Page Object: lần sau chỉ sửa một chỗ, hoặc không phải sửa gì." },
-  { q:"Test đăng ký chạy song song bị lỗi “Email đã được sử dụng”. Cách xử lý?", opts:["Sinh dữ liệu riêng cho mỗi test (email có timestamp) hoặc tạo dữ liệu qua API trong fixture", "Chạy tuần tự mãi mãi", "Dùng chung một email", "Tắt test đăng ký"], a:"A",
-    hint:"Nhớ lại dự án POM luồng Đăng ký ở tuần 4.", why:"Mỗi test tự tạo dữ liệu riêng thì độc lập, chạy song song an toàn. Đây là hàm <code>uniqueEmail()</code> bạn đã viết." },
-  { q:"Deadline gấp, bạn chỉ kịp tự động hóa 5 test. Chọn 5 test nào?", opts:["5 luồng quan trọng nhất với kinh doanh và hay bị hỏng (smoke: đăng nhập, đặt lệnh...)", "5 test dễ viết nhất", "5 trang ít người dùng", "Chọn ngẫu nhiên"], a:"A",
-    hint:"Ưu tiên theo rủi ro.", why:"Ưu tiên theo rủi ro: luồng hỏng thì thiệt hại lớn nhất và được dùng nhiều nhất." },
-  { q:"Bộ test E2E chạy mất 40 phút trên CI, team phàn nàn. Hướng giảm thời gian?", opts:["Sharding và chạy song song; tách smoke chạy mỗi PR; chuyển bớt kiểm tra xuống API hoặc unit khi có thể", "Xóa bớt assertion", "Thêm waitForTimeout", "Chạy mỗi tháng một lần"], a:"A",
-    hint:"Có cách nào nhanh hơn mà vẫn giữ được độ bao phủ?", why:"Tăng song song và đẩy kiểm tra xuống tầng nhanh hơn (theo kim tự tháp test) giữ độ bao phủ mà giảm thời gian chờ." },
-  { q:"Bạn dùng AI viết một test, chạy pass ngay lần đầu. Trước khi commit, bạn làm gì?", opts:["Đọc hiểu từng dòng, kiểm tra locator và assertion, thử làm sai để chắc test fail được", "Commit luôn vì đã pass", "Nhờ một AI khác xác nhận", "Chỉ đổi tên test"], a:"A",
-    hint:"Ôn lại tuần 6.", why:"Bạn chịu trách nhiệm cho code mình commit. Test phải fail được khi ứng dụng sai." },
+    why:"0, 99, 101 nằm sát ranh giới phía lỗi; 100 là biên nhỏ nhất hợp lệ." },
+  { q:"Severity và priority của bug khác nhau thế nào?", opts:["Giống nhau", "Severity là mức ảnh hưởng tới hệ thống; priority là mức cần sửa sớm theo nhu cầu kinh doanh", "Severity do dev đặt, priority do QA đặt", "Priority luôn bằng severity"], a:"B",
+    why:"Ví dụ lỗi chính tả ở logo trang chủ: severity thấp nhưng priority cao." },
+  { q:"Bộ test automation pass hết nhưng người dùng vẫn báo bug. Nguyên nhân hay gặp nhất?", opts:["Assertion yếu hoặc thiếu: test pass cả khi ứng dụng sai", "Máy chạy test chậm", "Playwright bị lỗi", "CI bị lỗi"], a:"A",
+    why:"Test chỉ bảo vệ được những gì nó kiểm tra; vì vậy bộ chấm của khóa học luôn cài bug để thử test của bạn." },
+  { q:"Một test thỉnh thoảng fail trên CI nhưng chạy trên máy bạn luôn pass. Việc đầu tiên?", opts:["Thêm retries cho xanh", "Mở trace/report của lần fail để tìm nguyên nhân: thời gian, dữ liệu hay môi trường", "Xóa test", "Bấm chạy lại tới khi pass"], a:"B",
+    why:"Tìm nguyên nhân gốc trước; retries chỉ nên là lưới an toàn tạm thời." },
   { q:"Phỏng vấn hỏi: “Kể về một bug khó mà bạn tìm được”. Cách trả lời tốt?", opts:["Kể theo STAR: tình huống, nhiệm vụ, bạn đã làm gì để điều tra, kết quả và bài học", "Nói chung chung là đã tìm nhiều bug", "Kể dev đã sai thế nào", "Nói không nhớ"], a:"A",
-    hint:"Nhà tuyển dụng muốn nghe cách bạn làm, không chỉ kết quả.", why:"STAR giúp câu trả lời có cấu trúc, cho thấy cách bạn điều tra và học được gì." },
-]),
+    why:"STAR giúp câu trả lời có cấu trúc và cho thấy cách bạn điều tra." },
+]},
 ];
-for (const ex of EX7) ex.week = 7;
+const EXAM_QS = EXAM.flatMap(sec => sec.qs);
+const examNorm = (v, letters) => letters ? String(v).toLowerCase().replace(/[^a-z]/g, '') : String(v).trim().toLowerCase().replace(/[\s"'`;]/g, '');
+function examGrade(answers){
+  const a = answers || {};
+  const results = EXAM_QS.map((q, i) => a[i] != null && a[i] !== '' && (q.opts ? a[i] === q.a : q.match.test(examNorm(a[i], q.letters))));
+  let k = 0;
+  const sections = EXAM.map(sec => { const r = results.slice(k, k + sec.qs.length); k += sec.qs.length; return { title: sec.title, ok: r.filter(Boolean).length, total: r.length }; });
+  return { results, sections, score: results.filter(Boolean).length };
+}
+const EX7 = [
+{ id:'w7.exam', week:7, exam:true, group:'Bài thi cuối khóa', num:'1', title:'Bài thi ôn tập cuối khóa (30 câu)', starter:'' },
+];
 EX.push(...EX7);
-
-Object.assign(LESSONS, {
-'w7.1': { html:`
-<h3>Tuần 7: ôn tập để đi phỏng vấn</h3>
-<p>Tuần cuối không có kiến thức mới. Bạn ôn lại cả khóa qua 3 dạng bài hay gặp khi phỏng vấn automation: <strong>trắc nghiệm</strong>, <strong>bài code ngắn</strong> và <strong>bài thực hành viết test</strong>, kèm các câu hỏi kiến thức và tình huống.</p>
-<p class="note">Hoàn thành mọi bài bắt buộc của 7 tuần (bài nâng cao không tính) để mở khóa <strong>chứng nhận hoàn thành</strong>. Xem tiến độ ở mục <em>Chứng nhận hoàn thành</em> cuối danh sách bài tuần này.</p>
-<h3>Những bẫy JavaScript hay bị hỏi</h3>
-${TRACE(['Đoạn code', 'Kết quả', 'Vì sao'], [['<code>typeof NaN</code>', '<code>"number"</code>', 'NaN là giá trị đặc biệt của kiểu number'], ['<code>1 == "1"</code>', '<code>true</code>', '<code>==</code> ép kiểu, luôn dùng <code>===</code>'], ['<code>0 || "x"</code> và <code>0 ?? "x"</code>', '<code>"x"</code> và <code>0</code>', '<code>??</code> chỉ thay null/undefined'], ['Closure', 'Mỗi lần gọi hàm ngoài, một bộ biến mới', 'Hàm trong nhớ biến của lần gọi đó'], ['Thứ tự chạy', 'đồng bộ → Promise → setTimeout', 'microtask chạy trước macrotask'], ['<code>{ ...a }</code>', 'object mới (sao chép nông)', 'object lồng bên trong vẫn dùng chung'], ['Hàm <code>async</code>', 'luôn trả về Promise', 'quên <code>await</code> là nhận Promise'], ['<code>[3, 10, 2].sort()</code>', '<code>[10, 2, 3]</code>', 'mặc định so sánh như chuỗi']])}
-{{ex0}}
-<h3>Mẹo trả lời câu "đoạn code này in ra gì?"</h3>
-<p>Đọc chậm từng dòng và nói thành tiếng giá trị của từng biến sau mỗi dòng. Nhà tuyển dụng đánh giá cách bạn suy luận nhiều hơn là đáp án đúng ngay lập tức.</p>`,
-examples:[String.raw`console.log([3, 10, 2].sort());                  // [10, 2, 3]: so như chuỗi
-console.log([3, 10, 2].sort((a, b) => a - b));   // [2, 3, 10]: so như số`]},
-
-'w7.2': { html:`
-<h3>Cách làm một bài code khi phỏng vấn</h3>
-<ol>
-<li><strong>Hỏi lại yêu cầu</strong>: dữ liệu vào trông thế nào, trường hợp đặc biệt xử lý ra sao (mảng rỗng? chia cho 0?).</li>
-<li><strong>Viết ví dụ</strong> vào và ra trước khi code. Bài này đã cho sẵn ví dụ 75%.</li>
-<li><strong>Code từng bước</strong>: phân loại từng phần tử trước, tính tổng sau.</li>
-<li><strong>Tự test với ca biên</strong>: mảng rỗng, toàn bộ skipped, làm tròn.</li>
-</ol>
-<h3>Phân loại theo phần tử cuối</h3>
-{{ex0}}
-<p class="note">Góc QA: báo cáo của Playwright cũng chia test thành passed, failed, flaky và skipped đúng như bài này. Tỉ lệ flaky tăng dần theo thời gian là dấu hiệu bộ test cần được chăm sóc.</p>`,
-examples:[String.raw`const attempts = ["fail", "fail", "pass"];
-const last = attempts[attempts.length - 1];
-console.log("Lần cuối:", last);
-console.log("Có lần fail:", attempts.includes("fail"));
-console.log("Làm tròn 1/3:", Math.round(1 / 3 * 100));`]},
-
-'w7.3': { html:`
-<h3>Test API trong Playwright</h3>
-<p>Playwright gọi được API trực tiếp qua fixture <code>request</code>, không cần mở trình duyệt. Test API nhanh hơn test giao diện rất nhiều, nên thường dùng để chuẩn bị dữ liệu hoặc kiểm tra những gì không cần giao diện:</p>
-{{ex0}}
-<p>Ngoài status, cần kiểm tra <strong>cấu trúc</strong> của dữ liệu trả về: đủ trường, đúng kiểu. Bài tập này viết một bộ kiểm tra cấu trúc đơn giản. Trong project thật, việc này thường dùng thư viện như <code>zod</code> hoặc JSON Schema.</p>
-<h3>Hai bẫy của typeof</h3>
-${TRACE(['Giá trị', '<code>typeof</code>', 'Nên coi là'], [['<code>null</code>', '<code>"object"</code>', 'thiếu dữ liệu'], ['<code>[1, 2]</code>', '<code>"object"</code>', 'array, kiểm tra bằng <code>Array.isArray</code>']])}
-{{ex1}}`,
-examples:[{ run:false, code:String.raw`test('API trả về danh sách lệnh', async ({ request }) => {
-  const res = await request.get('/api/orders');
-  expect(res.status()).toBe(200);
-  const body = await res.json();
-  expect(Array.isArray(body.orders)).toBe(true);
-});` },
-String.raw`const res = { data: { user: null, tags: [] } };
-const path = "data.user.name";
-let v = res;
-for (const key of path.split(".")) v = v?.[key];
-console.log(path, "→", v);
-console.log(typeof null, typeof [], Array.isArray([]));`]},
-
-'w7.4': { html:`
-<h3>Playwright trong một bảng</h3>
-${TRACE(['Chủ đề', 'Cần nhớ'], [['Locator', 'Ưu tiên <code>getByRole</code> → <code>getByLabel</code> → <code>getByPlaceholder</code> → <code>getByText</code> → <code>getByTestId</code>; CSS/XPath là phương án cuối'], ['Auto-wait', 'Trước khi thao tác, Playwright chờ phần tử hiển thị, ổn định, bấm được'], ['Assertion', '<code>await expect(locator).toHaveText(...)</code> tự thử lại; không đọc giá trị một lần rồi so'], ['Strict mode', 'Thao tác cần locator khớp đúng 1 phần tử'], ['Page Object', 'Gom locator và thao tác của một trang; test chỉ còn bước nghiệp vụ'], ['Fixture', '<code>page</code>, <code>request</code> có sẵn; tự viết fixture để chuẩn bị dữ liệu, đăng nhập sẵn'], ['Debug', 'Trace Viewer, UI mode (<code>npx playwright test --ui</code>), codegen để thử locator']])}
-<h3>Mẹo trả lời</h3>
-<p>Mỗi khái niệm, hãy trả lời bằng <strong>định nghĩa ngắn + ví dụ từ dự án của bạn</strong>. Ví dụ: "Strict mode báo lỗi khi locator khớp nhiều phần tử. Ở dự án Sàn Demo, trang Lệnh của tôi có 3 nút Hủy giống nhau, nên tôi tìm dòng theo số hiệu lệnh rồi tìm nút trong dòng đó."</p>`,
-examples:[]},
-
-'w7.5': { html:`
-<h3>Bài thi thực hành</h3>
-<p>Bài này gom những gì quan trọng nhất của khóa: locator bền vững, auto-wait, assertion đúng nội dung, tìm đúng dòng trong bảng, kiểm tra tới nơi lưu dữ liệu. Bộ chấm chạy test của bạn trên 3 phiên bản có bug, nên test phải thật sự kiểm tra kết quả.</p>
-<h3>Checklist trước khi bấm Kiểm tra bài</h3>
-<ul>
-<li>Mỗi bước kiểm tra một điều cụ thể: đã tới Bảng giá; thông báo có đúng loại lệnh, mã, khối lượng; số lệnh tăng lên; trạng thái trong <strong>đúng dòng</strong>.</li>
-<li>Dòng của lệnh mới tìm bằng nội dung, không bằng vị trí. Lệnh cũ DH-1002 cũng là BÁN 6758.</li>
-<li>Không có <code>waitForTimeout</code>, không có <code>page.locator</code>, mọi thao tác và <code>expect</code> trên locator có <code>await</code>.</li>
-</ul>
-<h3>Dùng lại locator giữa các bước</h3>
-${ANAT(["const row = page.getByRole('row')", "Khai báo một lần ở ngoài các <code>test.step</code>. Locator chỉ là “cách tìm”, chưa đi tìm ngay, nên khai báo trước khi trang có dòng đó vẫn được."], "\n  ", [".filter({ hasText: '6758' }).filter({ hasText: 'Bán' }).filter({ hasText: '300' });", "Ba điều kiện cùng lúc: đúng mã, đúng loại lệnh, đúng khối lượng. Chỉ còn lệnh vừa đặt."])}
-<p>Bước 3 và bước 4 cùng dùng <code>row</code>: kiểm tra "Chờ khớp", bấm Hủy trong dòng, rồi kiểm tra "Đã hủy".</p>`,
-examples:[]},
-
-'w7.6': { html:`
-<h3>CI/CD trong một bảng</h3>
-${TRACE(['Khái niệm', 'Ý nghĩa'], [['Workflow, job, step', 'Tệp YAML trong <code>.github/workflows</code>; mỗi job chạy trên một máy mới, gồm các bước'], ['Trigger', '<code>push</code>, <code>pull_request</code>, <code>schedule</code> (cron), <code>workflow_dispatch</code> (bấm tay)'], ['Secrets', 'Mật khẩu, token; đọc qua <code>&#36;{{ secrets.TEN }}</code>, không hiện trong log'], ['Cache', 'Giữ thư mục thư viện giữa các lần chạy để cài nhanh hơn'], ['Artifact', 'Giữ report, trace để tải về sau khi máy CI bị xóa'], ['Matrix', 'Nhân job theo trình duyệt, hệ điều hành, phiên bản; chạy song song'], ['Sharding', 'Chia bộ test cho nhiều máy: <code>--shard=1/4</code>'], ['Retries, flaky', 'Pass nhờ chạy lại là flaky: cần điều tra, không bỏ qua']])}
-<h3>Mẹo trả lời</h3>
-<p>Câu hỏi CI/CD thường xoay quanh <strong>tốc độ</strong> (cache, sharding, smoke test), <strong>độ tin cậy</strong> (npm ci, flaky, retries) và <strong>bảo mật</strong> (secrets). Nhắc được cả ba khía cạnh cho thấy bạn đã làm thật chứ không chỉ học lý thuyết.</p>`,
-examples:[]},
-
-'w7.7': { html:`
-<h3>Kiến thức nền hay được hỏi</h3>
-${TRACE(['Khái niệm', 'Trả lời ngắn'], [['Kim tự tháp test', 'Nhiều unit test, ít hơn API/integration, ít nhất E2E'], ['Nên tự động hóa gì', 'Lặp lại nhiều, ổn định, rủi ro cao; không tự động hóa test chạy một lần hay cần phán đoán của con người'], ['Phân vùng tương đương, giá trị biên', 'Chia dữ liệu thành vùng cùng kết quả; thử ở ranh giới mỗi vùng'], ['Severity và priority', 'Mức ảnh hưởng và mức cần sửa gấp; hai thứ có thể khác nhau'], ['Regression', 'Chạy lại test để chắc thay đổi mới không làm hỏng chức năng cũ'], ['Báo cáo bug', 'Bước tái hiện, mong đợi, thực tế, môi trường, bằng chứng']])}
-<h3>Cách trả lời câu hỏi kiến thức</h3>
-<p>Công thức: <strong>định nghĩa một câu → ví dụ cụ thể → khi nào áp dụng</strong>. Ví dụ với giá trị biên: "Thử ở ranh giới giữa hợp lệ và không hợp lệ. Với ô khối lượng là bội số của 100, tôi thử 0, 99, 100, 101. Kỹ thuật này dùng cho mọi ô nhập có giới hạn."</p>`,
-examples:[]},
-
-'w7.8': { html:`
-<h3>Câu hỏi tình huống chấm cách bạn suy nghĩ</h3>
-<p>Không có một đáp án duy nhất, nhưng câu trả lời tốt luôn đi theo thứ tự: <strong>làm rõ vấn đề → tìm nguyên nhân gốc → hành động → đo kết quả → phòng ngừa lần sau</strong>. Câu trả lời yếu thường nhảy thẳng tới cách "che lỗi": thêm retries, chờ lâu hơn, tắt test.</p>
-<h3>Kể chuyện theo STAR</h3>
-${TRACE(['Phần', 'Nội dung', 'Ví dụ'], [['Situation', 'Bối cảnh', 'Test đặt lệnh thỉnh thoảng fail trên CI'], ['Task', 'Nhiệm vụ của bạn', 'Tìm nguyên nhân, giữ pipeline ổn định'], ['Action', 'Bạn đã làm gì', 'Mở trace, thấy test đọc số lệnh trước khi bảng tải xong; đổi sang toHaveCount'], ['Result', 'Kết quả, bài học', 'Hết flaky; rà lại toàn bộ chỗ đọc giá trị một lần']])}
-<p class="note">Chuẩn bị sẵn 2 hoặc 3 câu chuyện thật từ công việc hoặc từ chính các bài trong khóa này. Dự án POM và bài thi thực hành là chất liệu tốt để kể.</p>`,
-examples:[]},
-});
-
-Object.assign(SOLUTIONS, {
-'w7.1': quizSolution('w7.1'),
-'w7.4': quizSolution('w7.4'),
-'w7.6': quizSolution('w7.6'),
-'w7.7': quizSolution('w7.7'),
-'w7.8': quizSolution('w7.8'),
-'w7.2': { html:`
-<h3>Lời giải</h3>
-{{ex0}}
-<h3>Giải thích</h3>
-<ul>
-<li>Thứ tự <code>if</code> quan trọng: kiểm tra mảng rỗng trước, vì <code>attempts[-1]</code> của mảng rỗng là <code>undefined</code>.</li>
-<li>Lần cuối pass thì xem trước đó có lần fail nào không để tách flaky khỏi passed.</li>
-<li>Tính <code>passRate</code> sau vòng lặp, chặn trường hợp chia cho 0.</li>
-</ul>`,
-examples:[String.raw`function summarizeRun(results) {
-  const r = { total: results.length, passed: 0, failed: 0, flaky: 0, skipped: 0, passRate: 0, failedNames: [] };
-  for (const t of results) {
-    const a = t.attempts;
-    if (a.length === 0) r.skipped++;
-    else if (a[a.length - 1] === "fail") { r.failed++; r.failedNames.push(t.name); }
-    else if (a.includes("fail")) r.flaky++;
-    else r.passed++;
-  }
-  const ran = r.total - r.skipped;
-  r.passRate = ran === 0 ? 0 : Math.round((r.passed + r.flaky) / ran * 100);
-  return r;
-}
-
-console.log(summarizeRun([
-  { name: "đăng nhập", attempts: ["pass"] },
-  { name: "đặt lệnh", attempts: ["fail", "pass"] },
-  { name: "hủy lệnh", attempts: ["fail", "fail"] },
-  { name: "tìm kiếm", attempts: [] },
-  { name: "đăng ký", attempts: ["pass"] },
-]));`]},
-'w7.3': { html:`
-<h3>Lời giải</h3>
-{{ex0}}
-<h3>Giải thích</h3>
-<ul>
-<li><code>v?.[key]</code> dừng an toàn khi một cấp giữa không tồn tại, nên <code>data.user.name</code> không làm chương trình báo lỗi.</li>
-<li>Kiểm tra thiếu (<code>undefined</code>, <code>null</code>) trước, vì <code>typeof null</code> là <code>"object"</code>.</li>
-<li><code>Array.isArray</code> tách mảng khỏi object, vì <code>typeof []</code> cũng là <code>"object"</code>.</li>
-</ul>`,
-examples:[String.raw`function checkResponse(res, rules) {
-  const errors = [];
-  for (const path in rules) {
-    let v = res;
-    for (const key of path.split(".")) v = v?.[key];
-    if (v === undefined || v === null) { errors.push(path + ": thiếu"); continue; }
-    const actual = Array.isArray(v) ? "array" : typeof v;
-    if (actual !== rules[path]) errors.push(path + ": cần " + rules[path] + ", nhận " + actual);
-  }
-  return errors;
-}
-
-const res = { status: 201, data: { order: { id: "DH-1004", code: "7203", qty: "100", side: "buy", tags: [] } } };
-console.log(checkResponse(res, { "status": "number", "data.order.qty": "number", "data.order.price": "number", "data.order.tags": "array", "data.user.name": "string" }));`]},
-'w7.5': { html:`
-<h3>Lời giải</h3>
-{{ex0}}
-<h3>Bộ chấm bắt bug thế nào</h3>
-<ul>
-<li><strong>Luôn đặt lệnh mua</strong>: thông báo ghi MUA nên <code>toContainText('BÁN 6758 x300')</code> fail; dòng lệnh mới cũng không có chữ "Bán".</li>
-<li><strong>Lệnh không được lưu</strong>: số lệnh vẫn là 3 và không tìm thấy dòng của lệnh mới.</li>
-<li><strong>Hủy nhầm lệnh</strong>: dòng của lệnh vừa đặt vẫn "Chờ khớp", dù thông báo nói đã hủy.</li>
-</ul>`,
-examples:[{ run:false, code:String.raw`import { test, expect } from '@playwright/test';
-
-test('bán Sony rồi hủy lệnh', async ({ page }) => {
-  await test.step('Đăng nhập', async () => {
-    await page.goto('/login');
-    await page.getByLabel('Email').fill('thao@sandemo.test');
-    await page.getByLabel('Mật khẩu').fill('Demo@123');
-    await page.getByRole('button', { name: 'Đăng nhập' }).click();
-    await expect(page).toHaveURL(/\/dashboard/);
-  });
-
-  await test.step('Đặt lệnh bán', async () => {
-    await page.getByRole('link', { name: 'Đặt lệnh' }).click();
-    await page.getByLabel('Mã cổ phiếu').selectOption('6758');
-    await page.getByLabel('Bán').check();
-    await page.getByLabel('Khối lượng').fill('300');
-    await page.getByLabel('Tôi đồng ý').check();
-    await page.getByRole('button', { name: 'Đặt lệnh' }).click();
-    await expect(page.getByRole('status')).toContainText('BÁN 6758 x300');
-  });
-
-  const row = page.getByRole('row').filter({ hasText: '6758' }).filter({ hasText: 'Bán' }).filter({ hasText: '300' });
-
-  await test.step('Kiểm tra trong Lệnh của tôi', async () => {
-    await page.getByRole('link', { name: 'Lệnh của tôi' }).click();
-    await expect(page.getByTestId('order-count')).toHaveText('4');
-    await expect(row).toContainText('Chờ khớp');
-  });
-
-  await test.step('Hủy lệnh vừa đặt', async () => {
-    await row.getByRole('button', { name: 'Hủy' }).click();
-    await page.getByRole('dialog').getByRole('button', { name: 'Xác nhận hủy' }).click();
-    await expect(row).toContainText('Đã hủy');
-  });
-});` }]},
-});
 
 /* =========================================================
    TRẠNG THÁI
@@ -13445,11 +13083,13 @@ function renderBrief(){
   const lesson = LESSONS[ex.id];
   const sol = SOLUTIONS[ex.id];
   if ((briefView === 'lesson' && !lesson) || (briefView === 'solution' && !sol) || (briefView === 'app' && !ex.pw) || (briefView === 'ci' && !ex.ci)) briefView = 'task';
-  let tag = ex.free ? '<span class="tag">Không chấm điểm</span>' : ex.tests ? '<span class="tag auto">Có chấm tự động</span>' : '<span class="tag">Tự đánh giá</span>';
+  let tag = ex.exam ? '<span class="tag auto">Chấm điểm khi nộp bài</span>' + (state.exam && state.exam.best != null ? '<span class="tag">Điểm cao nhất: ' + state.exam.best + '/' + EXAM_QS.length + '</span>' : '') : ex.free ? '<span class="tag">Không chấm điểm</span>' : ex.tests ? '<span class="tag auto">Có chấm tự động</span>' : '<span class="tag">Tự đánh giá</span>';
   if (ex.optional) tag += '<span class="tag">Nâng cao, không bắt buộc</span>';
   if (sol && state.revealed[ex.id]) tag += '<span class="tag">Đã xem lời giải</span>';
   let body;
-  if (briefView === 'ci'){
+  if (ex.exam){
+    body = renderExam();
+  } else if (briefView === 'ci'){
     body = '<p class="app-hint">Mô phỏng GitHub Actions trên repo <b>thao/sandemo-e2e</b>. Chọn sự kiện, kịch bản code rồi chạy. Bấm vào từng job để xem các bước và log.</p>';
   } else if (briefView === 'app'){
     body = '<p class="app-hint">Đây là trang web mẫu mà code test của bạn điều khiển. Có thể bấm thử như người dùng, hoặc chuột phải → Inspect để xem HTML.</p>';
@@ -13523,6 +13163,7 @@ function select(id, focusEditor){
   renderHL(); renderGutter(); renderFileBar();
   renderBrief(); renderToolbar(); refreshStatus();
   document.querySelector('.main').classList.toggle('wide', !!(ex.pw || ex.ci));
+  document.querySelector('.main').classList.toggle('exam-mode', !!ex.exam);
   applyBriefWidth();
   if (ex.ci) ciPaneSetup(ex);
   if (ex.pw && !running){ App.init().then(() => { App.reset(); App.navigate(ex.route || '/login'); }); }
@@ -14241,6 +13882,68 @@ splitter.addEventListener('keydown', e => {
 });
 
 /* =========================================================
+   BÀI THI CUỐI KHÓA: vẽ đề, lưu bài làm, chấm điểm
+   ========================================================= */
+function examState(){ if (!state.exam) state.exam = { answers: {} }; if (!state.exam.answers) state.exam.answers = {}; return state.exam; }
+function examCountText(){ const n = Object.keys(examState().answers).length, t = EXAM_QS.length; return n === t ? 'Đã trả lời đủ ' + t + ' câu' : 'Đã trả lời ' + n + '/' + t + ' câu'; }
+function renderExam(){
+  const st = examState(), a = st.answers, done = !!st.submitted, g = done ? examGrade(a) : null, total = EXAM_QS.length;
+  let html = '<p class="exam-intro">' + total + ' câu ôn lại toàn khóa: JavaScript, Playwright, CI/CD, AI và câu hỏi phỏng vấn. Phần lớn là trắc nghiệm; câu nào cần thì gõ đáp án vào ô. Đạt từ <b>' + EXAM_PASS + '/' + total + '</b> để hoàn thành tuần 7. Bài làm được lưu tự động, làm lại bao nhiêu lần cũng được.</p>';
+  if (done){
+    const pass = g.score >= EXAM_PASS, cert = certProgress();
+    html += '<div class="exam-score ' + (pass ? 'pass' : 'fail') + '" role="status"><div class="big">' + g.score + '<small>/' + total + '</small></div><div>' +
+      '<strong>' + (pass ? 'Đạt! Bạn đã hoàn thành bài thi cuối khóa.' : 'Chưa đạt. Cần ít nhất ' + EXAM_PASS + ' câu đúng.') + '</strong>' +
+      '<ul>' + g.sections.map(x => '<li>' + esc(x.title) + ': ' + x.ok + '/' + x.total + '</li>').join('') + '</ul>' +
+      '<div class="cert-actions" style="margin-top:0">' + '<button type="button" class="btn" data-exam-retry>Làm lại</button>' +
+      (pass ? '<button type="button" class="btn primary" data-exam-cert>' + (cert.left === 0 ? 'Xem chứng nhận' : 'Xem tiến độ chứng nhận (còn ' + cert.left + ' bài)') + '</button>' : '') +
+      '</div></div></div>' + (pass ? '' : '<p class="exam-intro" style="margin-top:10px">Xem lại các câu sai bên dưới, có đáp án và giải thích, rồi bấm Làm lại.</p>');
+  }
+  let i = 0;
+  for (const sec of EXAM){
+    html += '<section class="exam-sec"><h3>' + esc(sec.title) + '</h3>';
+    for (const q of sec.qs){
+      const n = i++, val = a[n] != null ? a[n] : '', ok = done && g.results[n];
+      html += '<fieldset class="exq' + (done ? (ok ? ' is-right' : ' is-wrong') : '') + '" aria-labelledby="exq' + n + '"><div class="exq-q" id="exq' + n + '"><span class="exq-n">Câu ' + (n + 1) + '</span>' + q.q + '</div>';
+      if (q.opts){
+        html += q.opts.map((o, k) => {
+          const L = 'ABCD'[k], cls = done ? (L === q.a ? ' right' : (val === L ? ' wrong' : '')) : '';
+          return '<label class="opt' + cls + '"><input type="radio" name="exq' + n + '" value="' + L + '" data-exq="' + n + '"' + (val === L ? ' checked' : '') + (done ? ' disabled' : '') + '><span><b>' + L + '.</b> ' + o + '</span></label>';
+        }).join('');
+      } else {
+        html += '<input type="text" class="exq-text" data-exq="' + n + '" value="' + esc(val) + '" placeholder="' + esc(q.ph || 'Nhập đáp án') + '" spellcheck="false" autocomplete="off" autocapitalize="off" aria-labelledby="exq' + n + '"' + (done ? ' disabled' : '') + '>';
+      }
+      if (done) html += '<p class="exq-why"><b>' + (ok ? 'Đúng.' : 'Chưa đúng.') + '</b> Đáp án: ' + (q.opts ? q.a : '<code>' + esc(q.show) + '</code>') + '. ' + q.why + '</p>';
+      html += '</fieldset>';
+    }
+    html += '</section>';
+  }
+  html += done
+    ? '<div class="exam-bar"><span>Điểm lần này: ' + g.score + '/' + total + ' · Cao nhất: ' + st.best + '/' + total + '</span><button type="button" class="btn" data-exam-retry>Làm lại</button></div>'
+    : '<div class="exam-bar"><span id="examCount">' + examCountText() + '</span><button type="button" class="btn primary" data-exam-submit>Nộp bài</button></div>';
+  return html;
+}
+function examSet(i, v){
+  const st = examState();
+  if (v === '') delete st.answers[i]; else st.answers[i] = v;
+  saveState();
+  const c = document.getElementById('examCount'); if (c) c.textContent = examCountText();
+}
+function examSubmit(){
+  const st = examState(), g = examGrade(st.answers);
+  st.submitted = true; st.score = g.score; st.best = Math.max(st.best || 0, g.score);
+  saveState(); renderBrief();
+  if (g.score >= EXAM_PASS) setStatus('w7.exam', 'pass');
+  else if (state.status['w7.exam'] !== 'pass') setStatus('w7.exam', 'fail');
+}
+briefEl.addEventListener('change', e => { const t = e.target.closest('input[type=radio][data-exq]'); if (t) examSet(t.dataset.exq, t.value); });
+briefEl.addEventListener('input', e => { const t = e.target.closest('input.exq-text'); if (t) examSet(t.dataset.exq, t.value.trim()); });
+briefEl.addEventListener('click', e => {
+  if (e.target.closest('[data-exam-submit]')) return examSubmit();
+  if (e.target.closest('[data-exam-retry]')){ const st = examState(); state.exam = { answers: {}, best: st.best }; saveState(); renderBrief(); return; }
+  if (e.target.closest('[data-exam-cert]')) openCert(false);
+});
+
+/* =========================================================
    CHỨNG NHẬN HOÀN THÀNH: mở khóa khi mọi bài bắt buộc của 7 tuần đã pass
    (bài nâng cao không bắt buộc không tính). Chỉ ghi nhận tiến độ trên trình duyệt này.
    ========================================================= */
@@ -14256,7 +13959,8 @@ function certId(){
   let h = 5381; for (const ch of (state.certName || '') + '|' + (state.completedAt || '')) h = ((h << 5) + h + ch.charCodeAt(0)) >>> 0;
   return 'SDET-' + (state.completedAt || '').slice(0, 4) + '-' + h.toString(36).toUpperCase().padStart(7, '0').slice(0, 7);
 }
-const CERT_TEXT = 'đã hoàn thành khóa học tự học 7 tuần về kiểm thử tự động, với toàn bộ bài tập được chấm tự động và bài thi thực hành cuối khóa.';
+const CERT_TEXT = 'đã hoàn thành khóa học tự học 7 tuần về kiểm thử tự động, gồm toàn bộ bài tập được chấm tự động và bài thi ôn tập cuối khóa.';
+const certExamText = () => ((state.exam && state.exam.best != null) ? state.exam.best : '–') + '/' + EXAM_QS.length;
 const CERT_SKILLS = 'JavaScript · Thuật toán · Playwright + TypeScript · Page Object Model · CI/CD với GitHub Actions · AI trong testing';
 let certReturn = null;
 function openCert(celebrate){
@@ -14270,7 +13974,7 @@ function openCert(celebrate){
   if (c.left > 0){
     const first = c.weeks.find(x => x.next);
     body = '<h2 id="certTitle">Chứng nhận hoàn thành khóa học</h2>' +
-      '<p>Hoàn thành mọi bài bắt buộc của 7 tuần để mở khóa chứng nhận. Bạn đã xong <b>' + c.done + '/' + c.total + '</b> bài, còn <b>' + c.left + '</b> bài.</p>' +
+      '<p>Hoàn thành mọi bài bắt buộc của tuần 1–6 và đạt bài thi cuối khóa ở tuần 7 để mở khóa chứng nhận. Bạn đã xong <b>' + c.done + '/' + c.total + '</b> bài, còn <b>' + c.left + '</b> bài.</p>' +
       '<ul class="cert-weeks">' + c.weeks.map(x => '<li><span>' + esc(WEEK_SUB[x.w].split(':')[0]) + '</span><span class="bar"><i style="width:' + (x.total ? Math.round(x.done / x.total * 100) : 0) + '%"></i></span><span class="num">' + x.done + '/' + x.total + '</span></li>').join('') + '</ul>' +
       '<div class="cert-actions"><button type="button" class="btn primary" data-cert-go="' + first.next.id + '">Làm bài tiếp theo: ' + esc(exLabel(first.next)) + '</button></div>';
   } else {
@@ -14303,14 +14007,14 @@ function renderCertCard(){
   const name = state.certName || '';
   card.innerHTML = '<div class="c-kicker">CHỨNG NHẬN HOÀN THÀNH</div>' +
     '<div class="c-title">Trở thành SDET từ Zero</div>' +
-    '<div class="c-course">Khóa học Automation Testing</div>' +
+    '<div class="c-course">Khóa học Automation Testing · ' + certProgress().total + ' bài học</div>' +
     '<div class="c-to">Chứng nhận</div>' +
     '<div class="c-name' + (name ? '' : ' empty') + '">' + esc(name || 'Tên của bạn') + '</div>' +
     '<div class="c-text">' + CERT_TEXT + '</div>' +
     '<div class="c-skills">' + CERT_SKILLS + '</div>' +
     '<div class="c-foot"><div><b>' + certDate() + '</b>Ngày hoàn thành</div>' +
     '<div class="c-seal" aria-hidden="true"><b>SDET</b><span>7 TUẦN</span></div>' +
-    '<div><b>' + certProgress().total + ' bài tập</b>Đã hoàn thành<div class="c-id">Mã: ' + certId() + '</div></div></div>';
+    '<div><b>' + certExamText() + '</b>Điểm thi cuối khóa<div class="c-id">Mã: ' + certId() + '</div></div></div>';
 }
 function closeCert(){
   const ov = document.querySelector('.cert-overlay'); if (!ov) return;
@@ -14355,7 +14059,7 @@ async function certDownload(){
   };
   put('CHỨNG NHẬN HOÀN THÀNH', .015, 700, gold, H * .14, .005);
   put('Trở thành SDET từ Zero', .046, 700, navy, H * .24);
-  put('Khóa học Automation Testing', .019, 600, text, H * .30);
+  put('Khóa học Automation Testing · ' + certProgress().total + ' bài học', .019, 600, text, H * .30);
   put('Chứng nhận', .016, 400, muted, H * .385);
   const name = state.certName || 'Tên của bạn';
   put(name, .05, 700, state.certName ? text : '#9AA6B2', H * .48);
@@ -14376,7 +14080,7 @@ async function certDownload(){
     if (extra){ g.font = '400 ' + Math.round(W * .011) + 'px ' + F; g.fillStyle = '#7F8D9B'; g.fillText(extra, x, fy + W * .018); }
   };
   side(W * .25, certDate(), 'Ngày hoàn thành');
-  side(W * .75, certProgress().total + ' bài tập', 'Đã hoàn thành', 'Mã: ' + certId());
+  side(W * .75, certExamText(), 'Điểm thi cuối khóa', 'Mã: ' + certId());
   const a = document.createElement('a');
   a.download = 'chung-nhan-sdet' + (state.certName ? '-' + state.certName.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^A-Za-z0-9]+/g, '-').toLowerCase() : '') + '.png';
   a.href = cv.toDataURL('image/png');

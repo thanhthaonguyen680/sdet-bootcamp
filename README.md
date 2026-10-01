@@ -14,7 +14,7 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 | 4 | Playwright + TypeScript: locator getBy..., assertion, Page Object Model, fixture, dự án POM hoàn chỉnh (21 bài bắt buộc + CSS/XPath nâng cao không bắt buộc) |
 | 5 | CI/CD với GitHub Actions: secrets, artifact, matrix, sharding, lịch chạy |
 | 6 | AI trong automation testing: dùng AI an toàn, viết prompt, kiểm chứng test case, test và locator do AI viết, Playwright MCP và Playwright Agents |
-| 7 | Ôn tập và phỏng vấn: trắc nghiệm JavaScript, Playwright, CI/CD, câu hỏi phỏng vấn kiến thức và tình huống, bài code và bài thi thực hành cuối khóa |
+| 7 | Bài thi ôn tập cuối khóa 30 câu (trắc nghiệm và điền đáp án): JavaScript, Playwright, CI/CD, AI, câu hỏi phỏng vấn. Đạt từ 24/30 |
 
 ## Tính năng
 
@@ -23,7 +23,7 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 - Bộ chấm "cài bug" vào trang để kiểm tra test có thực sự bắt được lỗi không
 - Mô phỏng GitHub Actions: chạy workflow YAML, xem từng job, từng bước và log
 - Tiến độ lưu tự động trong trình duyệt
-- Hoàn thành mọi bài bắt buộc của 7 tuần để nhận chứng nhận hoàn thành, tải về dạng ảnh PNG hoặc in ra PDF
+- Hoàn thành mọi bài bắt buộc của tuần 1–6 và đạt bài thi cuối khóa để nhận chứng nhận hoàn thành, tải về dạng ảnh PNG hoặc in ra PDF
 
 ## Về dự án
 
