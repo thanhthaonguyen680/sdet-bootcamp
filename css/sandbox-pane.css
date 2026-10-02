@@ -1,0 +1,22 @@
+/* Khung trang web mẫu và công cụ thử locator (tuần 4, 6) */
+
+.app-pane{display:flex;flex-direction:column;gap:8px}
+.app-pane.none{display:none}
+.app-pane.off{position:fixed;left:-10000px;top:0;width:430px;height:760px;pointer-events:none}
+.app-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.app-url{flex:1;min-width:140px;font:12.5px var(--mono);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:5px 9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-2)}
+#appFrame{width:100%;height:min(60vh,580px);min-height:380px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.app-pane.off #appFrame{height:700px}
+.loc-row{display:flex;gap:6px;flex-wrap:wrap}
+#locInput{flex:1;min-width:180px;font:12.5px var(--mono);padding:6px 9px;border:1px solid var(--line);border-radius:6px;background:var(--ed-bg);color:var(--ink)}
+.loc-out{font-size:13px;color:var(--ink-2);margin-top:8px;line-height:1.5}
+.loc-out ul{margin:6px 0 0;padding-left:18px}
+.loc-out code{font-size:12px}
+.good{color:var(--pass)}.warnc{color:var(--warn)}.bad{color:var(--fail)}
+.sugg{list-style:none;padding-left:0 !important}
+.sugg li{display:flex;flex-direction:column;gap:2px;margin:6px 0}
+.sugg button{text-align:left;border:1px solid var(--line);background:var(--ed-bg);border-radius:6px;padding:5px 8px;cursor:pointer;color:var(--ink);overflow-x:auto}
+.sugg span{font-size:12px}
+.sugg-note{margin-top:6px;font-weight:600}
+#appPick.on{color:var(--accent);border-color:var(--accent)}
+.app-hint{font-size:13.5px;color:var(--ink-2);margin:0 0 10px}

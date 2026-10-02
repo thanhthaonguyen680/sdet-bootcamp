@@ -1,0 +1,34 @@
+/* Biến màu và giao diện sáng/tối (design tokens) */
+
+:root{
+  --bg:#E8ECF0; --surface:#FFFFFF; --surface-2:#F2F5F8; --ink:#17212C; --ink-2:#4A5867; --ink-3:#7F8D9B; --line:#D5DCE3;
+  --accent:#2C55C4; --accent-ink:#FFFFFF; --accent-soft:#E6ECFA; --accent-strong:#1F3F99;
+  --pass:#17845A; --pass-soft:#E2F2EA; --fail:#C0392F; --fail-soft:#FAE7E5; --warn:#9A6200;
+  --cell:#D2D9E0; --cell-edited:#97A6B5;
+  --ed-bg:#FBFCFD; --ed-gutter:#F0F3F6; --ed-caret:#17212C; --ed-sel:rgba(44,85,196,.22);
+  --sx-k:#7A3DB3; --sx-s:#1C7A4D; --sx-n:#B0501A; --sx-c:#8793A0; --sx-f:#2C55C4; --sx-l:#B0501A;
+  --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --sans:"Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --code-size:14px; --code-lh:1.6;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101923; --surface:#17222E; --surface-2:#1D2A38; --ink:#DCE4ED; --ink-2:#A2B0BF; --ink-3:#6B7B8C; --line:#293846;
+    --accent:#7098F3; --accent-ink:#0D1520; --accent-soft:#1F2F4A; --accent-strong:#A9C0FA;
+    --pass:#4DC48E; --pass-soft:#15322A; --fail:#EF786D; --fail-soft:#3A2020; --warn:#E3B45A;
+    --cell:#2A3A4A; --cell-edited:#51667A;
+    --ed-bg:#131D27; --ed-gutter:#16212C; --ed-caret:#DCE4ED; --ed-sel:rgba(112,152,243,.3);
+    --sx-k:#C59CF1; --sx-s:#8DD4A7; --sx-n:#F1AA72; --sx-c:#627589; --sx-f:#88A9F7; --sx-l:#F1AA72;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101923; --surface:#17222E; --surface-2:#1D2A38; --ink:#DCE4ED; --ink-2:#A2B0BF; --ink-3:#6B7B8C; --line:#293846;
+  --accent:#7098F3; --accent-ink:#0D1520; --accent-soft:#1F2F4A; --accent-strong:#A9C0FA;
+  --pass:#4DC48E; --pass-soft:#15322A; --fail:#EF786D; --fail-soft:#3A2020; --warn:#E3B45A;
+  --cell:#2A3A4A; --cell-edited:#51667A;
+  --ed-bg:#131D27; --ed-gutter:#16212C; --ed-caret:#DCE4ED; --ed-sel:rgba(112,152,243,.3);
+  --sx-k:#C59CF1; --sx-s:#8DD4A7; --sx-n:#F1AA72; --sx-c:#627589; --sx-f:#88A9F7; --sx-l:#F1AA72;
+  color-scheme:dark;
+}

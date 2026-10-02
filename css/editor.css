@@ -1,0 +1,15 @@
+/* Ô soạn code và tô màu cú pháp */
+
+/* Editor */
+.editor{grid-area:editor;display:flex;min-height:0;background:var(--ed-bg);border-bottom:1px solid var(--line);position:relative}
+.gutter{flex:none;width:48px;overflow:hidden;background:var(--ed-gutter);border-right:1px solid var(--line);user-select:none}
+.gutter-inner{padding:14px 10px 14px 0;text-align:right;font:var(--code-size)/var(--code-lh) var(--mono);color:var(--ink-3);will-change:transform}
+.gutter-inner .err{color:var(--fail);font-weight:700;background:var(--fail-soft)}
+.code-wrap{position:relative;flex:1;min-width:0;overflow:hidden}
+.code-wrap pre,.code-wrap textarea{position:absolute;inset:0;margin:0;border:0;font:var(--code-size)/var(--code-lh) var(--mono);font-variant-ligatures:none;white-space:pre;tab-size:2;-moz-tab-size:2;letter-spacing:0}
+.code-wrap pre{overflow:hidden;pointer-events:none;padding:0}
+.code-wrap pre code{display:block;min-width:max-content;padding:14px 18px 14px 14px;color:var(--ink);font:inherit;will-change:transform}
+.code-wrap textarea{width:100%;height:100%;padding:14px 18px 14px 14px;resize:none;outline:none;overflow:auto;background:transparent;color:transparent;-webkit-text-fill-color:transparent;caret-color:var(--ed-caret);overflow-wrap:normal}
+.code-wrap textarea::selection{background:var(--ed-sel);-webkit-text-fill-color:transparent}
+.editor:focus-within{box-shadow:inset 0 0 0 2px var(--accent-soft)}
+.k{color:var(--sx-k)} .s{color:var(--sx-s)} .n{color:var(--sx-n)} .c{color:var(--sx-c);font-style:italic} .f{color:var(--sx-f)} .l{color:var(--sx-l)}

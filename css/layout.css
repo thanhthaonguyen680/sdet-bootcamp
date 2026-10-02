@@ -1,0 +1,25 @@
+/* Bố cục chính: danh sách bài, vùng làm việc, thanh kéo đổi độ rộng */
+
+/* Layout */
+.layout{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(0,1fr)}
+.side{overflow:auto;background:var(--surface);border-right:1px solid var(--line);padding:6px 8px 28px}
+.side h3{margin:16px 10px 4px;font-size:12.5px;font-weight:600;color:var(--ink-3)}
+.nav-item{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;text-align:left;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px;line-height:1.35}
+.nav-item:hover{background:var(--surface-2)}
+.nav-item[aria-current="true"]{background:var(--accent-soft);color:var(--accent-strong);font-weight:600}
+.nav-num{font-family:var(--mono);font-size:12px;color:var(--ink-3);width:24px;flex:none}
+.nav-item[aria-current="true"] .nav-num{color:inherit}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--cell);flex:none}
+.dot.edited{background:var(--cell-edited)} .dot.pass{background:var(--pass)} .dot.fail{background:var(--fail)}
+.dot.free{background:transparent;border:1.5px solid var(--ink-3)}
+
+.main{--brief-w:44%;position:relative;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,var(--brief-w),calc(100% - 360px));grid-template-rows:auto minmax(0,1fr) minmax(170px,34%);grid-template-areas:"tool brief" "editor brief" "panel brief"}
+
+@media (min-width:1100px){ .main.wide{--brief-w:max(400px,50%)} }
+/* Thanh kéo đổi độ rộng giữa phần code và phần bài giảng */
+.splitter{position:absolute;top:0;bottom:0;right:clamp(300px,var(--brief-w),calc(100% - 360px));width:10px;transform:translateX(50%);z-index:3;cursor:col-resize;touch-action:none}
+.splitter::after{content:"";position:absolute;top:0;bottom:0;left:4px;width:2px;background:transparent;transition:background .15s}
+.splitter:hover::after,.splitter:focus-visible::after,body.resizing .splitter::after{background:var(--accent)}
+.splitter:focus-visible{outline:none}
+body.resizing{cursor:col-resize;user-select:none;-webkit-user-select:none}
+body.resizing iframe{pointer-events:none}

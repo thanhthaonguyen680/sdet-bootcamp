@@ -1,0 +1,53 @@
+/* Phần đề bài, bài giảng và lời giải */
+
+/* Brief */
+.brief{grid-area:brief;overflow:auto;background:var(--surface);border-left:1px solid var(--line);padding:22px 24px 30px}
+.brief-meta{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2);font-weight:500}
+.tag{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);font-weight:500}
+.tag.auto{background:var(--accent-soft);color:var(--accent-strong)}
+.brief h2{margin:6px 0 14px;font-size:21px;line-height:1.28;font-weight:700;letter-spacing:-.015em}
+.desc p{margin:0 0 12px}
+.desc ul{margin:0 0 12px;padding-left:20px}
+.desc li{margin:3px 0}
+.desc code,.hint code{font-size:.86em;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.desc pre{margin:0 0 14px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;font-size:12.5px;line-height:1.55;overflow-x:auto}
+.note{font-size:13.5px;color:var(--ink-2);border-left:3px solid var(--line);padding-left:10px}
+.hint{margin-top:14px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.hint summary{cursor:pointer;padding:9px 12px;font-weight:600;font-size:14px;list-style-position:inside}
+.hint > div{padding:0 12px 12px;font-size:14px;color:var(--ink-2)}
+.brief-nav{display:flex;gap:8px;margin-top:22px}
+.seg{display:inline-flex;gap:2px;padding:3px;margin:0 0 18px;background:var(--surface-2);border:1px solid var(--line);border-radius:9px}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:6px;font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(15,25,40,.12)}
+.lesson h3{margin:22px 0 8px;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.lesson h3:first-child{margin-top:0}
+.lesson p{margin:0 0 12px}
+.lesson ul{margin:0 0 12px;padding-left:20px}
+.lesson li{margin:4px 0}
+.lesson code{font-size:.86em;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.lesson .note code{background:var(--surface)}
+.anat{margin:0 0 16px;border:1px solid var(--line);border-radius:8px;background:var(--surface);overflow:hidden}
+.lesson .anat .anat-code{margin:0;padding:12px 14px 8px;background:var(--ed-bg);border:0;border-bottom:1px solid var(--line);border-radius:0;font-size:14px;line-height:2.1;white-space:pre-wrap;overflow-wrap:break-word}
+.anat-p{color:var(--c);font-weight:500;border-bottom:2px solid var(--c)}
+.anat-p sup{font:700 10.5px/1 var(--sans);margin-left:2px;color:var(--c)}
+.anat-list{margin:0;padding:10px 14px 10px 34px;font-size:14px}
+.anat-list li{margin:6px 0}
+.anat-list li::marker{color:var(--ink-3);font-weight:600}
+.lesson .anat-list code.anat-tok{color:var(--c);font-weight:600}
+.ex-block{position:relative;margin:0 0 16px;border:1px solid var(--line);border-radius:8px;background:var(--ed-bg);overflow:hidden}
+.ex-block pre{margin:0;padding:12px 14px;font-size:12.5px;line-height:1.6;overflow-x:auto;white-space:pre}
+.ex-block pre code{background:none;border:0;padding:0;font-size:inherit}
+.ex-foot{display:flex;justify-content:flex-end;padding:6px 8px;border-top:1px solid var(--line);background:var(--surface-2)}
+.ex-foot .btn{height:28px;font-size:12.5px;padding:0 10px}
+.start-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.start-row span{font-size:13.5px;color:var(--ink-2)}
+.tbl{overflow-x:auto;margin:0 0 14px}
+.tbl table{border-collapse:collapse;min-width:100%;font-size:13px}
+.tbl th,.tbl td{border:1px solid var(--line);padding:5px 9px;text-align:left;vertical-align:top;white-space:nowrap}
+.tbl th{background:var(--surface-2);font-weight:600}
+@media (max-width: 600px){ .tbl th,.tbl td{white-space:normal} }
+.lesson pre:not(.ex-block pre){margin:0 0 14px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;font-size:12.5px;line-height:1.5;overflow-x:auto}
+.gate{border:1px dashed var(--ink-3);border-radius:10px;padding:16px 18px;background:var(--surface-2)}
+.gate p{margin:0 0 10px}
+.hint-note{font-size:13px;color:var(--ink-3);margin:14px 0 -6px}
+.back-link{border:0;background:none;padding:0;color:var(--accent);font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}

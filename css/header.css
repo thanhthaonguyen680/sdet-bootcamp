@@ -1,0 +1,23 @@
+/* Thanh đầu trang: tên khóa học, chọn tuần, tiến độ */
+
+/* Header */
+.top{display:flex;align-items:center;gap:18px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line);flex:none}
+.brand{flex:none}
+.brand h1{margin:0;font-size:16px;font-weight:700;letter-spacing:-.01em;line-height:1.25}
+.brand p{margin:0;font-size:12.5px;color:var(--ink-2)}
+.progress{flex:1;min-width:0;display:flex;align-items:center;gap:12px}
+.strip{flex:1;min-width:0;display:flex;gap:3px}
+.cell{flex:1;min-width:5px;height:24px;border:0;border-radius:3px;background:var(--cell);padding:0;cursor:pointer}
+.cell.edited{background:var(--cell-edited)}
+.cell.pass{background:var(--pass)}
+.cell.fail{background:var(--fail)}
+.cell.current{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.count{font-size:13px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.count b{color:var(--ink);font-weight:700}
+.icon-btn{border:1px solid var(--line);background:var(--surface);border-radius:7px;height:34px;min-width:34px;padding:0 10px;cursor:pointer;font-size:14px;color:var(--ink-2)}
+.icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+.menu-btn{display:none}
+
+.weeks{display:inline-flex;gap:2px;padding:3px;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;flex:none}
+.weeks button{border:0;background:none;padding:5px 12px;border-radius:6px;font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;white-space:nowrap}
+.weeks button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}

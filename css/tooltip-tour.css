@@ -1,0 +1,13 @@
+/* Tooltip và hướng dẫn nhanh */
+
+/* Tooltip và hướng dẫn nhanh */
+.tip{position:fixed;z-index:70;max-width:290px;padding:8px 11px;border-radius:7px;background:var(--ink);color:var(--surface);font-size:13px;line-height:1.45;box-shadow:0 6px 18px rgba(0,0,0,.2);pointer-events:none}
+.tip[hidden]{display:none}
+.tip strong{display:block;font-weight:600;margin-bottom:2px}
+.tour-block{position:fixed;inset:0;z-index:80}
+.tour-spot{position:fixed;z-index:81;border-radius:9px;box-shadow:0 0 0 3px var(--accent),0 0 0 9999px rgba(8,14,22,.55);pointer-events:none;transition:top .2s,left .2s,width .2s,height .2s}
+.tour-card{position:fixed;z-index:82;width:min(340px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.25);padding:16px 16px 12px}
+.tour-card h2{margin:0 0 6px;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.tour-card p{margin:0 0 14px;font-size:14px;color:var(--ink-2)}
+.tour-foot{display:flex;align-items:center;gap:8px}
+.tour-step{font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;margin-right:auto}

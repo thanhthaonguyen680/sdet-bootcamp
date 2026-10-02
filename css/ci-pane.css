@@ -1,0 +1,45 @@
+/* Khung mô phỏng GitHub Actions (tuần 5) */
+
+.ci-pane{display:flex;flex-direction:column;gap:10px}
+.ci-pane[hidden]{display:none}
+.ci-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
+.ci-controls[hidden]{display:none}
+.ci-lab{display:flex;flex-direction:column;gap:3px;font-size:12.5px;color:var(--ink-2);font-weight:600}
+.ci-lab select,.ci-in select,.ci-in input[type=text]{font:13px var(--sans);padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
+.ci-inputs{display:flex;flex-wrap:wrap;gap:10px;padding:8px 10px;border:1px dashed var(--line);border-radius:8px}
+.ci-inputs[hidden],.ci-cron[hidden]{display:none}
+.ci-in{display:flex;flex-direction:column;gap:3px;font:600 12px var(--mono);color:var(--ink-2)}
+.ci-cron{font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface-2)}
+.ci-cron ul{margin:4px 0 6px;padding-left:18px}
+.ci-cron-title{font-weight:700;margin-bottom:4px}
+.ci-out{display:flex;flex-direction:column;gap:10px}
+.ci-meta{font-size:12.5px;color:var(--ink-2)}
+.ci-run{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.ci-run-head{display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.ci-st{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;flex:none}
+.st-success.ci-st{background:var(--pass)}.st-failure.ci-st{background:var(--fail)}.st-cancelled.ci-st,.st-skipped.ci-st{background:var(--ink-3)}
+.ci-jobs{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px}
+.ci-job{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:5px 9px;font:12.5px var(--sans);color:var(--ink);cursor:pointer}
+.ci-job.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.ci-ic{font-weight:700;width:14px;text-align:center}
+.st-success .ci-ic{color:var(--pass)}.st-failure .ci-ic{color:var(--fail)}.st-cancelled .ci-ic,.st-skipped .ci-ic{color:var(--ink-3)}
+.ci-dur{font:11.5px var(--mono);color:var(--ink-3);margin-left:auto;padding-left:8px}
+.ci-steps{padding:0 12px 10px}
+.ci-steps-title{font-weight:700;font-size:13px;margin:4px 0 6px}
+.ci-joblog{font:12px var(--mono);color:var(--fail);background:var(--fail-soft);border-radius:6px;padding:6px 8px;margin-bottom:6px;white-space:pre-wrap}
+.ci-step{border:1px solid var(--line);border-radius:6px;margin:4px 0;background:var(--surface)}
+.ci-step summary{display:flex;align-items:center;gap:8px;padding:5px 8px;cursor:pointer;font-size:13px;list-style:none}
+.ci-step summary::-webkit-details-marker{display:none}
+.ci-sn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ci-step pre{margin:0;padding:8px 10px;border-top:1px solid var(--line);background:var(--ed-bg);font:11.5px/1.5 var(--mono);white-space:pre-wrap;word-break:break-word;max-height:320px;overflow:auto;color:var(--ink)}
+.ci-step.st-skipped summary,.ci-step.st-cancelled summary{color:var(--ink-3)}
+.ci-arts{padding:8px 12px;border-top:1px solid var(--line);font-size:13px}
+.ci-art{margin-top:4px;word-break:break-word}
+.ci-warn{padding:8px 12px;border-top:1px solid var(--line);font-size:12.5px;color:var(--warn)}
+.ci-error{border:1px solid var(--fail);border-radius:8px;background:var(--fail-soft);padding:8px 10px;color:var(--fail);font-size:13px}
+.ci-error pre{margin:6px 0 0;white-space:pre-wrap;font:12px var(--mono)}
+.ci-note{font-size:13px;color:var(--ink-2);border:1px dashed var(--line);border-radius:8px;padding:10px}
+.ci-nt{font-size:12.5px}
+.ci-term{border-top:1px solid var(--line);padding-top:10px}
+.ci-prompt{font:700 14px var(--mono);color:var(--ink-3);align-self:center}
+#ciCmd{flex:1;min-width:160px;font:12.5px var(--mono);padding:6px 9px;border:1px solid var(--line);border-radius:6px;background:var(--ed-bg);color:var(--ink)}

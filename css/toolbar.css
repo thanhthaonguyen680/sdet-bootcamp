@@ -1,0 +1,20 @@
+/* Thanh công cụ và các nút */
+
+/* Toolbar */
+.toolbar{container-type:inline-size;grid-area:tool;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--line)}
+.btn{height:34px;padding:0 14px;border-radius:7px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:14px;font-weight:600;white-space:nowrap}
+.btn:hover:not(:disabled){background:var(--surface-2)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover:not(:disabled){background:var(--accent-strong);border-color:var(--accent-strong)}
+.btn.check{border-color:var(--pass);color:var(--pass)}
+.btn.check:hover:not(:disabled){background:var(--pass-soft)}
+.btn.ghost{border-color:transparent;font-weight:500;color:var(--ink-2)}
+.btn.warn{color:var(--fail);border-color:var(--fail)}
+.btn.small{height:30px;padding:0 11px;font-size:13px}
+.spacer{flex:1}
+.keys{font-size:12px;color:var(--ink-3);white-space:nowrap}
+kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:var(--surface-2);color:var(--ink-2)}
+
+/* Thanh công cụ hẹp (bài giảng được kéo rộng): ẩn dòng nhắc phím tắt để các nút không rớt xuống dòng. Phím tắt vẫn có trong tooltip. */
+@container (max-width: 880px){ .toolbar .keys{display:none} }
