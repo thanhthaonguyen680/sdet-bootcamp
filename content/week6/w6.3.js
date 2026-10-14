@@ -1,7 +1,7 @@
 defineExercise({
   id: 'w6.3',
   title: 'AI sinh test case: bổ sung và sửa',
-  desc: `<p>Bạn dùng prompt ở bài 2 và AI trả về 4 test case cho ô <strong>Khối lượng</strong> (đã chuyển sang dạng dữ liệu trong code). Quy tắc thật của form chỉ có một: khối lượng phải <strong>lớn hơn 0</strong> và là <strong>bội số của 100</strong>.</p>
+  desc: `<p>Bạn nhờ AI viết test case và nhận về 4 test case cho ô <strong>Khối lượng</strong> (đã chuyển sang dạng dữ liệu trong code). Quy tắc thật của form chỉ có một: khối lượng phải <strong>lớn hơn 0</strong> và là <strong>bội số của 100</strong>.</p>
 <p>Hãy tạo mảng <code>finalCases</code>: giữ ca đúng của AI, sửa ca sai, và bổ sung các ca còn thiếu. Mỗi ca có dạng <code>{ name, qty, expected }</code>, với <code>expected</code> là <code>"ok"</code> hoặc <code>"error"</code>.</p>
 <p>Bộ chấm kiểm tra:</p>
 <ul>

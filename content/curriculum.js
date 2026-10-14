@@ -85,13 +85,13 @@ const CURRICULUM = {
     {
       week: 6, dir: 'week6',
       title: 'AI trong automation testing',
-      tip: 'Nhờ AI viết test case, viết test và debug nhanh hơn, cho AI điều khiển trình duyệt qua Playwright MCP, và kỹ năng quan trọng nhất: kiểm chứng những gì AI đưa ra.',
+      tip: 'Giao việc cho AI bằng một câu: AI tự điều khiển trình duyệt qua Playwright MCP và viết test. Kỹ năng quan trọng nhất là kiểm chứng test AI viết.',
       shared: ['shared.js'],   // tệp dùng chung, chạy trước các bài của tuần
       groups: [
-        { name: 'Dùng AI an toàn và đúng cách', exercises: ['w6.1', 'w6.2', 'w6.3'] },
-        { name: 'AI viết test, bạn kiểm chứng', exercises: ['w6.4', 'w6.5', 'w6.6', 'w6.7'] },
-        { name: 'AI điều khiển trình duyệt qua MCP', exercises: ['w6.10', 'w6.11', 'w6.12'] },
+        { name: 'Dùng AI an toàn', exercises: ['w6.1'] },
+        { name: 'Giao việc cho AI qua MCP', exercises: ['w6.13', 'w6.14', 'w6.15'] },
         { name: 'Đưa AI vào công việc hằng ngày', exercises: ['w6.8', 'w6.9'] },
+        { name: 'Nâng cao (không bắt buộc)', optional: true, exercises: ['w6.3', 'w6.6', 'w6.7'] },
       ],
     },
   ],

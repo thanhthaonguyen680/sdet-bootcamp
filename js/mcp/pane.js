@@ -1,119 +1,141 @@
-/* Khung "Phiên MCP": phát lại phiên AI ghi sẵn của bài, hoặc để người học tự gọi công cụ như AI.
+/* Khung "Giao việc cho AI": người học giao việc bằng một câu, AI (ghi sẵn) tự làm từ đầu đến cuối qua Playwright MCP
+   rồi viết test. Chi tiết từng lần gọi công cụ nằm trong mục "Xem AI làm gì bên trong".
 
-   Bài khai báo phiên trong thuộc tính mcp của tệp bài:
+   Bài khai báo trong thuộc tính mcp của tệp bài:
      mcp: {
-       prompt: 'yêu cầu của người dùng',
-       steps: [
-         { say: 'AI nói gì đó; {{ref:<locator>}} được thay bằng ref thật của phần tử' },
-         { tool: 'browser_navigate', url: '/order' },
-         { tool: 'browser_snapshot' },
-         { tool: 'browser_click', target: "page.getByRole('button', { name: 'Đặt lệnh' })" },
-         { tool: 'browser_type', target: '...', text: '...' },
-         { tool: 'browser_select_option', target: '...', values: ['...'] },
-         { tool: 'browser_wait_for', text: '...' },
-       ],
+       suggest: ['câu gợi ý 1', ...],              // nút bấm để điền sẵn câu giao việc
+       tasks: [{                                   // việc AI làm được; chọn việc đầu tiên mà câu giao việc khớp mọi match
+         match: [/dang nhap/, /dat lenh/],         // so trên câu đã bỏ dấu, chữ thường
+         name: 'tên test', reply: 'AI trả lời trước khi làm', done: 'AI nói sau khi viết xong test',
+         plan: (prompt, p) => ({ name, reply, steps, done }),   // không bắt buộc: dựng các mục trên theo câu giao việc
+         steps: [
+           { label: 'Mở trang Đăng nhập', tool: 'browser_navigate', url: '/login' },
+           { label: 'Điền email', tool: 'browser_type', target: "page.getByLabel('Email')", text: '...' },
+           { tool: 'browser_wait_for', text: 'Bảng giá' },           // không có label: chạy nhưng không hiện thành một bước
+           { label: 'Kiểm tra: ...', expect: "await expect(...)...;" },   // chạy thật rồi ghi vào test
+         ],
+       }],
+       unknown: 'AI trả lời khi không hiểu câu giao việc',
      }
-   target chỉ dùng để tìm phần tử khi soạn phiên; khung hiển thị đúng như AI thật gửi: { element, ref }. */
+   target chỉ dùng để tìm phần tử khi soạn bài; AI gọi công cụ bằng ref trong snapshot, như bản thật.
+   Code trong test là code mà công cụ sinh ra (js/mcp/codegen.js), không viết tay trong tệp bài. */
 
-const MCP_PANE = { exId: null, log: [], draft: [], busy: false, runId: 0 };
+const MCP_PANE = { exId: null, log: [], calls: [], busy: false, runId: 0 };
 const mcpPage = () => new PWPage(App, { slowMo: 200 });
+const mcpNorm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd');
 
-// Gọi từ renderBrief mỗi khi tab "Phiên MCP" đang mở.
+// Gọi từ renderBrief mỗi khi tab "Giao việc cho AI" đang mở.
 function mcpOpen(ex){
-  if (MCP_PANE.exId === ex.id){ mcpRenderAll(); return; }
-  mcpReplay();
+  if (MCP_PANE.exId !== ex.id){
+    MCP_PANE.runId++;
+    Object.assign(MCP_PANE, { exId: ex.id, log: [], calls: [], busy: false });
+    document.getElementById('mcpPrompt').value = '';
+  }
+  mcpRenderAll();
 }
 
 async function mcpNewSession(){
   MCP_PANE.runId++;
-  MCP_PANE.exId = current.id; MCP_PANE.log = []; MCP_PANE.draft = [];
+  MCP_PANE.exId = current.id; MCP_PANE.log = []; MCP_PANE.calls = [];
   await App.init();
   App.reset(); App.navigate('about:blank');
-  mcpRenderAll();
 }
 
-async function mcpReplay(){
-  const ex = current;
-  await mcpNewSession();
-  const run = MCP_PANE.runId;
-  const spec = ex.mcp || {};
+async function mcpAsk(prompt){
+  prompt = prompt.trim();
+  if (MCP_PANE.busy || !prompt) return;
+  const spec = current.mcp || {};
   MCP_PANE.busy = true; mcpRenderBusy();
+  await mcpNewSession();
+  const run = MCP_PANE.runId, alive = () => run === MCP_PANE.runId;
+  mcpPush({ who: 'user', text: esc(prompt) });
   try {
-    if (spec.prompt) mcpPush({ who: 'user', text: esc(spec.prompt) });
-    for (const st of spec.steps || []){
-      await pwSleep(320);
-      if (run !== MCP_PANE.runId) return;                    // đã bắt đầu phiên khác hoặc chuyển bài
-      if (st.say){ mcpPush({ who: 'ai', text: await mcpFill(st.say) }); continue; }
-      const args = {};
-      for (const k of ['url', 'text', 'values', 'time']) if (st[k] !== undefined) args[k] = st[k];
-      if (st.target){
-        const el = await mcpResolve(st.target), known = MCP_REFS.byEl.get(el);
-        args.element = st.element || mcpDescribe(el);
-        args.ref = known ? known.ref : '(chưa có trong snapshot)';
-      }
-      await mcpRun(st.tool, args);
+    const p = mcpNorm(prompt), found = (spec.tasks || []).find(t => (t.match || []).every(re => re.test(p)));
+    const task = found && found.plan ? { ...found, ...found.plan(prompt, p) } : found;
+    await pwSleep(400); if (!alive()) return;
+    if (!task){
+      mcpPush({ who: 'ai', text: spec.unknown || 'Mình chưa rõ bạn muốn làm gì trên Sàn Demo. Hãy nói rõ trang nào, thao tác gì và cần kiểm tra điều gì, hoặc chọn một gợi ý ở trên.' });
+      return;
     }
+    mcpPush({ who: 'ai', text: task.reply || 'Mình làm ngay.' });
+    const steps = { who: 'steps', items: [] }, lines = [];
+    mcpPush(steps);
+    for (const st of task.steps){
+      await pwSleep(250); if (!alive()) return;
+      const item = st.label ? { label: st.label, state: 'run' } : null;
+      if (item){ steps.items.push(item); mcpRenderAll(); }
+      const err = st.expect ? await mcpCheck(st.expect) : await mcpDo(st, lines);
+      if (!alive()) return;
+      if (st.expect && !err) lines.push(st.expect);
+      if (item) item.state = err ? 'fail' : 'ok';
+      if (err){
+        if (!item) steps.items.push({ label: st.tool, state: 'fail' });
+        mcpPush({ who: 'ai', text: '<span class="mcp-err">Mình bị kẹt ở bước này: ' + esc(err) + '</span>' });
+        return;
+      }
+      mcpRenderAll();
+    }
+    mcpPush({ who: 'test', code: mcpTestCode(task.name, lines) });
+    if (task.done) mcpPush({ who: 'ai', text: task.done });
   } catch (e){
-    mcpPush({ who: 'ai', text: '<span class="mcp-err">Lỗi khi phát lại phiên: ' + esc(e.message) + '</span>' });
     console.error(e);
+    mcpPush({ who: 'ai', text: '<span class="mcp-err">Lỗi khi chạy phiên: ' + esc(e.message) + '</span>' });
   } finally {
-    if (run === MCP_PANE.runId){ MCP_PANE.busy = false; mcpRenderBusy(); }
+    if (alive()){ MCP_PANE.busy = false; mcpRenderBusy(); }
   }
 }
 
-// Phần tử duy nhất ứng với một biểu thức locator (dùng khi soạn phiên).
+// Một bước gọi công cụ. Code của thao tác (không tính chờ và snapshot) được ghi vào test.
+async function mcpDo(st, lines){
+  const args = {};
+  for (const k of ['url', 'text', 'values', 'time']) if (st[k] !== undefined) args[k] = st[k];
+  if (st.target){
+    const el = await mcpResolve(st.target);
+    if (!MCP_REFS.byEl.get(el)) await mcpRun('browser_snapshot', {});     // phần tử chưa có ref: chụp lại trang như AI thật
+    const known = MCP_REFS.byEl.get(el);
+    args.element = st.element || mcpDescribe(el);
+    args.ref = known ? known.ref : '?';
+  }
+  const res = await mcpRun(st.tool, args);
+  if (res.error) return res.error;
+  if (res.code && st.tool !== 'browser_wait_for') lines.push(res.code);
+  return null;
+}
+// Chạy thật một câu kiểm tra trên trang trước khi đưa vào test.
+async function mcpCheck(code){
+  try { await compile(code, ['page', 'expect'])(mcpPage(), pwMakeExpect(() => null)); return null; }
+  catch (e){ return e.message; }
+}
+// Phần tử duy nhất ứng với một biểu thức locator (dùng khi soạn bài).
 async function mcpResolve(expr){
   const loc = await compile('return (' + expr + ');', ['page'])(mcpPage());
   const els = loc._resolve();
-  if (els.length !== 1) throw new Error('Phiên MCP của bài: "' + expr + '" khớp ' + els.length + ' phần tử, cần đúng 1');
+  if (els.length !== 1) throw new Error('Bài khai báo "' + expr + '" khớp ' + els.length + ' phần tử, cần đúng 1');
   return els[0];
 }
-async function mcpFill(text){
-  let out = '', last = 0;
-  for (const m of text.matchAll(/\{\{ref:(.+?)\}\}/g)){
-    const k = MCP_REFS.byEl.get(await mcpResolve(m[1]));
-    out += text.slice(last, m.index) + '<code>' + (k ? k.ref : '?') + '</code>'; last = m.index + m[0].length;
-  }
-  return out + text.slice(last);
-}
-
 async function mcpRun(tool, args){
-  const entry = { who: 'call', tool, args, res: null };
-  mcpPush(entry);
+  const entry = { tool, args, res: null };
+  MCP_PANE.calls.push(entry); mcpRenderCalls();
   entry.res = await mcpCall(mcpPage(), tool, args);
-  if (entry.res.code && !entry.res.error) MCP_PANE.draft.push(entry.res.code);
-  mcpRenderAll();
+  mcpRenderCalls();
+  return entry.res;
 }
-
-// Lệnh gõ tay: "browser_click e12", "click e12", "type e8 nội dung", "select_option e20 Chờ khớp", "wait_for Sony Group"
-function mcpParse(line){
-  const m = line.trim().match(/^(\S+)\s*([\s\S]*)$/); if (!m) return null;
-  const tool = m[1].startsWith('browser_') ? m[1] : 'browser_' + m[1];
-  const rest = m[2].trim(), unquote = s => s.replace(/^(['"])([\s\S]*)\1$/, '$2');
-  const [ref, ...more] = rest.split(/\s+/), tail = unquote(rest.slice(ref ? ref.length : 0).trim());
-  const target = () => { const el = mcpElementOf(ref); return { element: el ? mcpDescribe(el) : undefined, ref: ref || undefined }; };
-  switch (tool){
-    case 'browser_navigate': return { tool, args: { url: unquote(rest) } };
-    case 'browser_click': return { tool, args: target() };
-    case 'browser_type': return { tool, args: { ...target(), text: tail } };
-    case 'browser_select_option': return { tool, args: { ...target(), values: [tail] } };
-    case 'browser_wait_for': return { tool, args: /^\d+(\.\d+)?s?$/.test(rest) ? { time: parseFloat(rest) } : { text: unquote(rest) } };
-    default: return { tool, args: {} };
-  }
-}
-async function mcpManual(line){
-  if (MCP_PANE.busy || !line.trim()) return;
-  if (MCP_PANE.exId !== current.id) await mcpNewSession();
-  const cmd = mcpParse(line);
-  MCP_PANE.busy = true; mcpRenderBusy();
-  try { await mcpRun(cmd.tool, cmd.args); } finally { MCP_PANE.busy = false; mcpRenderBusy(); }
+function mcpTestCode(name, lines){
+  return "import { test, expect } from '@playwright/test';\n\ntest(" + mcpQ(name) + ', async ({ page }) => {\n' +
+    lines.flatMap(l => l.split('\n')).map(l => '  ' + l + '\n').join('') + '});\n';
 }
 
 /* ---------- Hiển thị ---------- */
 function mcpPush(entry){ MCP_PANE.log.push(entry); mcpRenderAll(); }
 const mcpSnapHtml = snap => esc(snap).replace(/\[ref=(e\d+)\]/g, '[ref=<button type="button" class="mcp-ref" data-ref="$1">$1</button>]');
-function mcpEntryHtml(e){
-  if (e.who !== 'call') return '<div class="mcp-msg ' + e.who + '"><span class="who">' + (e.who === 'user' ? 'Bạn' : 'AI') + '</span>' + e.text + '</div>';
+const MCP_ICON = { run: '<span class="mcp-spin" aria-label="đang làm"></span>', ok: '<span class="mcp-ok" aria-label="xong">✓</span>', fail: '<span class="mcp-no" aria-label="lỗi">✕</span>' };
+function mcpEntryHtml(e, i){
+  if (e.who === 'steps') return '<ol class="mcp-steps">' + e.items.map(it => '<li class="' + it.state + '">' + MCP_ICON[it.state] + '<span>' + esc(it.label) + '</span></li>').join('') + '</ol>';
+  if (e.who === 'test') return '<div class="mcp-test"><div class="mcp-lbl">Test AI viết</div><pre><code>' + highlight(e.code) + '</code></pre>' +
+    '<div class="mcp-test-foot"><button type="button" class="btn small primary" data-mcp-use="' + i + '">Đưa vào ô soạn code</button><button type="button" class="btn ghost small" data-mcp-copy="' + i + '">Sao chép</button></div></div>';
+  return '<div class="mcp-msg ' + e.who + '"><span class="who">' + (e.who === 'user' ? 'Bạn' : 'AI') + '</span>' + e.text + '</div>';
+}
+function mcpCallHtml(e){
   const args = Object.fromEntries(Object.entries(e.args).filter(([, v]) => v !== undefined));
   let body = '';
   if (!e.res) body = '<div class="mcp-page">Đang chạy…</div>';
@@ -122,57 +144,57 @@ function mcpEntryHtml(e){
     if (r.error) body += '<div class="mcp-err">Lỗi: ' + esc(r.error) + '</div>';
     if (r.code) body += '<div class="mcp-lbl">Code Playwright đã chạy</div><pre><code>' + highlight(r.code) + '</code></pre>';
     if (r.url) body += '<div class="mcp-page">Trang: <code>' + esc(r.url) + '</code> · ' + esc(r.title) + '</div>';
-    if (r.snapshot) body += r.snapshotOnly
-      ? '<div class="mcp-lbl">Snapshot</div><pre class="mcp-snap">' + mcpSnapHtml(r.snapshot) + '</pre>'
-      : '<details><summary>Snapshot sau thao tác</summary><pre class="mcp-snap">' + mcpSnapHtml(r.snapshot) + '</pre></details>';
+    if (r.snapshot) body += '<details><summary>Snapshot AI nhận được</summary><pre class="mcp-snap">' + mcpSnapHtml(r.snapshot) + '</pre></details>';
   }
   return '<div class="mcp-call"><div class="mcp-call-head"><b>' + esc(e.tool) + '</b> <span>' + esc(JSON.stringify(args)) + '</span></div><div class="mcp-call-body">' + body + '</div></div>';
 }
-function mcpDraftText(){
-  return "import { test, expect } from '@playwright/test';\n\ntest('test từ phiên MCP', async ({ page }) => {\n" +
-    MCP_PANE.draft.map(l => '  ' + l + '\n').join('') +
-    '  // Thêm assertion: phiên MCP chỉ ghi lại thao tác, không tự biết cần kiểm tra điều gì.\n});\n';
-}
 function mcpRenderAll(){
+  const spec = (current && current.mcp) || {};
+  document.getElementById('mcpChips').innerHTML = (spec.suggest || []).length
+    ? '<span class="mcp-chips-lbl">Gợi ý:</span>' + spec.suggest.map((s, i) => '<button type="button" class="mcp-chip" data-mcp-suggest="' + i + '">' + esc(s) + '</button>').join('') : '';
   const log = document.getElementById('mcpLog');
   log.innerHTML = MCP_PANE.log.length ? MCP_PANE.log.map(mcpEntryHtml).join('')
-    : '<p class="muted-s">Chưa có gì. Bấm Phát lại phiên của AI, hoặc tự gọi công cụ ở ô bên dưới.</p>';
+    : '<p class="muted-s">Gõ một câu giao việc rồi bấm <b>Giao việc</b>. AI sẽ tự mở trang, thao tác trên trang web bên dưới và viết test cho bạn.</p>';
   log.scrollTop = log.scrollHeight;
-  document.getElementById('mcpDraft').innerHTML = highlight(mcpDraftText());
-  document.getElementById('mcpDraftCount').textContent = MCP_PANE.draft.length + ' dòng thao tác';
-  mcpRenderBusy();
+  mcpRenderCalls(); mcpRenderBusy();
+}
+function mcpRenderCalls(){
+  const inner = document.getElementById('mcpInner');
+  inner.hidden = !MCP_PANE.calls.length;
+  document.getElementById('mcpInnerCount').textContent = ' (' + MCP_PANE.calls.length + ' lần gọi công cụ)';
+  document.getElementById('mcpCalls').innerHTML = MCP_PANE.calls.map(mcpCallHtml).join('');
 }
 function mcpRenderBusy(){
-  const hasScript = !!(current && current.mcp && (current.mcp.steps || []).some(s => s.tool));
-  document.getElementById('mcpReplay').hidden = !hasScript;
-  for (const id of ['mcpReplay', 'mcpRun', 'mcpClear']) document.getElementById(id).disabled = MCP_PANE.busy;
+  const btn = document.getElementById('mcpSend');
+  btn.disabled = MCP_PANE.busy; btn.textContent = MCP_PANE.busy ? 'AI đang làm…' : 'Giao việc';
 }
 
 /* ---------- Sự kiện ---------- */
-document.getElementById('mcpReplay').addEventListener('click', mcpReplay);
-document.getElementById('mcpClear').addEventListener('click', mcpNewSession);
 {
-  const input = document.getElementById('mcpCmd');
-  const send = () => { const v = input.value; input.value = ''; mcpManual(v); };
-  document.getElementById('mcpRun').addEventListener('click', send);
-  input.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); send(); } });
-  const log = document.getElementById('mcpLog');
-  // Bấm vào ref trong snapshot: điền sẵn lệnh vào ô gọi công cụ.
-  log.addEventListener('click', e => {
-    const b = e.target.closest('.mcp-ref'); if (!b) return;
-    input.value = (input.value.trim() || 'browser_click') + ' ' + b.dataset.ref;
-    input.focus();
+  const input = document.getElementById('mcpPrompt');
+  const send = () => mcpAsk(input.value);
+  document.getElementById('mcpSend').addEventListener('click', send);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); send(); } });
+  document.getElementById('mcpChips').addEventListener('click', e => {
+    const b = e.target.closest('[data-mcp-suggest]'); if (!b) return;
+    input.value = current.mcp.suggest[+b.dataset.mcpSuggest]; input.focus();
   });
-  // Rê chuột vào ref: phần tử tương ứng sáng lên trong trang web mẫu.
+  document.getElementById('mcpLog').addEventListener('click', async e => {
+    const b = e.target.closest('[data-mcp-use], [data-mcp-copy]'); if (!b) return;
+    const use = b.dataset.mcpUse !== undefined, entry = MCP_PANE.log[+(use ? b.dataset.mcpUse : b.dataset.mcpCopy)];
+    if (use){ replaceRange(0, ta.value.length, entry.code, 0); ta.scrollTop = 0; syncScroll(); toast('Đã đưa test vào ô soạn code. Bấm Chạy để thử.'); }
+    else {
+      try { await navigator.clipboard.writeText(entry.code); toast('Đã sao chép test'); }
+      catch (err){ toast('Không sao chép được, hãy bôi đen và chép tay'); }
+    }
+  });
+  // Rê chuột vào ref trong snapshot: phần tử tương ứng sáng lên trong trang web mẫu.
+  const calls = document.getElementById('mcpCalls');
   let lit = null;
-  log.addEventListener('mouseover', e => {
+  calls.addEventListener('mouseover', e => {
     const b = e.target.closest('.mcp-ref'), el = b ? mcpElementOf(b.dataset.ref) : null;
     if (lit && lit !== el) lit.classList.remove('__pw-find');
     lit = el; if (el) el.classList.add('__pw-find');
   });
-  log.addEventListener('mouseleave', () => { if (lit) lit.classList.remove('__pw-find'); lit = null; });
-  document.getElementById('mcpCopy').addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(mcpDraftText()); toast('Đã sao chép bản nháp test'); }
-    catch (e){ toast('Không sao chép được, hãy bôi đen và chép tay'); }
-  });
+  calls.addEventListener('mouseleave', () => { if (lit) lit.classList.remove('__pw-find'); lit = null; });
 }

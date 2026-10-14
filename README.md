@@ -15,7 +15,7 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 | 3 | **JavaScript nâng cao (ES6+).** Cú pháp dùng hằng ngày trong Playwright: arrow function, destructuring, map/filter, async/await. 7 bài bắt buộc, phần còn lại là nâng cao. | 7 + 11 nâng cao |
 | 4 | **Automation với Playwright + TypeScript.** Viết test tự động trên trang Sàn Demo: locator, assertion, Page Object Model, fixture, đến một dự án POM hoàn chỉnh. | 21 + 3 nâng cao |
 | 5 | **CI/CD pipeline với GitHub Actions.** Cho bộ test tự chạy khi push code: workflow, secrets, artifact, matrix, sharding và chạy theo lịch. | 11 |
-| 6 | **AI trong automation testing.** Nhờ AI viết test case, viết test và debug nhanh hơn, cho AI điều khiển trình duyệt qua Playwright MCP, và kỹ năng quan trọng nhất: kiểm chứng những gì AI đưa ra. | 12 |
+| 6 | **AI trong automation testing.** Giao việc cho AI bằng một câu: AI tự điều khiển trình duyệt qua Playwright MCP và viết test. Kỹ năng quan trọng nhất là kiểm chứng test AI viết. | 6 + 3 nâng cao |
 <!-- curriculum:end -->
 
 ## Tính năng
@@ -24,7 +24,7 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 - Trang web mẫu (sàn giao dịch giả lập) để luyện locator và viết test Playwright
 - Bộ chấm "cài bug" vào trang để kiểm tra test có thực sự bắt được lỗi không
 - Mô phỏng GitHub Actions: chạy workflow YAML, xem từng job, từng bước và log
-- Mô phỏng Playwright MCP: xem AI mở trang, đọc snapshot, bấm theo ref, hoặc tự gọi công cụ rồi lấy bản nháp test
+- Giao việc cho AI bằng một câu: AI (mô phỏng Playwright MCP) tự thao tác trên trang mẫu rồi viết test, người học kiểm chứng test đó
 - Sàn Demo chạy độc lập ở `sandemo.html` để thử Playwright MCP thật (thêm `?reset` để làm mới, `?bug=tên-bug` để bật bug)
 - Tiến độ lưu tự động trong trình duyệt
 
@@ -50,7 +50,7 @@ js/
   sandbox/              Sàn Demo, trang web mẫu để luyện viết test (kèm bug cài sẵn)
   project/              Bài làm theo project nhiều tệp
   ci/                   Mô phỏng GitHub Actions
-  mcp/                  Mô phỏng Playwright MCP: snapshot, ref, sinh locator, khung Phiên MCP
+  mcp/                  Mô phỏng Playwright MCP: snapshot, ref, sinh locator, khung Giao việc cho AI
   ui/                   Danh sách bài, đề bài, tooltip, hướng dẫn nhanh, thanh kéo
 tools/                  verify.mjs (kiểm tra cả khóa), sync-readme.mjs
 ```

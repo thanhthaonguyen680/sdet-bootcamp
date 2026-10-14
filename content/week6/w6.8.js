@@ -42,7 +42,7 @@ test('Câu 6', () => expect(__a('q6'), 'Chưa đúng. Ôn lại thứ tự ưu t
 ${TRACE(['Cách dùng', 'Công cụ ví dụ', 'Hợp với'], [['Chat hỏi đáp', 'ChatGPT, Claude, Gemini, Copilot Chat', 'Test case, giải thích lỗi, học khái niệm'], ['AI trong VS Code', 'GitHub Copilot, Claude Code, Cursor', 'Viết và sửa code ngay trong project'], ['AI điều khiển trình duyệt', 'Playwright MCP', 'AI tự mở trang, đọc trang thật, viết test với locator có thật'], ['Agent chuyên cho test', 'Playwright Agents: planner, generator, healer', 'Lập kế hoạch, sinh test, tự sửa test fail']])}
 <p class="note">Trước khi cài, hỏi team công ty được phép dùng công cụ nào và với dữ liệu nào (bài 1). Các lệnh dưới đây đúng ở thời điểm viết bài; công cụ AI thay đổi nhanh, hãy xem tài liệu chính thức nếu lệnh không chạy.</p>
 <h3>1. Chat AI: bắt đầu từ prompt mẫu</h3>
-<p>Không cần cài gì. Mở công cụ chat công ty cho phép, dùng cấu trúc 5 phần của bài 2. Ba prompt nên thử với Sàn Demo:</p>
+<p>Không cần cài gì. Mở công cụ chat công ty cho phép, nói rõ bối cảnh, việc cần làm và kết quả mong đợi như bài 3. Ba prompt nên thử với Sàn Demo:</p>
 <ul>
 <li><em>"Bạn là QA. Form Đặt lệnh có các quy tắc: ... Liệt kê test case dạng bảng, ưu tiên giá trị biên, không tự thêm quy tắc."</em></li>
 <li><em>"Viết test Playwright TypeScript cho luồng: ... Chỉ dùng getByRole, getByLabel; không dùng CSS, không waitForTimeout; kiểm tra đúng nội dung thông báo."</em></li>
@@ -57,13 +57,13 @@ ${TRACE(['Cách dùng', 'Công cụ ví dụ', 'Hợp với'], [['Chat hỏi đ�
 <h3>3. Playwright MCP: cho AI nhìn thấy trang</h3>
 <p>MCP là cách cấp "công cụ" cho AI. Playwright MCP cho AI mở trình duyệt, bấm, gõ và đọc cây accessibility của trang thật, nên AI viết locator theo nhãn và role có thật thay vì đoán.</p>
 ${ANAT(["claude mcp add playwright", "Đăng ký một máy chủ MCP tên <code>playwright</code> với công cụ AI (ví dụ này dùng Claude Code; VS Code và các công cụ khác có mục cấu hình MCP tương tự)."], " ", ["npx @playwright/mcp@latest", "Lệnh khởi động máy chủ Playwright MCP. Cần cài Node.js."])}
-<p>Bài 8 đến 10 đã cho bạn làm quen với cách MCP làm việc. Giờ thử với MCP thật trên <strong>Sàn Demo bản độc lập</strong>: cùng các trang như trong khóa học, nhưng là một trang riêng mà công cụ bên ngoài điều khiển được.</p>
+<p>Bài 2 đến 4 đã cho bạn giao việc cho AI có MCP trong trang mô phỏng. Giờ thử với MCP thật trên <strong>Sàn Demo bản độc lập</strong>: cùng các trang như trong khóa học, nhưng là một trang riêng mà công cụ bên ngoài điều khiển được.</p>
 <ul>
 <li>Mở <a href="sandemo.html#/login" target="_blank" rel="noopener">sandemo.html</a> (cùng thư mục với trang khóa học, ví dụ <code>https://&lt;tên&gt;.github.io/sdet-bootcamp/sandemo.html</code>). Địa chỉ các trang có dạng <code>sandemo.html#/order</code>.</li>
 <li>Thêm <code>?reset</code> để bắt đầu lại từ dữ liệu gốc; thêm <code>?bug=orders-not-saved</code> (hoặc bug khác) để thử test có bắt được lỗi không.</li>
 <li>Nút <strong>Mở ở tab riêng</strong> trong tab Trang web mở đúng trang bài đang làm.</li>
 </ul>
-<p>Thử yêu cầu AI: <em>"Mở &lt;địa chỉ sandemo.html#/login&gt;, đăng nhập bằng thao@sandemo.test / Demo@123, đặt một lệnh mua 100 cổ phiếu 7203, rồi viết test Playwright cho đúng luồng vừa làm."</em> So snapshot AI nhận được với tab Phiên MCP của bài 8: định dạng giống nhau. Rồi đọc kỹ test AI viết ra bằng checklist của tuần này, đặc biệt: không còn ref, locator không dựa vào giá, có assertion thật.</p>
+<p>Thử yêu cầu AI: <em>"Mở &lt;địa chỉ sandemo.html#/login&gt;, đăng nhập bằng thao@sandemo.test / Demo@123, đặt một lệnh mua 100 cổ phiếu 7203, rồi viết test Playwright cho đúng luồng vừa làm."</em> Công cụ AI gọi và snapshot nó nhận được giống mục <strong>Xem AI làm gì bên trong</strong> ở bài 2. Rồi đọc kỹ test AI viết ra bằng checklist ở bài 4, đặc biệt: locator không dựa vào giá hay dữ liệu hay đổi, và có assertion kiểm tra đúng kết quả.</p>
 <h3>4. Playwright Agents</h3>
 <p>Từ phiên bản 1.56, Playwright có sẵn bộ agent dùng cùng công cụ AI:</p>
 <ul>
@@ -71,7 +71,7 @@ ${ANAT(["claude mcp add playwright", "Đăng ký một máy chủ MCP tên <code
 <li><strong>generator</strong>: biến kế hoạch thành tệp test Playwright.</li>
 <li><strong>healer</strong>: chạy test, test nào fail thì tìm cách sửa.</li>
 </ul>
-<p>Cài vào project bằng lệnh <code>npx playwright init-agents --loop=vscode</code> (đổi <code>vscode</code> thành công cụ AI bạn dùng). Hãy đặc biệt cẩn thận với <strong>healer</strong>: "sửa cho pass" có thể là che một bug thật, đúng như các cách sửa sai ở bài 6.</p>`,
+<p>Cài vào project bằng lệnh <code>npx playwright init-agents --loop=vscode</code> (đổi <code>vscode</code> thành công cụ AI bạn dùng). Hãy đặc biệt cẩn thận với <strong>healer</strong>: "sửa cho pass" có thể là che một bug thật, đúng như các cách sửa sai ở bài 8 (nâng cao).</p>`,
 examples:[]},
 
   // ===== Lời giải =====
