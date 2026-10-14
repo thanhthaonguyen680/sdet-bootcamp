@@ -117,6 +117,7 @@ function pwStepDesc(s){
   const o = pwOptsDesc(s.opts);
   switch (s.kind){
     case 'css': case 'xpath': return 'locator(' + pwQ(s.sel) + ')';
+    case 'ariaref': return 'locator(' + pwQ('aria-ref=' + s.ref) + ')';
     case 'role': return 'getByRole(' + pwQ(s.role) + (o ? ', ' + o : '') + ')';
     case 'text': return 'getByText(' + pwQ(s.text) + (o ? ', ' + o : '') + ')';
     case 'label': return 'getByLabel(' + pwQ(s.text) + (o ? ', ' + o : '') + ')';

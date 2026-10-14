@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="css/project.css">
 <link rel="stylesheet" href="css/ci-pane.css">
 <link rel="stylesheet" href="css/sandbox-pane.css">
+<link rel="stylesheet" href="css/mcp-pane.css">
 <link rel="stylesheet" href="css/toolbar.css">
 <link rel="stylesheet" href="css/editor.css">
 <link rel="stylesheet" href="css/output-panel.css">
@@ -45,11 +46,28 @@
     <main class="main">
       <section class="brief" id="briefWrap">
         <div id="brief" aria-live="polite"></div>
+        <div id="mcpPane" class="mcp-pane" hidden aria-label="Phiên MCP">
+          <div class="mcp-bar">
+            <button type="button" class="btn small primary" id="mcpReplay">Phát lại phiên của AI</button>
+            <button type="button" class="btn ghost small" id="mcpClear" data-tip="Mở trình duyệt mới, xóa mọi ref và bản nháp.">Phiên mới</button>
+          </div>
+          <div id="mcpLog" class="mcp-log" aria-live="polite"></div>
+          <div>
+            <div class="loc-row">
+              <span class="ci-prompt">MCP›</span>
+              <input id="mcpCmd" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="browser_snapshot" aria-label="Gọi công cụ MCP">
+              <button type="button" class="btn small" id="mcpRun">Gọi</button>
+            </div>
+            <p class="muted-s" style="margin-top:6px !important">Tự gọi công cụ như AI: <code>browser_navigate /order</code> · <code>browser_snapshot</code> · <code>browser_click e12</code> · <code>browser_type e8 nội dung</code> · <code>browser_select_option e20 Chờ khớp</code> · <code>browser_wait_for Sony Group</code>. Bấm vào một ref trong snapshot để điền sẵn.</p>
+          </div>
+          <details class="mcp-draft"><summary>Bản nháp test từ phiên này<span id="mcpDraftCount"></span></summary><pre><code id="mcpDraft"></code></pre><button type="button" class="btn small" id="mcpCopy">Sao chép</button></details>
+        </div>
         <div id="appPane" class="app-pane none" aria-label="Trang web mẫu">
           <div class="app-bar">
             <span class="app-url" id="appUrl">about:blank</span>
             <button type="button" class="btn ghost small" id="appReload">Tải lại</button>
             <button type="button" class="btn ghost small" id="appHome">Về trang của bài</button>
+            <a class="btn ghost small" id="appOpen" href="sandemo.html" target="_blank" rel="noopener" data-tip="Mở Sàn Demo thành một trang riêng, để thực hành với Playwright hoặc Playwright MCP thật trên máy.">Mở ở tab riêng</a>
           </div>
           <iframe id="appFrame" title="Trang web mẫu Sàn Demo"></iframe>
           <div class="loc-tool">
@@ -133,6 +151,10 @@
 <script src="js/playwright/expect.js"></script>
 <script src="js/playwright/run.js"></script>
 <script src="js/playwright/tool-pane.js"></script>
+<script src="js/mcp/snapshot.js"></script>
+<script src="js/mcp/codegen.js"></script>
+<script src="js/mcp/tools.js"></script>
+<script src="js/mcp/pane.js"></script>
 <script src="js/project/files.js"></script>
 <script src="js/ci/yaml.js"></script>
 <script src="js/ci/config.js"></script>

@@ -51,7 +51,7 @@ check('submitButton: nút Đặt lệnh', () => H.locator('submitButton', '#orde
 </ol>
 ${ANAT("page.getByRole('radio', { name: ", ["'Sell'", "AI đoán theo trang tiếng Anh. Chữ thật trên trang là <strong>Bán</strong>."], " })  →  khớp 0 phần tử")}
 <h3>Cho AI nhìn thấy trang</h3>
-<p>Cách giảm locator bịa từ gốc: đưa cho AI thông tin thật của trang. Ví dụ dán đoạn HTML của form (chuột phải → Inspect → Copy element), hoặc dùng <strong>Playwright MCP</strong> để AI tự mở trang và đọc cây accessibility (bài 8). Khi đó AI viết locator theo đúng nhãn, đúng role của trang.</p>
+<p>Cách giảm locator bịa từ gốc: đưa cho AI thông tin thật của trang. Ví dụ dán đoạn HTML của form (chuột phải → Inspect → Copy element), hoặc dùng <strong>Playwright MCP</strong> để AI tự mở trang và đọc cây accessibility (bài 8–10). Khi đó AI viết locator theo đúng nhãn, đúng role của trang.</p>
 <p class="note">Góc QA: locator khớp 0 phần tử là lỗi dễ thấy. Nguy hiểm hơn là locator khớp <em>nhầm</em> 1 phần tử khác. Luôn nhìn phần tử được khoanh trên trang, đừng chỉ nhìn con số.</p>`,
 examples:[]},
 

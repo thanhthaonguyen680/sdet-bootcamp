@@ -47,7 +47,7 @@ ${TRACE(['AI viết', 'Vì sao có hại', 'Sửa thành'], [['<code>waitForTime
 <h3>Test pass chưa chắc là test tốt</h3>
 <p>Test của AI trong bài này <strong>pass</strong>. Nhưng nếu ứng dụng có bug "chọn Bán mà vẫn đặt lệnh Mua", nó vẫn pass, vì nó không kiểm tra gì cả. Một test có giá trị phải <strong>fail khi ứng dụng sai</strong>. Cách nhanh để biết: tự làm sai dữ liệu mong đợi một chút rồi chạy, test phải fail.</p>
 ${ANAT(["await", "Chờ assertion có kết quả. Thiếu <code>await</code> thì test kết thúc trước khi kịp kiểm tra."], " ", ["expect(page.getByRole('status'))", "Thứ cần kiểm tra: khung thông báo."], ["\n  .toContainText('BÁN 7203 x100')", "Điều phải đúng: thông báo có đúng loại lệnh, mã và khối lượng. Bug đổi Bán thành Mua sẽ làm dòng này fail."], ";")}
-<p class="note">Góc QA: khi review code AI, đọc từng dòng và tự hỏi "nếu dòng này sai thì test có phát hiện được không?". Bài 9 sẽ biến câu hỏi đó thành một công cụ review tự động.</p>`,
+<p class="note">Góc QA: khi review code AI, đọc từng dòng và tự hỏi "nếu dòng này sai thì test có phát hiện được không?". Bài 12 sẽ biến câu hỏi đó thành một công cụ review tự động.</p>`,
 examples:[]},
 
   // ===== Lời giải =====

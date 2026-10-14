@@ -21,7 +21,8 @@ const App = {
     });
     return this.readyP;
   },
-  reset(){ this.state = freshAppState(); this.bugs = new Set(); },
+  resetHooks: [],   // chạy khi mở một "trình duyệt mới": ví dụ xóa ref của phiên MCP
+  reset(){ this.state = freshAppState(); this.bugs = new Set(); this.resetHooks.forEach(fn => fn()); },
   bug(n){ return this.bugs.has(n); },
   alive(t){ return t === this.token; },
   navigate(url){
@@ -43,7 +44,10 @@ const App = {
   },
   fullUrl(){ return this.path === 'about:blank' ? 'about:blank' : APP_BASE + this.path + this.search; },
 };
-function appUrlUpdate(){ const el = document.getElementById('appUrl'); if (el) el.textContent = App.fullUrl(); }
+function appUrlUpdate(){
+  const el = document.getElementById('appUrl'); if (el) el.textContent = App.fullUrl();
+  const open = document.getElementById('appOpen'); if (open) open.href = 'sandemo.html#' + (App.path === 'about:blank' ? '/login' : App.path + App.search);
+}
 const pwSleep = ms => new Promise(r => setTimeout(r, ms));
 async function appWaitReady(){
   if (App.path === '/dashboard'){

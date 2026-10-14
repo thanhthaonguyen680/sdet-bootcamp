@@ -18,6 +18,14 @@ function pwApply(roots, step, doc){
     const all = () => pwAllIn(r);
     const o = step.opts || {};
     switch (step.kind){
+      case 'ariaref': {
+        // Ref chỉ tồn tại trong phiên MCP vừa chụp snapshot (xem js/mcp/snapshot.js).
+        const el = mcpElementOf(step.ref);
+        if (!el) throw pwErr('Không tìm thấy aria-ref=' + step.ref + '.\nRef là mã tạm do Playwright MCP gán khi chụp snapshot, chỉ dùng được trong phiên đó. ' +
+          'Tải lại trang, điều hướng, hoặc chạy test trên một trình duyệt mới thì ref không còn.\nHãy dùng locator theo vai trò và tên, ví dụ getByRole(\'button\', { name: \'...\' }).');
+        if (r === el || r.contains(el)) out.push(el);
+        break;
+      }
       case 'css': {
         let found;
         try { found = r.querySelectorAll(step.sel); }
@@ -67,5 +75,6 @@ function pwApply(roots, step, doc){
 }
 function pwSelStep(sel){
   const s = String(sel).trim();
+  if (s.startsWith('aria-ref=')) return { kind: 'ariaref', ref: s.slice(9).trim() };
   return (s.startsWith('/') || s.startsWith('(') || s.startsWith('xpath=')) ? { kind: 'xpath', sel: s } : { kind: 'css', sel: s };
 }

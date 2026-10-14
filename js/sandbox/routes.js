@@ -105,10 +105,13 @@ const APP_ROUTES = {
       setTimeout(() => {
         if (!app.alive(token)) return;
         const tbody = doc.querySelector('tbody');
+        // "price-tick": giá đã nhảy sang phiên khác. Không phải bug, dùng để kiểm tra test không phụ thuộc vào giá.
+        const tick = app.bug('price-tick') ? 50 : 0;
         tbody.innerHTML = STOCKS.map(st => {
-          const cls = st.change > 0 ? 'up' : st.change < 0 ? 'down' : 'flat';
-          return '<tr><td>' + st.code + '</td><td>' + st.name + '</td><td class="num">' + fmtN(st.price) + '</td><td class="num ' + cls + '">' +
-            (st.change > 0 ? '+' : '') + st.change + '</td><td class="actions"><button type="button" class="btn sm">Mua</button> ' +
+          const price = st.price + tick, change = st.change + tick;
+          const cls = change > 0 ? 'up' : change < 0 ? 'down' : 'flat';
+          return '<tr><td>' + st.code + '</td><td>' + st.name + '</td><td class="num">' + fmtN(price) + '</td><td class="num ' + cls + '">' +
+            (change > 0 ? '+' : '') + change + '</td><td class="actions"><button type="button" class="btn sm">Mua</button> ' +
             '<button type="button" class="btn sm ghost" id="watch-' + rid() + '" aria-pressed="false">Theo dõi</button></td></tr>';
         }).join('');
         doc.querySelector('.loading').remove();
@@ -129,7 +132,7 @@ const APP_ROUTES = {
           const i = STOCKS.findIndex(x => x.code === code);
           app.navigate('/order?code=' + (app.bug('buy-wrong-stock') ? STOCKS[(i + 1) % STOCKS.length].code : code));
         }
-        else { const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', String(on)); b.textContent = on ? 'Đang theo dõi' : 'Theo dõi'; }
+        else if (!app.bug('watch-broken')) { const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', String(on)); b.textContent = on ? 'Đang theo dõi' : 'Theo dõi'; }
       });
     } },
   '/order': { title: 'Đặt lệnh | Sàn Demo', render: s => topbar(s, '/order') + `
@@ -191,7 +194,8 @@ const APP_ROUTES = {
     setup(doc, app){
       const filter = doc.getElementById('status-filter');
       const draw = () => {
-        const list = app.state.orders.filter(o => !filter.value || o.status === filter.value);
+        // Bug cài sẵn: bỏ qua ô lọc, luôn hiện mọi lệnh.
+        const list = app.state.orders.filter(o => app.bug('filter-broken') || !filter.value || o.status === filter.value);
         doc.querySelector('tbody').innerHTML = list.length ? list.map(orderRow).join('') : '<tr class="empty-row"><td colspan="7">Không có lệnh nào</td></tr>';
         doc.querySelector('[data-testid="order-count"]').textContent = list.length;
       };

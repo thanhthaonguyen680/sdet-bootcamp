@@ -57,7 +57,13 @@ ${TRACE(['Cách dùng', 'Công cụ ví dụ', 'Hợp với'], [['Chat hỏi đ�
 <h3>3. Playwright MCP: cho AI nhìn thấy trang</h3>
 <p>MCP là cách cấp "công cụ" cho AI. Playwright MCP cho AI mở trình duyệt, bấm, gõ và đọc cây accessibility của trang thật, nên AI viết locator theo nhãn và role có thật thay vì đoán.</p>
 ${ANAT(["claude mcp add playwright", "Đăng ký một máy chủ MCP tên <code>playwright</code> với công cụ AI (ví dụ này dùng Claude Code; VS Code và các công cụ khác có mục cấu hình MCP tương tự)."], " ", ["npx @playwright/mcp@latest", "Lệnh khởi động máy chủ Playwright MCP. Cần cài Node.js."])}
-<p>Sau đó thử yêu cầu: <em>"Mở trang đặt lệnh, đặt một lệnh mua 100 cổ phiếu 7203, rồi viết test Playwright cho đúng luồng vừa làm."</em> Đọc kỹ test AI viết ra bằng checklist của tuần này.</p>
+<p>Bài 8 đến 10 đã cho bạn làm quen với cách MCP làm việc. Giờ thử với MCP thật trên <strong>Sàn Demo bản độc lập</strong>: cùng các trang như trong khóa học, nhưng là một trang riêng mà công cụ bên ngoài điều khiển được.</p>
+<ul>
+<li>Mở <a href="sandemo.html#/login" target="_blank" rel="noopener">sandemo.html</a> (cùng thư mục với trang khóa học, ví dụ <code>https://&lt;tên&gt;.github.io/sdet-bootcamp/sandemo.html</code>). Địa chỉ các trang có dạng <code>sandemo.html#/order</code>.</li>
+<li>Thêm <code>?reset</code> để bắt đầu lại từ dữ liệu gốc; thêm <code>?bug=orders-not-saved</code> (hoặc bug khác) để thử test có bắt được lỗi không.</li>
+<li>Nút <strong>Mở ở tab riêng</strong> trong tab Trang web mở đúng trang bài đang làm.</li>
+</ul>
+<p>Thử yêu cầu AI: <em>"Mở &lt;địa chỉ sandemo.html#/login&gt;, đăng nhập bằng thao@sandemo.test / Demo@123, đặt một lệnh mua 100 cổ phiếu 7203, rồi viết test Playwright cho đúng luồng vừa làm."</em> So snapshot AI nhận được với tab Phiên MCP của bài 8: định dạng giống nhau. Rồi đọc kỹ test AI viết ra bằng checklist của tuần này, đặc biệt: không còn ref, locator không dựa vào giá, có assertion thật.</p>
 <h3>4. Playwright Agents</h3>
 <p>Từ phiên bản 1.56, Playwright có sẵn bộ agent dùng cùng công cụ AI:</p>
 <ul>

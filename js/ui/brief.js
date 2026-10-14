@@ -6,6 +6,7 @@ const VIEW_TIPS = {
   task: 'Yêu cầu của bài và các gợi ý. Mở gợi ý lần lượt khi bị bí.',
   app: 'Trang Sàn Demo mà code test điều khiển, kèm công cụ thử locator.',
   ci: 'Mô phỏng GitHub Actions: chọn sự kiện rồi chạy pipeline.',
+  mcp: 'Mô phỏng Playwright MCP: xem AI gọi công cụ điều khiển trình duyệt, hoặc tự gọi như AI.',
   solution: 'Lời giải chi tiết. Nên tự làm ít nhất 15–20 phút trước khi mở.',
 };
 function exampleBlock(list, i, src){
@@ -22,13 +23,15 @@ function renderBrief(){
   const idx = EX.indexOf(ex);
   const lesson = LESSONS[ex.id];
   const sol = SOLUTIONS[ex.id];
-  if ((briefView === 'lesson' && !lesson) || (briefView === 'solution' && !sol) || (briefView === 'app' && !ex.pw) || (briefView === 'ci' && !ex.ci)) briefView = 'task';
+  if ((briefView === 'lesson' && !lesson) || (briefView === 'solution' && !sol) || (briefView === 'app' && !ex.pw) || (briefView === 'ci' && !ex.ci) || (briefView === 'mcp' && !ex.mcp)) briefView = 'task';
   let tag = ex.free ? '<span class="tag">Không chấm điểm</span>' : ex.tests ? '<span class="tag auto">Có chấm tự động</span>' : '<span class="tag">Tự đánh giá</span>';
   if (ex.optional) tag += '<span class="tag">Nâng cao, không bắt buộc</span>';
   if (sol && state.revealed[ex.id]) tag += '<span class="tag">Đã xem lời giải</span>';
   let body;
   if (briefView === 'ci'){
     body = '<p class="app-hint">Mô phỏng GitHub Actions trên repo <b>thao/sandemo-e2e</b>. Chọn sự kiện, kịch bản code rồi chạy. Bấm vào từng job để xem các bước và log.</p>';
+  } else if (briefView === 'mcp'){
+    body = '<p class="app-hint">Mô phỏng <b>Playwright MCP</b>: AI gọi các công cụ bên dưới để điều khiển trang Sàn Demo, mỗi lệnh trả về code Playwright đã chạy và snapshot của trang. Bạn cũng có thể tự gọi công cụ như AI.</p>';
   } else if (briefView === 'app'){
     body = '<p class="app-hint">Đây là trang web mẫu mà code test của bạn điều khiển. Có thể bấm thử như người dùng, hoặc chuột phải → Inspect để xem HTML.</p>';
   } else if (briefView === 'lesson'){
@@ -60,6 +63,7 @@ function renderBrief(){
   const tabs = [];
   if (lesson) tabs.push(['lesson', 'Bài giảng']);
   if (lesson || sol) tabs.push(['task', 'Đề bài']);
+  if (ex.mcp) tabs.push(['mcp', 'Phiên MCP']);
   if (ex.pw) tabs.push(['app', 'Trang web']);
   if (ex.ci) tabs.push(['ci', 'Pipeline']);
   if (sol) tabs.push(['solution', 'Lời giải']);
@@ -75,7 +79,10 @@ function renderBrief(){
     '</div>';
   document.getElementById('briefWrap').scrollTop = 0;
   const pane = document.getElementById('appPane');
-  pane.className = 'app-pane ' + (!ex.pw ? 'none' : briefView === 'app' ? '' : 'off');
+  pane.className = 'app-pane ' + (!ex.pw ? 'none' : (briefView === 'app' || briefView === 'mcp') ? '' : 'off');
+  const mcpPane = document.getElementById('mcpPane');
+  mcpPane.hidden = !(ex.mcp && briefView === 'mcp');
+  if (!mcpPane.hidden) mcpOpen(ex);
   document.getElementById('ciPane').hidden = !(ex.ci && briefView === 'ci');
 }
 function renderToolbar(){
