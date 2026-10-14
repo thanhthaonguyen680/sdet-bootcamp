@@ -41,7 +41,7 @@ test('Log mẫu không còn dữ liệu nhạy cảm, phần cần cho AI vẫn 
 <h3>Tuần 6: AI là trợ lý, bạn là người chịu trách nhiệm</h3>
 <p>AI viết code rất nhanh, nhưng nó không biết ứng dụng của bạn, không nhìn thấy trang của bạn (trừ khi được cấp công cụ), và đôi khi <strong>tự bịa</strong> ra thông tin nghe rất hợp lý. Hiện tượng này gọi là "ảo giác" (hallucination). Vì vậy tuần này tập trung vào kỹ năng quan trọng nhất: <strong>nhờ AI làm phần việc tay chân, và kiểm chứng mọi thứ AI đưa ra</strong>.</p>
 ${TRACE(['AI làm tốt', 'AI hay sai'], [['Viết nháp test case, test, dữ liệu test', 'Tự thêm quy tắc nghiệp vụ không có thật'], ['Giải thích lỗi, đọc log dài', 'Đoán locator theo tên "thường gặp" (Submit, Số lượng...)'], ['Chuyển code sang cấu trúc khác (POM, fixture)', 'Sửa lỗi bằng cách che lỗi: chờ cứng, .first(), assertion yếu'], ['Gợi ý trường hợp bạn chưa nghĩ tới', 'Viết test pass cả khi ứng dụng có bug']])}
-<p>Trong trang này, câu trả lời của AI được <strong>ghi sẵn</strong> trong đề, lấy từ những lỗi AI hay mắc thật. Bài 2 đến 4 cho bạn giao việc cho AI có Playwright MCP (AI tự điều khiển trình duyệt và viết test), bài 5 hướng dẫn cách dùng AI thật trên máy của bạn.</p>
+<p>Trong trang này, câu trả lời của AI được <strong>ghi sẵn</strong> trong đề, lấy từ những lỗi AI hay mắc thật. Bài 2 đến 4 cho bạn giao việc cho AI có Playwright MCP (AI tự điều khiển trình duyệt và viết test), bài 5 đặt rule để AI luôn theo nguyên tắc của team, bài 6 hướng dẫn cách dùng AI thật trên máy của bạn.</p>
 <h3>Quy tắc bảo mật</h3>
 <p>Mọi thứ bạn dán vào công cụ AI đều được gửi ra ngoài công ty, và có thể được lưu lại. Trước khi dùng, hãy hỏi team công ty cho phép công cụ nào. Với công cụ chưa được duyệt, <strong>không</strong> dán:</p>
 <ul>

@@ -66,6 +66,7 @@ async function grade(page, id) {
       select(id === 'w2.1' ? '1.2' : 'w2.1');   // chuyển bài khác để select() không lưu đè code mới
       const ex = EX.find(e => e.id === id), e0 = SOLUTIONS[id].examples[k], code = typeof e0 === 'string' ? e0 : e0.code;
       delete state.status[id];
+      if (SOLUTIONS[id].rules) state.aiRules[id] = SOLUTIONS[id].rules;   // bài có tệp rule cho AI (tab Giao việc cho AI)
       if (ex.files) { const files = splitMarked(code); for (const f of Object.keys(ex.files)) if (!(f in files)) files[f] = ex.files[f]; state.codes[id] = JSON.stringify(files); }
       else state.codes[id] = code;
       select(id);

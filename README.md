@@ -14,8 +14,8 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 | 2 | **Ôn tập qua thuật toán cơ bản.** 18 bài thuật toán cơ bản hay gặp khi phỏng vấn, giúp dùng thành thạo kiến thức tuần 1. | 18 |
 | 3 | **JavaScript nâng cao (ES6+).** Cú pháp dùng hằng ngày trong Playwright: arrow function, destructuring, map/filter, async/await. 7 bài bắt buộc, phần còn lại là nâng cao. | 7 + 11 nâng cao |
 | 4 | **Automation với Playwright + TypeScript.** Viết test tự động trên trang Sàn Demo: locator, assertion, Page Object Model, fixture, đến một dự án POM hoàn chỉnh. | 21 + 3 nâng cao |
-| 5 | **CI/CD pipeline với GitHub Actions.** Cho bộ test tự chạy khi push code: workflow, secrets, artifact, matrix, sharding và chạy theo lịch. | 11 |
-| 6 | **AI trong automation testing.** Giao việc cho AI bằng một câu: AI tự điều khiển trình duyệt qua Playwright MCP và viết test. Kỹ năng quan trọng nhất là kiểm chứng test AI viết. | 6 + 3 nâng cao |
+| 5 | **CI/CD pipeline với GitHub Actions.** Cho bộ test tự chạy mỗi khi có code mới: workflow, secrets, báo cáo khi test đỏ, và kiểm chứng workflow do AI viết. Matrix, sharding, chạy theo lịch là phần nâng cao. | 4 + 8 nâng cao |
+| 6 | **AI trong automation testing.** Giao việc cho AI bằng một câu: AI tự điều khiển trình duyệt qua Playwright MCP và viết test. Đặt rule để AI luôn theo nguyên tắc của team, và kiểm chứng test AI viết. | 7 + 3 nâng cao |
 <!-- curriculum:end -->
 
 ## Tính năng

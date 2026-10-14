@@ -3,6 +3,12 @@
 .mcp-pane{display:flex;flex-direction:column;gap:10px;margin:0 0 14px}
 .mcp-pane[hidden]{display:none}
 .mcp-ask{display:flex;flex-direction:column;gap:8px}
+.mcp-rules{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:var(--surface)}
+.mcp-rules[hidden]{display:none}
+.mcp-rules > summary{cursor:pointer;font-size:13px;font-weight:600}
+.mcp-rules > summary span{font-weight:400;color:var(--ink-3);margin-left:6px}
+#mcpRules{display:block;width:100%;box-sizing:border-box;margin-top:8px;resize:vertical;font:12.5px/1.55 var(--mono);padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--ed-bg);color:var(--ink)}
+.mcp-rules-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:6px}
 .mcp-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .mcp-chips:empty{display:none}
 .mcp-chips-lbl{font-size:12.5px;color:var(--ink-3)}

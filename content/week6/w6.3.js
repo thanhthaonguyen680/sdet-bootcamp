@@ -55,6 +55,9 @@ test('Không trùng khối lượng, ca nào cũng có tên', () => { const cs =
 ${TRACE(['Vùng', 'Kết quả', 'Giá trị nên thử'], [['Nhỏ hơn hoặc bằng 0', 'lỗi', '0, -100'], ['Dương, không chia hết cho 100', 'lỗi', '99, 101, 150, 100.5'], ['Dương, chia hết cho 100', 'hợp lệ', '100 (biên nhỏ nhất), một số lớn']])}
 <p>Rồi đối chiếu <strong>từng</strong> ca của AI với quy tắc trong yêu cầu gốc. Ca nào dựa trên quy tắc không có trong yêu cầu thì hỏi lại BA, đừng tự tin theo AI.</p>
 {{ex0}}
+<h3>Rule cho việc tạo test case</h3>
+<p>Ba vấn đề trên lặp lại ở mọi lần nhờ AI viết test case, nên đáng viết thành rule (bài 5) để AI tự tuân thủ, thay vì nhắc lại trong từng câu hỏi:</p>
+${ANAT(['- Mỗi test case gồm: ID, tiền điều kiện, các bước, dữ liệu, kết quả mong đợi.', 'Định dạng cố định: dễ đọc, dễ so sánh giữa các lần, dễ chuyển thành test theo dữ liệu.'], '\n', ['- Bao phủ trường hợp đúng, trường hợp sai và giá trị biên.', 'Chặn lỗi <strong>thiếu giá trị biên</strong>.'], '\n', ['- Mỗi vùng dữ liệu chỉ cần một ca đại diện, cộng các giá trị biên.', 'Chặn lỗi <strong>trùng ý</strong>.'], '\n', ['- Chỉ dùng quy tắc nghiệp vụ có trong yêu cầu, không tự thêm. Thiếu thông tin thì hỏi lại, không tự giả định.', 'Chặn lỗi <strong>bịa quy tắc</strong>. Câu "hỏi lại" khiến AI liệt kê những gì nó chưa chắc, thay vì âm thầm đoán.'])}
 <p class="note">Góc QA: ghi test case ở dạng dữ liệu (mảng object, JSON) như bài này giúp chuyển thẳng sang test theo dữ liệu (bài 13 tuần 4). AI cũng làm việc tốt hơn khi bạn yêu cầu trả về đúng dạng đó.</p>`,
 examples:[String.raw`const rule = q => (!q || q <= 0 || q % 100 !== 0) ? "error" : "ok";
 for (const q of [0, -100, 99, 100, 101, 100.5, 1000000]) {

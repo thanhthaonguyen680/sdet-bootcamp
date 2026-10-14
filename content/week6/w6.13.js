@@ -53,7 +53,7 @@ defineExercise({
 <li>Bấm <strong>Đưa vào ô soạn code</strong>, rồi <strong>Chạy</strong>: test phải pass.</li>
 <li>Đọc test AI viết: dòng nào là thao tác, dòng nào là kiểm tra? Rồi bấm <strong>Kiểm tra bài</strong>.</li>
 </ol>
-<p class="note">Đây là AI mô phỏng, chỉ hiểu các việc trong bài. Bài 5 hướng dẫn dùng AI và Playwright MCP thật trên máy của bạn.</p>`,
+<p class="note">Đây là AI mô phỏng, chỉ hiểu các việc trong bài. Bài 6 hướng dẫn dùng AI và Playwright MCP thật trên máy của bạn.</p>`,
   hints: [
     'Câu giao việc cần nói đủ: đăng nhập, đặt lệnh mua mã nào, bao nhiêu cổ phiếu, và nhờ viết test. Ví dụ: <em>"Đăng nhập rồi đặt lệnh mua 200 cổ phiếu Sony, viết test cho luồng này"</em>.',
     'Sau khi AI làm xong, khung chat có ô <strong>Test AI viết</strong> với nút <strong>Đưa vào ô soạn code</strong>. Bấm nút đó, rồi bấm Chạy ở ô soạn code.',

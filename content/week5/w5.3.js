@@ -36,6 +36,16 @@ check('Bước nào cũng có name', () => expect(__steps(wf).every(s => s.name)
 
   // ===== Bài giảng =====
   lesson: { html:`
+<h3>Tuần 5: CI/CD là gì</h3>
+<p><strong>CI</strong> (Continuous Integration, tích hợp liên tục): mỗi khi có người đưa code lên, một máy chủ tự động lấy code về, cài đặt, chạy test và báo kết quả. <strong>CD</strong> (Continuous Delivery/Deployment): nếu mọi kiểm tra đều qua, tự động đưa bản mới lên staging hoặc production.</p>
+<p>Với SDET, pipeline là nơi bộ test automation phát huy giá trị: test chạy tự động cho <strong>mọi</strong> thay đổi, không phụ thuộc ai nhớ bấm chạy. Việc hằng ngày là đọc pipeline, thấy đỏ thì mở báo cáo tìm lỗi. Tuần này gồm 4 bài đủ dùng; các bài nâng cao (matrix, sharding, chạy theo lịch...) để đọc hiểu khi cần, vì phần lớn có thể nhờ AI viết rồi kiểm chứng (bài 4).</p>
+<h3>Repo mô phỏng của tuần này</h3>
+<p>Repo <code>thao/sandemo-e2e</code> chứa các test cho Sàn Demo ở tuần 4 (14 test) và đã được chuẩn bị sẵn cho CI:</p>
+<ul>
+<li><code>package.json</code> có sẵn lệnh <code>npm test</code>, <code>npm run test:smoke</code> (bài 5, nâng cao).</li>
+<li><code>playwright.config.ts</code> đã cấu hình cho máy CI: tự thử lại test flaky, xuất báo cáo HTML, ghi trace khi lỗi (bài 6, nâng cao).</li>
+</ul>
+<p>Trình duyệt trong trang không chạy được máy CI thật, nên GitHub Actions, npm và Playwright được mô phỏng với hành vi và thông báo lỗi giống thật. Trong tab <strong>Pipeline</strong> có thể chọn sự kiện (push, pull request) và <em>kịch bản code</em> (ổn định, có test flaky, có bug...) để xem pipeline phản ứng thế nào.</p>
 <h3>Luồng làm việc với Git và pull request</h3>
 <pre>tạo nhánh feature/login → commit → push → mở pull request vào main
      → CI tự chạy test trên PR → review → merge vào main → CI chạy lại trên main</pre>

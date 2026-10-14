@@ -20,9 +20,9 @@ defineExercise({
 <ul><li>Chạy khi có pull request vào main và khi push lên main.</li><li>Job <code>typecheck</code>, rồi job <code>smoke</code> chỉ chạy test <code>@smoke</code> trên chromium.</li><li>Luôn lưu báo cáo HTML.</li></ul>
 <p><code>nightly.yml</code> (đầy đủ, mỗi sáng):</p>
 <ul><li>Chạy 7:00 sáng giờ Việt Nam thứ 2 đến thứ 6, và cho phép chạy tay.</li><li>Matrix 3 trình duyệt, không hủy nhau khi một trình duyệt lỗi, mỗi trình duyệt một artifact báo cáo.</li><li>Có lỗi thì gửi Slack (có link tới lần chạy).</li></ul>
-<p>Cả hai đều cần <code>BASE_URL</code> và <code>TEST_USER_PASSWORD</code> như bài 4.</p>`,
+<p>Cả hai đều cần <code>BASE_URL</code> và <code>TEST_USER_PASSWORD</code> như bài 2.</p>`,
   hints: [
-    'Dùng lại những gì đã viết ở bài 3–10: phần lớn là ghép các đoạn đã có. Mở cây thư mục để chuyển giữa hai tệp.',
+    'Dùng lại những gì đã viết ở các bài trước trong tuần: phần lớn là ghép các đoạn đã có. Mở cây thư mục để chuyển giữa hai tệp.',
     'Smoke chỉ trên chromium: <code>npx playwright test --project=chromium --grep @smoke</code>, chỉ cài chromium.',
     'Trong nightly, bước Slack đặt trong job matrix với <code>if: failure()</code>: chỉ job của trình duyệt bị lỗi mới gửi thông báo.'],
   tests: CIG + String.raw`

@@ -47,6 +47,11 @@
       <section class="brief" id="briefWrap">
         <div id="brief" aria-live="polite"></div>
         <div id="mcpPane" class="mcp-pane" hidden aria-label="Giao việc cho AI">
+          <details id="mcpRulesBox" class="mcp-rules" open hidden>
+            <summary>Rule của project: <code id="mcpRulesFile"></code><span id="mcpRulesInfo"></span></summary>
+            <textarea id="mcpRules" rows="12" spellcheck="false" aria-label="Rule cho AI"></textarea>
+            <div class="mcp-rules-foot"><span class="muted-s">AI đọc tệp này trước mỗi lần giao việc. Sửa xong thì giao việc lại.</span><button type="button" class="btn ghost small" id="mcpRulesReset">Khôi phục rule gốc</button></div>
+          </details>
           <div class="mcp-ask">
             <div class="mcp-chips" id="mcpChips"></div>
             <div class="mcp-input">

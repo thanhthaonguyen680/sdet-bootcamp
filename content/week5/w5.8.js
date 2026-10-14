@@ -43,7 +43,7 @@ check('Có shard đỏ thì vẫn gộp báo cáo', async () => { const run = __
   // ===== Bài giảng =====
   lesson: { html:`
 <h3>Sharding</h3>
-<p>Matrix ở bài 7 chia theo trình duyệt. Sharding chia <strong>bộ test</strong> thành nhiều phần, mỗi phần chạy trên một máy: <code>--shard=1/4</code> chạy phần thứ nhất trong 4 phần. 4 máy chạy song song thì thời gian giảm gần 4 lần.</p>
+<p>Matrix ở bài 8 chia theo trình duyệt. Sharding chia <strong>bộ test</strong> thành nhiều phần, mỗi phần chạy trên một máy: <code>--shard=1/4</code> chạy phần thứ nhất trong 4 phần. 4 máy chạy song song thì thời gian giảm gần 4 lần.</p>
 <pre>              ┌── shard 1/4 ──┐
 push → test ──┼── shard 2/4 ──┼──→ merge-reports → 1 báo cáo HTML
               ├── shard 3/4 ──┤

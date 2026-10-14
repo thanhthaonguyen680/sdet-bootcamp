@@ -51,7 +51,8 @@ ${TRACE(['Cách dùng', 'Công cụ ví dụ', 'Hợp với'], [['Chat hỏi đ�
 <h3>2. AI trong VS Code</h3>
 <ol>
 <li>Cài extension <strong>GitHub Copilot</strong> (hoặc công cụ công ty cho phép), đăng nhập.</li>
-<li>Mở project Playwright đã làm ở tuần 4. Gõ tên test, AI gợi ý phần thân; bấm Tab để nhận.</li>
+<li>Mở project Playwright đã làm ở tuần 4. Tạo tệp rule ở thư mục gốc (<code>AGENTS.md</code>, hoặc <code>.github/copilot-instructions.md</code> cho Copilot), chép rule mẫu ở bài 5 rồi chỉnh theo team.</li>
+<li>Gõ tên test, AI gợi ý phần thân theo rule đã đặt; bấm Tab để nhận.</li>
 <li>Mở khung chat, chọn tệp test và hỏi: <em>"Review test này theo checklist: await, locator, assertion"</em>.</li>
 </ol>
 <h3>3. Playwright MCP: cho AI nhìn thấy trang</h3>
@@ -71,7 +72,7 @@ ${ANAT(["claude mcp add playwright", "Đăng ký một máy chủ MCP tên <code
 <li><strong>generator</strong>: biến kế hoạch thành tệp test Playwright.</li>
 <li><strong>healer</strong>: chạy test, test nào fail thì tìm cách sửa.</li>
 </ul>
-<p>Cài vào project bằng lệnh <code>npx playwright init-agents --loop=vscode</code> (đổi <code>vscode</code> thành công cụ AI bạn dùng). Hãy đặc biệt cẩn thận với <strong>healer</strong>: "sửa cho pass" có thể là che một bug thật, đúng như các cách sửa sai ở bài 8 (nâng cao).</p>`,
+<p>Cài vào project bằng lệnh <code>npx playwright init-agents --loop=vscode</code> (đổi <code>vscode</code> thành công cụ AI bạn dùng). Hãy đặc biệt cẩn thận với <strong>healer</strong>: "sửa cho pass" có thể là che một bug thật, đúng như các cách sửa sai ở bài 9 (nâng cao).</p>`,
 examples:[]},
 
   // ===== Lời giải =====

@@ -7,15 +7,17 @@
        tasks: [{                                   // việc AI làm được; chọn việc đầu tiên mà câu giao việc khớp mọi match
          match: [/dang nhap/, /dat lenh/],         // so trên câu đã bỏ dấu, chữ thường
          name: 'tên test', reply: 'AI trả lời trước khi làm', done: 'AI nói sau khi viết xong test',
-         plan: (prompt, p) => ({ name, reply, steps, done }),   // không bắt buộc: dựng các mục trên theo câu giao việc
+         plan: (prompt, p, rules) => ({ name, reply, steps, done }),   // không bắt buộc: dựng các mục trên theo câu giao việc và rule
          steps: [
            { label: 'Mở trang Đăng nhập', tool: 'browser_navigate', url: '/login' },
            { label: 'Điền email', tool: 'browser_type', target: "page.getByLabel('Email')", text: '...' },
            { tool: 'browser_wait_for', text: 'Bảng giá' },           // không có label: chạy nhưng không hiện thành một bước
-           { label: 'Kiểm tra: ...', expect: "await expect(...)...;" },   // chạy thật rồi ghi vào test
+           { label: 'Kiểm tra: ...', expect: "await expect(...)...;" },   // chạy thật rồi ghi vào test (code: tương tự, cho dòng không phải kiểm tra)
+           { label: '...', tool: 'browser_click', target: '...', rewrite: code => '...' },   // AI viết lại dòng code trước khi ghi vào test
          ],
        }],
        unknown: 'AI trả lời khi không hiểu câu giao việc',
+       rules: { file: 'AGENTS.md', starter: '...' },   // không bắt buộc: tệp rule AI đọc trước mỗi lần giao việc, người học sửa được
      }
    target chỉ dùng để tìm phần tử khi soạn bài; AI gọi công cụ bằng ref trong snapshot, như bản thật.
    Code trong test là code mà công cụ sinh ra (js/mcp/codegen.js), không viết tay trong tệp bài. */
@@ -30,8 +32,15 @@ function mcpOpen(ex){
     MCP_PANE.runId++;
     Object.assign(MCP_PANE, { exId: ex.id, log: [], calls: [], busy: false });
     document.getElementById('mcpPrompt').value = '';
+    document.getElementById('mcpRules').value = mcpRulesOf(ex);
   }
   mcpRenderAll();
+}
+
+// Tệp rule người học đang có cho bài (bản đã sửa, hoặc bản gốc của bài). Bộ chấm cũng đọc qua hàm này.
+function mcpRulesOf(ex){
+  const r = ex.mcp && ex.mcp.rules;
+  return r ? (state.aiRules[ex.id] ?? r.starter) : '';
 }
 
 async function mcpNewSession(){
@@ -51,7 +60,7 @@ async function mcpAsk(prompt){
   mcpPush({ who: 'user', text: esc(prompt) });
   try {
     const p = mcpNorm(prompt), found = (spec.tasks || []).find(t => (t.match || []).every(re => re.test(p)));
-    const task = found && found.plan ? { ...found, ...found.plan(prompt, p) } : found;
+    const task = found && found.plan ? { ...found, ...found.plan(prompt, p, mcpRulesOf(current)) } : found;
     await pwSleep(400); if (!alive()) return;
     if (!task){
       mcpPush({ who: 'ai', text: spec.unknown || 'Mình chưa rõ bạn muốn làm gì trên Sàn Demo. Hãy nói rõ trang nào, thao tác gì và cần kiểm tra điều gì, hoặc chọn một gợi ý ở trên.' });
@@ -64,9 +73,10 @@ async function mcpAsk(prompt){
       await pwSleep(250); if (!alive()) return;
       const item = st.label ? { label: st.label, state: 'run' } : null;
       if (item){ steps.items.push(item); mcpRenderAll(); }
-      const err = st.expect ? await mcpCheck(st.expect) : await mcpDo(st, lines);
+      const code = st.expect || st.code;
+      const err = code ? await mcpCheck(code) : await mcpDo(st, lines);
       if (!alive()) return;
-      if (st.expect && !err) lines.push(st.expect);
+      if (code && !err) lines.push(code);
       if (item) item.state = err ? 'fail' : 'ok';
       if (err){
         if (!item) steps.items.push({ label: st.tool, state: 'fail' });
@@ -98,7 +108,7 @@ async function mcpDo(st, lines){
   }
   const res = await mcpRun(st.tool, args);
   if (res.error) return res.error;
-  if (res.code && st.tool !== 'browser_wait_for') lines.push(res.code);
+  if (res.code && st.tool !== 'browser_wait_for') lines.push(st.rewrite ? st.rewrite(res.code) : res.code);
   return null;
 }
 // Chạy thật một câu kiểm tra trên trang trước khi đưa vào test.
@@ -150,6 +160,8 @@ function mcpCallHtml(e){
 }
 function mcpRenderAll(){
   const spec = (current && current.mcp) || {};
+  document.getElementById('mcpRulesBox').hidden = !spec.rules;
+  if (spec.rules) document.getElementById('mcpRulesFile').textContent = spec.rules.file;
   document.getElementById('mcpChips').innerHTML = (spec.suggest || []).length
     ? '<span class="mcp-chips-lbl">Gợi ý:</span>' + spec.suggest.map((s, i) => '<button type="button" class="mcp-chip" data-mcp-suggest="' + i + '">' + esc(s) + '</button>').join('') : '';
   const log = document.getElementById('mcpLog');
@@ -175,6 +187,11 @@ function mcpRenderBusy(){
   const send = () => mcpAsk(input.value);
   document.getElementById('mcpSend').addEventListener('click', send);
   input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); send(); } });
+  const rules = document.getElementById('mcpRules');
+  rules.addEventListener('input', () => { state.aiRules[current.id] = rules.value; saveState(); });
+  document.getElementById('mcpRulesReset').addEventListener('click', () => {
+    delete state.aiRules[current.id]; saveState(); rules.value = mcpRulesOf(current); toast('Đã khôi phục rule gốc');
+  });
   document.getElementById('mcpChips').addEventListener('click', e => {
     const b = e.target.closest('[data-mcp-suggest]'); if (!b) return;
     input.value = current.mcp.suggest[+b.dataset.mcpSuggest]; input.focus();
