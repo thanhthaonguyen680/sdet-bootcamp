@@ -29,7 +29,8 @@ const browser = await chromium.launch();
 
 async function openPage() {
   const ctx = await browser.newContext({ viewport: { width: 1500, height: 900 } });
-  await ctx.addInitScript(() => localStorage.setItem('js-week1-practice-v1', JSON.stringify({ onboarded: true })));
+  // try: script này chạy cả trong khung sandbox (ảnh chụp trang ở tab Báo cáo), nơi không đọc được localStorage
+  await ctx.addInitScript(() => { try { localStorage.setItem('js-week1-practice-v1', JSON.stringify({ onboarded: true })); } catch (e){} });
   const page = await ctx.newPage();
   const problems = [];
   page.on('pageerror', e => problems.push('lỗi JavaScript: ' + e.message));

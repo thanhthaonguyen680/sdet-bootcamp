@@ -135,10 +135,15 @@ class PWPage {
   _track(name, target, arg, fn){
     const rec = this._rec;
     const desc = (target ? target + '.' : 'page.') + name + '(' + (arg !== undefined ? JSON.stringify(arg) : '') + ')';
-    const entry = { type: name, target: target ? String(target) : '', kinds: target && target._steps ? target._steps.map(s => s.kind) : [], arg };
-    if (rec){ rec.actions.push(entry); rec.pending++; }
+    // desc, start, ms, ok: dùng cho báo cáo sau khi chạy (js/playwright/report.js)
+    const entry = { type: name, target: target ? String(target) : '', kinds: target && target._steps ? target._steps.map(s => s.kind) : [], arg, desc, start: performance.now(), ms: 0, ok: true };
+    if (rec){ rec.actions.push(entry); if (rec.steps) rec.steps.push(entry); rec.pending++; }
     if (this._log) this._log('→ ' + desc);
-    const p = (async () => { try { return await fn(); } finally { if (rec) rec.pending--; } })();
+    const p = (async () => {
+      try { return await fn(); }
+      catch (e){ entry.ok = false; throw e; }
+      finally { entry.ms = Math.round(performance.now() - entry.start); if (rec) rec.pending--; }
+    })();
     return pwThenable(p, rec, desc);
   }
   _loc(step){ return new PWLocator(this, [step]); }

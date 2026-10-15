@@ -1,0 +1,32 @@
+/* Tab "Báo cáo": báo cáo lần chạy test Playwright (xem js/playwright/report.js) */
+
+.report{font-size:14px}
+.rp-head{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line)}
+.rp-filters{display:flex;flex-wrap:wrap;gap:6px}
+.rp-filter{font:inherit;font-size:13px;padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink-2);cursor:pointer}
+.rp-filter b{font-variant-numeric:tabular-nums;margin-left:2px}
+.rp-filter[aria-pressed="true"]{border-color:var(--accent);color:var(--accent-strong);background:var(--accent-soft)}
+.rp-filter.passed b{color:var(--pass)} .rp-filter.failed b{color:var(--fail)}
+.rp-meta{font-size:12.5px;color:var(--ink-3)}
+.rp-list{list-style:none;margin:0;padding:0}
+.rp-test{border-bottom:1px solid var(--line)}
+.rp-row{display:flex;gap:10px;align-items:baseline;width:100%;padding:9px 14px;border:0;background:none;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.rp-row:hover{background:var(--surface-2)}
+.rp-row[aria-expanded="true"]{background:var(--surface-2)}
+.rp-icon{flex:none;width:14px;font-weight:700;text-align:center}
+.rp-test.passed > .rp-row .rp-icon, .rp-steps .ok .rp-icon{color:var(--pass)}
+.rp-test.failed > .rp-row .rp-icon, .rp-steps .bad .rp-icon{color:var(--fail)}
+.rp-test.skipped > .rp-row{color:var(--ink-3)}
+.rp-name{flex:1;min-width:0;word-break:break-word}
+.rp-ms{flex:none;margin-left:auto;font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.rp-detail{padding:4px 14px 14px 38px;display:flex;flex-direction:column;gap:6px}
+.rp-lbl{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:6px}
+.rp-lbl span{font-weight:400;font-family:var(--mono);margin-left:6px}
+.rp-err{margin:0;padding:8px 10px;border-radius:6px;background:var(--fail-soft);color:var(--fail);font:12.5px/1.5 var(--mono);white-space:pre-wrap;word-break:break-word}
+.rp-steps{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.rp-steps li{display:flex;gap:8px;align-items:baseline;padding:4px 10px;border-top:1px solid var(--line)}
+.rp-steps li:first-child{border-top:0}
+.rp-steps li.bad{background:var(--fail-soft)}
+.rp-steps code{flex:1;min-width:0;font-size:12.5px;word-break:break-all}
+.rp-none{margin:0;font-size:13px;color:var(--ink-3)}
+.rp-shot{width:100%;height:340px;border:1px solid var(--line);border-radius:6px;background:#fff}

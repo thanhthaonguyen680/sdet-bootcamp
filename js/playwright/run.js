@@ -117,7 +117,7 @@ async function runPW(withTests, override){
     if (!silent) meta('Running ' + list.length + ' test' + (list.length > 1 ? 's' : ''));
     for (let i = 0; i < list.length; i++){
       const t = list[i];
-      const rec = { name: t.name, status: 'passed', error: null, actions: [], asserts: [], pending: 0, tokens: [], url: '', ms: 0 };
+      const rec = { name: t.name, status: 'passed', error: null, actions: [], asserts: [], steps: [], pending: 0, tokens: [], url: '', ms: 0, snapshot: '' };
       recs.push(rec);
       if (t.skip){ rec.status = 'skipped'; if (!silent) logLine('info', '  -  ' + (i + 1) + ' ' + t.name + ' (bỏ qua)'); continue; }
       App.reset(); App.bugs = new Set(bugs); App.navigate('about:blank');
@@ -143,6 +143,7 @@ async function runPW(withTests, override){
       finally {
         for (const h of hooks.afterEach){ try { await h(fixtures); } catch (e){} }
         rec.ms = Math.round(performance.now() - start); rec.url = App.fullUrl(); rec.state = App.state; curRec = null;
+        if (!silent) rec.snapshot = pwSnapshotHtml(App.doc);   // trang lúc test kết thúc, hiện trong báo cáo
       }
       if (!silent){
         if (rec.status === 'passed') logLine('info', '  ✓  ' + (i + 1) + ' ' + t.name + ' (' + rec.ms + 'ms)');
@@ -174,7 +175,12 @@ async function runPW(withTests, override){
 
   let recs = [];
   try {
-    if (reg.length) recs = await runTests();
+    if (reg.length){
+      const runStart = performance.now();
+      recs = await runTests();
+      // Báo cáo kiểu HTML report của Playwright; bấm Chạy thì mở luôn tab Báo cáo, bấm Kiểm tra bài thì vẫn ở tab chấm.
+      if (!isExample && recs.length){ renderReport(recs, Math.round(performance.now() - runStart)); if (!withTests) showTab('report'); }
+    }
     else if (typeof exported.locators === 'function'){ meta('Kết quả các locator trên trang ' + (ex.route || '/login') + ':'); await checkLocators(false); }
     else if (!logs.length) meta('Không có test nào. Hãy viết test bằng test(\'tên\', async ({ page }) => { ... }).');
   } catch (e){ logLine('error', explain(e)); }

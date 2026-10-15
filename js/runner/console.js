@@ -16,7 +16,7 @@ function resetTests(){
     : '<p class="empty">Sân chơi tự do không có phần chấm bài.</p>';
 }
 function showTab(which){
-  const isC = which === 'console';
-  $('#tabConsole').setAttribute('aria-selected', isC); $('#tabTests').setAttribute('aria-selected', !isC);
-  consoleEl.hidden = !isC; testsEl.hidden = isC;
+  const tabs = { console: ['#tabConsole', consoleEl], tests: ['#tabTests', testsEl], report: ['#tabReport', $('#paneReport')] };
+  if (!tabs[which] || $(tabs[which][0]).hidden) which = 'console';
+  for (const [k, [tab, pane]] of Object.entries(tabs)){ $(tab).setAttribute('aria-selected', k === which); pane.hidden = k !== which; }
 }

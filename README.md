@@ -22,6 +22,7 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 
 - Editor có tô màu cú pháp, chấm bài tự động, bài giảng, gợi ý và lời giải cho từng bài
 - Trang web mẫu (sàn giao dịch giả lập) để luyện locator và viết test Playwright
+- Báo cáo sau mỗi lần chạy test Playwright, giống HTML report: test nào pass/fail, từng bước kèm thời gian, lỗi và trang lúc test kết thúc
 - Bộ chấm "cài bug" vào trang để kiểm tra test có thực sự bắt được lỗi không
 - Mô phỏng GitHub Actions: chạy workflow YAML, xem từng job, từng bước và log
 - Giao việc cho AI ngay trong ô soạn code: viết yêu cầu ở dòng `// AI:` rồi bấm **AI viết test**; AI (mô phỏng Playwright MCP) tự thao tác trên trang mẫu, viết test bên dưới, người học kiểm chứng test đó

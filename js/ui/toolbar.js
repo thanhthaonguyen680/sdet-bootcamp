@@ -28,3 +28,4 @@ copyBtn.addEventListener('click', async () => {
 $('#clearBtn').addEventListener('click', () => clearConsole(true));
 $('#tabConsole').addEventListener('click', () => showTab('console'));
 $('#tabTests').addEventListener('click', () => showTab('tests'));
+$('#tabReport').addEventListener('click', () => showTab('report'));

@@ -21,7 +21,7 @@ function select(id, focusEditor){
   if (ex.ci) ciPaneSetup(ex);
   // Kiểm tra running cả lúc iframe nạp xong: nếu đã bấm Chạy hoặc AI viết test thì không reset trang giữa chừng.
   if (ex.pw && !running){ App.init().then(() => { if (running || current !== ex) return; App.reset(); App.navigate(ex.route || '/login'); }); }
-  clearConsole(true); resetTests();
+  clearConsole(true); resetTests(); resetReport();
   showTab('console');
   closeDrawer();
   resetArmed = false; resetBtn.textContent = 'Khôi phục code gốc'; resetBtn.classList.remove('warn');

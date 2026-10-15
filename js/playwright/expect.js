@@ -22,14 +22,15 @@ function pwMakeExpect(getRec){
 function pwRetrying(rec, label, targetDesc, run, message){
   const make = (negate) => (opts = {}) => pwThenable(makeP(negate)(opts), rec, 'expect(' + targetDesc + ').' + (negate ? 'not.' : '') + label);
   const makeP = (negate) => async (opts = {}) => {
-    const entry = { matcher: label.split('(')[0], negate, target: targetDesc, pass: false };
-    if (rec){ rec.asserts.push(entry); rec.pending++; }
+    const entry = { matcher: label.split('(')[0], negate, target: targetDesc, pass: false,
+      desc: 'expect(' + targetDesc + ').' + (negate ? 'not.' : '') + label, start: performance.now(), ms: 0, ok: false, assert: true };
+    if (rec){ rec.asserts.push(entry); if (rec.steps) rec.steps.push(entry); rec.pending++; }
     const timeout = opts.timeout ?? 5000, start = performance.now();
     try {
       for (;;){
         const r = run();
         if (r.error) throw r.error;
-        if (r.pass !== negate){ entry.pass = true; return; }
+        if (r.pass !== negate){ entry.pass = entry.ok = true; return; }
         if (performance.now() - start > timeout){
           throw pwErr((message ? message + '\n\n' : '') + 'expect(' + targetDesc + ').' + (negate ? 'not.' : '') + label + '\n\n' +
             (r.expected !== undefined ? 'Mong đợi: ' + (negate ? 'không phải ' : '') + r.expected + '\n' : '') +
@@ -37,7 +38,7 @@ function pwRetrying(rec, label, targetDesc, run, message){
         }
         await pwSleep(50);
       }
-    } finally { if (rec) rec.pending--; }
+    } finally { entry.ms = Math.round(performance.now() - entry.start); if (rec) rec.pending--; }
   };
   return make;
 }

@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="css/ci-pane.css">
 <link rel="stylesheet" href="css/sandbox-pane.css">
 <link rel="stylesheet" href="css/ai-writer.css">
+<link rel="stylesheet" href="css/report.css">
 <link rel="stylesheet" href="css/toolbar.css">
 <link rel="stylesheet" href="css/editor.css">
 <link rel="stylesheet" href="css/output-panel.css">
@@ -107,11 +108,13 @@
         <div class="tabs" role="tablist">
           <button class="tab" role="tab" id="tabConsole" aria-selected="true" aria-controls="paneConsole" data-tip="Kết quả của console.log và thông báo lỗi khi bấm Chạy.">Console</button>
           <button class="tab" role="tab" id="tabTests" aria-selected="false" aria-controls="paneTests" data-tip="Từng test case đạt hay chưa đạt sau khi bấm Kiểm tra bài, kèm lý do.">Kết quả kiểm tra<span class="badge" id="testBadge" hidden></span></button>
+          <button class="tab" role="tab" id="tabReport" aria-selected="false" aria-controls="paneReport" hidden data-tip="Báo cáo của lần chạy test gần nhất, giống HTML report của Playwright: test nào pass, test nào fail, từng bước và trang lúc test kết thúc.">Báo cáo<span class="badge" id="reportBadge" hidden></span></button>
           <span class="spacer"></span>
           <button class="btn ghost small" id="clearBtn" data-tip="Xóa các dòng đang hiện trong Console.">Xóa console</button>
         </div>
         <div class="pane console" id="paneConsole" role="tabpanel" aria-labelledby="tabConsole"></div>
         <div class="pane" id="paneTests" role="tabpanel" aria-labelledby="tabTests" hidden></div>
+        <div class="pane report" id="paneReport" role="tabpanel" aria-labelledby="tabReport" hidden></div>
       </section>
     </main>
   </div>
@@ -135,6 +138,7 @@
 <script src="js/playwright/locator.js"></script>
 <script src="js/playwright/expect.js"></script>
 <script src="js/playwright/run.js"></script>
+<script src="js/playwright/report.js"></script>
 <script src="js/playwright/tool-pane.js"></script>
 <script src="js/mcp/snapshot.js"></script>
 <script src="js/mcp/codegen.js"></script>
