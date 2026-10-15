@@ -105,12 +105,15 @@
       </div>
 
       <section class="panel">
+        <div class="hsplitter" id="panelSplit" role="separator" aria-orientation="horizontal" aria-label="Chiều cao khung Console" tabindex="0"
+             data-tip="Kéo lên hoặc xuống để đổi chiều cao khung Console. Kéo hết xuống để thu gọn, bấm đúp để trả về mặc định."></div>
         <div class="tabs" role="tablist">
           <button class="tab" role="tab" id="tabConsole" aria-selected="true" aria-controls="paneConsole" data-tip="Kết quả của console.log và thông báo lỗi khi bấm Chạy.">Console</button>
           <button class="tab" role="tab" id="tabTests" aria-selected="false" aria-controls="paneTests" data-tip="Từng test case đạt hay chưa đạt sau khi bấm Kiểm tra bài, kèm lý do.">Kết quả kiểm tra<span class="badge" id="testBadge" hidden></span></button>
           <button class="tab" role="tab" id="tabReport" aria-selected="false" aria-controls="paneReport" hidden data-tip="Báo cáo của lần chạy test gần nhất, giống HTML report của Playwright: test nào pass, test nào fail, từng bước và trang lúc test kết thúc.">Báo cáo<span class="badge" id="reportBadge" hidden></span></button>
           <span class="spacer"></span>
           <button class="btn ghost small" id="clearBtn" data-tip="Xóa các dòng đang hiện trong Console.">Xóa console</button>
+          <button class="btn ghost small" id="panelToggle" aria-expanded="true" data-tip="Thu gọn khung Console cho ô soạn code rộng hơn, hoặc mở rộng lại. Cũng có thể kéo mép trên của khung.">▾ Thu gọn</button>
         </div>
         <div class="pane console" id="paneConsole" role="tabpanel" aria-labelledby="tabConsole"></div>
         <div class="pane" id="paneTests" role="tabpanel" aria-labelledby="tabTests" hidden></div>

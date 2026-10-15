@@ -22,7 +22,7 @@ function select(id, focusEditor){
   // Kiểm tra running cả lúc iframe nạp xong: nếu đã bấm Chạy hoặc AI viết test thì không reset trang giữa chừng.
   if (ex.pw && !running){ App.init().then(() => { if (running || current !== ex) return; App.reset(); App.navigate(ex.route || '/login'); }); }
   clearConsole(true); resetTests(); resetReport();
-  showTab('console');
+  showTab('console', true);
   closeDrawer();
   resetArmed = false; resetBtn.textContent = 'Khôi phục code gốc'; resetBtn.classList.remove('warn');
   if (focusEditor && window.matchMedia('(min-width: 760px)').matches) ta.focus();

@@ -10,7 +10,8 @@
   .toolbar{position:sticky;top:0;z-index:2}
   .editor{height:56vh;min-height:300px;flex:none}
   .panel{min-height:230px;max-height:55vh;flex:none}
-  .splitter{display:none}
+  .main.panel-collapsed .panel{min-height:0}
+  .splitter,.hsplitter{display:none}
 }
 /* Small: drawer */
 @media (max-width:759px){

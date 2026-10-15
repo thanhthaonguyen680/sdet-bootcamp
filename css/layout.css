@@ -13,7 +13,7 @@
 .dot.edited{background:var(--cell-edited)} .dot.pass{background:var(--pass)} .dot.fail{background:var(--fail)}
 .dot.free{background:transparent;border:1.5px solid var(--ink-3)}
 
-.main{--brief-w:44%;position:relative;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,var(--brief-w),calc(100% - 360px));grid-template-rows:auto minmax(0,1fr) minmax(170px,34%);grid-template-areas:"tool brief" "editor brief" "panel brief"}
+.main{--brief-w:44%;position:relative;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,var(--brief-w),calc(100% - 360px));grid-template-rows:auto minmax(0,1fr) var(--panel-row,minmax(170px,34%));grid-template-areas:"tool brief" "editor brief" "panel brief"}
 
 @media (min-width:1100px){ .main.wide{--brief-w:max(400px,50%)} }
 /* Thanh kéo đổi độ rộng giữa phần code và phần bài giảng */
@@ -23,3 +23,13 @@
 .splitter:focus-visible{outline:none}
 body.resizing{cursor:col-resize;user-select:none;-webkit-user-select:none}
 body.resizing iframe{pointer-events:none}
+
+/* Thanh kéo chiều cao khung Console (js/ui/splitter.js) */
+.panel{position:relative}
+.hsplitter{position:absolute;left:0;right:0;top:0;height:10px;transform:translateY(-50%);z-index:3;cursor:row-resize;touch-action:none}
+.hsplitter::after{content:"";position:absolute;left:0;right:0;top:4px;height:2px;background:transparent;transition:background .15s}
+.hsplitter:hover::after,.hsplitter:focus-visible::after,body.resizing-v .hsplitter::after{background:var(--accent)}
+.hsplitter:focus-visible{outline:none}
+body.resizing-v{cursor:row-resize;user-select:none}
+body.resizing-v iframe{pointer-events:none}
+.main.panel-collapsed .panel > .pane{display:none}

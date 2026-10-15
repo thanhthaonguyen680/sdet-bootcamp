@@ -35,3 +35,50 @@ splitter.addEventListener('keydown', e => {
   else return;
   e.preventDefault(); saveState();
 });
+
+/* Kéo đổi chiều cao khung Console (Console, Kết quả kiểm tra, Báo cáo); nút ▾ thu gọn chỉ còn hàng tab. */
+const panelSplit = $('#panelSplit'), panelToggle = $('#panelToggle');
+const PANEL_MIN = 120, PANEL_COLLAPSE = 80, EDITOR_MIN_H = 160;
+function applyPanel(){
+  const collapsed = !!state.panelCollapsed;
+  mainEl.classList.toggle('panel-collapsed', collapsed);
+  if (collapsed) mainEl.style.setProperty('--panel-row', 'auto');
+  else if (state.panelH) mainEl.style.setProperty('--panel-row', state.panelH + 'px');
+  else mainEl.style.removeProperty('--panel-row');
+  panelToggle.textContent = collapsed ? '▴ Mở rộng' : '▾ Thu gọn';
+  panelToggle.setAttribute('aria-expanded', !collapsed);
+}
+function setPanelHeight(px){
+  const box = mainEl.getBoundingClientRect(), max = box.height - $('.toolbar').getBoundingClientRect().height - EDITOR_MIN_H;
+  if (px < PANEL_COLLAPSE){ state.panelCollapsed = true; applyPanel(); return; }   // kéo gần hết xuống: thu gọn
+  state.panelCollapsed = false;
+  state.panelH = Math.round(Math.max(PANEL_MIN, Math.min(px, max)));
+  applyPanel();
+}
+// Gọi khi có kết quả cần xem (Chạy, Kiểm tra bài, bấm tab): đang thu gọn thì mở ra.
+function revealPanel(){ if (state.panelCollapsed){ state.panelCollapsed = false; applyPanel(); saveState(); } }
+panelToggle.addEventListener('click', () => { state.panelCollapsed = !state.panelCollapsed; applyPanel(); saveState(); });
+let panelHBefore;   // chiều cao trước khi kéo: kéo xuống để thu gọn thì lần mở sau trả về chiều cao này
+panelSplit.addEventListener('pointerdown', e => {
+  if (e.button !== 0) return;
+  e.preventDefault(); hideTip();
+  panelHBefore = state.panelH;
+  panelSplit.setPointerCapture(e.pointerId);
+  document.body.classList.add('resizing-v');
+});
+panelSplit.addEventListener('pointermove', e => {
+  if (panelSplit.hasPointerCapture(e.pointerId)) setPanelHeight(mainEl.getBoundingClientRect().bottom - e.clientY);
+});
+panelSplit.addEventListener('lostpointercapture', () => {
+  document.body.classList.remove('resizing-v');
+  if (state.panelCollapsed){ if (panelHBefore) state.panelH = panelHBefore; else delete state.panelH; }
+  saveState();
+});
+panelSplit.addEventListener('dblclick', () => { delete state.panelH; state.panelCollapsed = false; applyPanel(); saveState(); });
+panelSplit.addEventListener('keydown', e => {
+  const step = e.shiftKey ? 80 : 24, cur = state.panelCollapsed ? 0 : $('.panel').getBoundingClientRect().height;
+  if (e.key === 'ArrowUp') setPanelHeight(Math.max(cur, PANEL_MIN - step) + step);
+  else if (e.key === 'ArrowDown') setPanelHeight(cur - step);
+  else return;
+  e.preventDefault(); saveState();
+});

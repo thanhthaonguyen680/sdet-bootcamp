@@ -5,6 +5,7 @@
 // Áp dụng giao diện sáng/tối ngay, không chờ nội dung tải xong (tránh nháy màu).
 loadState();
 applyTheme();
+applyPanel();   // chiều cao, trạng thái thu gọn của khung Console
 
 async function boot(){
   try {

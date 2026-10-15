@@ -15,7 +15,9 @@ function resetTests(){
     : current.manual ? '<p class="empty">Bài này không chấm tự động. Khi hiểu hết, bấm Đánh dấu đã xong.</p>'
     : '<p class="empty">Sân chơi tự do không có phần chấm bài.</p>';
 }
-function showTab(which){
+// keepCollapsed: chuyển tab nhưng không mở khung đang thu gọn (dùng khi chọn bài khác).
+function showTab(which, keepCollapsed){
+  if (!keepCollapsed && typeof revealPanel === 'function') revealPanel();
   const tabs = { console: ['#tabConsole', consoleEl], tests: ['#tabTests', testsEl], report: ['#tabReport', $('#paneReport')] };
   if (!tabs[which] || $(tabs[which][0]).hidden) which = 'console';
   for (const [k, [tab, pane]] of Object.entries(tabs)){ $(tab).setAttribute('aria-selected', k === which); pane.hidden = k !== which; }
