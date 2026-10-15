@@ -4,7 +4,7 @@ defineExercise({
   route: '/login',
   title: 'Giao việc cho AI bằng một câu',
 
-  // AI ghi sẵn ở tab "Giao việc cho AI" (xem js/mcp/pane.js)
+  // AI ghi sẵn, chạy khi bấm nút "AI viết test" (xem js/mcp/ai-writer.js)
   mcp: (() => {
     const login = [
       { label: 'Mở trang Đăng nhập', tool: 'browser_navigate', url: '/login' },
@@ -15,7 +15,6 @@ defineExercise({
       { label: 'Kiểm tra: đã vào trang Bảng giá', expect: "await expect(page.getByRole('heading', { name: 'Bảng giá' })).toBeVisible();" },
     ];
     return {
-      suggest: ['Đăng nhập bằng tài khoản thử, đặt lệnh mua 100 cổ phiếu Toyota, rồi viết test kiểm tra đặt lệnh thành công'],
       tasks: [{
         match: [/dat lenh|\bmua\b/],
         plan: (prompt, p) => {
@@ -32,7 +31,7 @@ defineExercise({
               { tool: 'browser_wait_for', text: 'Đặt lệnh thành công' },
               { label: 'Kiểm tra: thông báo đặt lệnh thành công, đúng mã và khối lượng', expect: "await expect(page.getByRole('status')).toContainText('Đặt lệnh thành công: MUA " + st.code + ' x' + qty + "');" },
             ],
-            done: 'Xong! Lệnh đã đặt thành công. Test đi lại đúng luồng vừa làm và kiểm tra hai điều: đăng nhập xong thì vào được Bảng giá, và thông báo đặt lệnh có đúng mã, khối lượng. Bấm <b>Đưa vào ô soạn code</b> rồi <b>Chạy</b> để xem.',
+            done: 'Xong! Lệnh đã đặt thành công. Test đi lại đúng luồng vừa làm và kiểm tra hai điều: đăng nhập xong thì vào được Bảng giá, và thông báo đặt lệnh có đúng mã, khối lượng.',
           };
         },
       }, {
@@ -40,36 +39,30 @@ defineExercise({
         name: 'đăng nhập thành công',
         reply: 'Được. Mình sẽ đăng nhập bằng tài khoản thử ghi trên trang rồi viết test.',
         steps: login,
-        done: 'Xong! Test đăng nhập và kiểm tra đã vào Bảng giá. Bài này cần thêm bước đặt lệnh: thử giao việc trọn luồng, ví dụ câu gợi ý ở trên.',
+        done: 'Xong! Test đăng nhập và kiểm tra đã vào Bảng giá. Bài này cần thêm bước đặt lệnh: thử giao việc trọn luồng: đăng nhập, đặt lệnh mua rồi viết test.',
       }],
-      unknown: 'Bài này mình làm được việc đăng nhập và đặt lệnh mua trên Sàn Demo. Hãy nói rõ mua mã nào, bao nhiêu cổ phiếu, rồi nhờ mình viết test. Hoặc bấm câu gợi ý ở trên.',
+      unknown: 'Bài này mình làm được việc đăng nhập và đặt lệnh mua trên Sàn Demo. Hãy nói rõ mua mã nào, bao nhiêu cổ phiếu, rồi nhờ mình viết test.',
     };
   })(),
 
   desc: `<p>Ở tuần 4 bạn tự viết từng dòng test. Với <strong>Playwright MCP</strong>, bạn chỉ cần giao việc bằng một câu: AI tự mở trình duyệt, thao tác trên trang và viết test.</p>
 <ol>
-<li>Mở tab <strong>Giao việc cho AI</strong>. Gửi một câu nhờ AI đăng nhập, đặt lệnh mua cổ phiếu rồi viết test (có thể bấm câu gợi ý, hoặc tự viết: đổi mã, đổi khối lượng).</li>
-<li>Xem AI làm từng bước trên trang web bên dưới khung chat.</li>
-<li>Bấm <strong>Đưa vào ô soạn code</strong>, rồi <strong>Chạy</strong>: test phải pass.</li>
+<li>Trong ô soạn code đã có sẵn một yêu cầu ở dòng <code>// AI: ...</code>. Giữ nguyên, hoặc sửa theo ý bạn (đổi mã cổ phiếu, đổi khối lượng).</li>
+<li>Bấm <strong>AI viết test</strong>. Xem AI làm từng bước trên tab <strong>Trang web</strong>; các bước hiện ở tab <strong>Console</strong> bên dưới.</li>
+<li>AI viết test ngay dưới dòng yêu cầu. Bấm <strong>Chạy</strong>: test phải pass.</li>
 <li>Đọc test AI viết: dòng nào là thao tác, dòng nào là kiểm tra? Rồi bấm <strong>Kiểm tra bài</strong>.</li>
 </ol>
 <p class="note">Đây là AI mô phỏng, chỉ hiểu các việc trong bài. Bài 6 hướng dẫn dùng AI và Playwright MCP thật trên máy của bạn.</p>`,
   hints: [
-    'Câu giao việc cần nói đủ: đăng nhập, đặt lệnh mua mã nào, bao nhiêu cổ phiếu, và nhờ viết test. Ví dụ: <em>"Đăng nhập rồi đặt lệnh mua 200 cổ phiếu Sony, viết test cho luồng này"</em>.',
-    'Sau khi AI làm xong, khung chat có ô <strong>Test AI viết</strong> với nút <strong>Đưa vào ô soạn code</strong>. Bấm nút đó, rồi bấm Chạy ở ô soạn code.',
+    'Yêu cầu cần nói đủ: đăng nhập, đặt lệnh mua mã nào, bao nhiêu cổ phiếu, và nhờ viết test. Ví dụ: <code>// AI: Đăng nhập rồi đặt lệnh mua 200 cổ phiếu Sony, viết test cho luồng này</code>.',
+    'Yêu cầu là dòng comment bắt đầu bằng <code>// AI:</code>; viết dài thì xuống dòng bằng một dòng <code>//</code> nữa ngay bên dưới. Bấm AI viết test lại thì AI viết lại test theo yêu cầu mới.',
     'Dòng có <code>expect(...)</code> là kiểm tra; các dòng còn lại (<code>goto</code>, <code>fill</code>, <code>click</code>, <code>selectOption</code>) là thao tác, đúng như tuần 4.'],
-  starter: String.raw`import { test, expect } from '@playwright/test';
-
-// 1. Mở tab "Giao việc cho AI" và gửi một câu giao việc.
-// 2. Bấm "Đưa vào ô soạn code": test AI viết sẽ thay cho đoạn dưới đây.
-// 3. Bấm Chạy, rồi Kiểm tra bài.
-test('đặt lệnh mua thành công', async ({ page }) => {
-
-});
+  starter: String.raw`// Giao việc cho AI: viết yêu cầu sau "AI:", rồi bấm nút "AI viết test".
+// AI: Đăng nhập bằng tài khoản thử, đặt lệnh mua 100 cổ phiếu Toyota, rồi viết test kiểm tra đặt lệnh thành công
 `,
   tests: PWG + AWAIT_LINT + String.raw`
 check('Có ít nhất một test và tất cả pass', () => expect(__passed(), __failMsg()).toBe(true));
-check('Test có đăng nhập', () => expect(__acts().some(a => a.type === 'fill' && a.arg === 'thao@sandemo.test'), 'Chưa thấy bước điền email đăng nhập. Hãy giao việc cho AI rồi đưa test vào ô soạn code').toBe(true));
+check('Test có đăng nhập', () => expect(__acts().some(a => a.type === 'fill' && a.arg === 'thao@sandemo.test'), 'Chưa thấy bước điền email đăng nhập. Hãy bấm AI viết test để AI viết test theo yêu cầu').toBe(true));
 check('Test đặt lệnh thành công', () => expect(/Đặt lệnh thành công/.test(H.doc().body.textContent), 'Cuối test chưa thấy thông báo "Đặt lệnh thành công"').toBe(true));
 check('Test có kiểm tra nội dung thông báo', () => expect(__okAssert(/^(toHaveText|toContainText)$/), 'Chưa có assertion kiểm tra chữ trên trang (toContainText hoặc toHaveText)').toBe(true));
 check('Mọi thao tác và expect đều có await', () => { const bad = __noAwait(); expect(bad.length === 0, 'Thiếu await: ' + bad.join(' | ')).toBe(true); });
@@ -81,21 +74,21 @@ check('Mọi thao tác và expect đều có await', () => { const bad = __noAwa
 <p>Bình thường AI chỉ đọc và viết chữ. Nó không nhìn thấy trang web của bạn, nên khi viết test nó phải <strong>đoán</strong> nút tên gì, ô nằm đâu. <strong>MCP</strong> (Model Context Protocol) là cách cấp thêm "công cụ" cho AI. <strong>Playwright MCP</strong> cấp cho AI một trình duyệt: AI tự mở trang, đọc trang, bấm và gõ như người dùng.</p>
 <h3>Bạn giao việc, AI tự làm</h3>
 ${TRACE(['Bước', 'AI làm gì'], [['1. Nhìn trang', 'Đọc cấu trúc trang (gọi là <strong>snapshot</strong>): có nút nào, ô nào, tên là gì'], ['2. Thao tác', 'Bấm, gõ, chọn như người dùng thật, mỗi lần một bước, rồi nhìn lại trang'], ['3. Ghi lại', 'Mỗi thao tác được ghi thành một dòng code Playwright, locator lấy từ trang thật nên không phải đoán'], ['4. Viết test', 'Ghép các dòng đó thành test và thêm phần kiểm tra']])}
-<p>Muốn biết AI đã làm gì, mở mục <strong>Xem AI làm gì bên trong</strong> dưới khung chat: từng lần gọi công cụ, code đã chạy và snapshot AI nhận được. Không bắt buộc phải đọc phần này.</p>
+<p>Muốn biết AI đã làm gì, mở mục <strong>Xem AI làm gì bên trong</strong> ở tab Console: từng lần gọi công cụ, code đã chạy và snapshot AI nhận được. Không bắt buộc phải đọc phần này.</p>
 <h3>Đọc test AI viết</h3>
 ${ANAT(["await page.goto('/login');", 'Mở trang đầu tiên của luồng.'], '\n', ["await page.getByRole('textbox', { name: 'Email' }).fill('thao@sandemo.test');", '<strong>Thao tác</strong>. Locator theo role và tên, đúng kiểu đã học ở tuần 4.'], '\n', ["await expect(page.getByRole('heading', { name: 'Bảng giá' })).toBeVisible();", '<strong>Kiểm tra giữa chừng</strong>: đăng nhập thành công thì phải vào được Bảng giá.'], '\n', ["await expect(page.getByRole('status')).toContainText('Đặt lệnh thành công: MUA 7203 x100');", '<strong>Kiểm tra cuối</strong>: thông báo có đúng mã và khối lượng. Đặt nhầm mã thì dòng này fail.'])}
 <h3>Bạn vẫn là người chịu trách nhiệm</h3>
 <ul>
 <li>AI chỉ làm đúng điều bạn nói. Nói thiếu thì test thiếu (bài 3).</li>
 <li>Test AI viết có thể pass hôm nay rồi vỡ ngày mai, hoặc pass cả khi ứng dụng sai (bài 4).</li>
-<li>Mật khẩu đang nằm thẳng trong test. Với tài khoản thật, đưa vào biến môi trường hoặc secrets (tuần 5), và đừng đưa mật khẩu thật cho AI (bài 1).</li>
+<li>Mật khẩu đang nằm thẳng trong test. Với tài khoản thật, đưa vào biến môi trường hoặc secrets (tuần 6), và đừng đưa mật khẩu thật cho AI (bài 1).</li>
 </ul>`,
 examples:[]},
 
   // ===== Lời giải =====
   solution: { html:`
 <h3>Lời giải</h3>
-<p>Test AI viết khi giao việc bằng câu gợi ý:</p>
+<p>Test AI viết với yêu cầu có sẵn trong ô soạn code:</p>
 {{ex0}}
 <h3>Giải thích</h3>
 <ul>

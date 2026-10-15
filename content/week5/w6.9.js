@@ -56,7 +56,7 @@ ${TRACE(['Bước', 'Bạn làm', 'AI làm'], [['1. Hiểu yêu cầu', 'Đọc 
 <li>Không viết cứng mật khẩu, token; lấy từ <code>.env</code>.</li>
 <li>Test fail khi ứng dụng sai.</li>
 </ul>
-<p>Năm mục đầu có thể kiểm tra tự động bằng cách đọc code, đúng như bài tập này. Trong project thật, việc đó do <strong>ESLint</strong> với plugin <code>eslint-plugin-playwright</code> đảm nhận, chạy trong CI ở tuần 5 để chặn code yếu trước khi merge. Mục cuối thì chỉ có bạn kiểm tra được.</p>
+<p>Năm mục đầu có thể kiểm tra tự động bằng cách đọc code, đúng như bài tập này. Trong project thật, việc đó do <strong>ESLint</strong> với plugin <code>eslint-plugin-playwright</code> đảm nhận, chạy trong CI ở tuần 6 để chặn code yếu trước khi merge. Mục cuối thì chỉ có bạn kiểm tra được.</p>
 {{ex0}}`,
 examples:[String.raw`const code = "await page.goto('/a');\n// page.waitForTimeout(1)\npage.getByText('x').click();";
 const lines = code.split("\n").filter(l => !l.trim().startsWith("//"));

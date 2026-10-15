@@ -1,7 +1,7 @@
 /* Hướng dẫn nhanh: tự hiện lần đầu, xem lại bằng nút ?. */
 
 const TOUR = [
-  { sel: '.weeks', title: 'Chọn tuần học', text: 'Khóa học có ' + CURRICULUM.weeks.length + ' tuần, từ JavaScript nền tảng đến Playwright, CI/CD và dùng AI để viết test. Rê chuột vào từng tuần để xem tuần đó học gì.' },
+  { sel: '.weeks', title: 'Chọn tuần học', text: 'Khóa học có ' + CURRICULUM.weeks.length + ' tuần, từ JavaScript nền tảng đến Playwright, dùng AI để viết test và CI/CD. Rê chuột vào từng tuần để xem tuần đó học gì.' },
   { sel: '#side', title: 'Danh sách bài', text: 'Các bài của tuần đang chọn. Chấm tròn cho biết trạng thái: xanh là đã pass, đỏ là chưa đạt, xám đậm là đang làm dở.' },
   { sel: '#menuBtn', title: 'Danh sách bài', text: 'Bấm vào đây để mở danh sách bài của tuần. Chấm tròn cho biết trạng thái: xanh là đã pass, đỏ là chưa đạt, xám đậm là đang làm dở.' },
   { sel: '.seg', title: 'Bài giảng, Đề bài, Lời giải', text: 'Bắt đầu từ Bài giảng: đọc và bấm Chạy ví dụ. Sau đó sang Đề bài để làm. Lời giải chỉ nên mở khi đã tự làm 15–20 phút.' },

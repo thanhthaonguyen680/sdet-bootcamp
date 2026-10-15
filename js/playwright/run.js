@@ -102,10 +102,8 @@ async function runPW(withTests, override){
     }
     exported = r.exports;
   } else try {
-    const fn = compile('const test = __pwTest, expect = __pwExpect; {' + instrument(js) + trailer + '\n}', ['console', '__pwTest', '__pwExpect', '__guard', 'process']);
-    // process.env: biến môi trường bài khai báo trong ex.env, như tệp .env hoặc secrets trên CI
-    const processObj = { env: { ...(ex.env || {}) }, argv: [], platform: 'browser', cwd: () => '/' };
-    exported = (await withLimit(fn(con, pwTest, pwExpect, guard, processObj), 8000, 'Code chờ quá 8 giây mà chưa chạy xong.')) || {};
+    const fn = compile('const test = __pwTest, expect = __pwExpect; {' + instrument(js) + trailer + '\n}', ['console', '__pwTest', '__pwExpect', '__guard']);
+    exported = (await withLimit(fn(con, pwTest, pwExpect, guard), 8000, 'Code chờ quá 8 giây mà chưa chạy xong.')) || {};
   } catch (e){
     logLine('error', explain(e));
     failGrade(explain(e)); finish(); return;

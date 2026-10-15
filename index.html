@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="css/project.css">
 <link rel="stylesheet" href="css/ci-pane.css">
 <link rel="stylesheet" href="css/sandbox-pane.css">
-<link rel="stylesheet" href="css/mcp-pane.css">
+<link rel="stylesheet" href="css/ai-writer.css">
 <link rel="stylesheet" href="css/toolbar.css">
 <link rel="stylesheet" href="css/editor.css">
 <link rel="stylesheet" href="css/output-panel.css">
@@ -46,25 +46,6 @@
     <main class="main">
       <section class="brief" id="briefWrap">
         <div id="brief" aria-live="polite"></div>
-        <div id="mcpPane" class="mcp-pane" hidden aria-label="Giao việc cho AI">
-          <details id="mcpRulesBox" class="mcp-rules" open hidden>
-            <summary>Rule của project: <code id="mcpRulesFile"></code><span id="mcpRulesInfo"></span></summary>
-            <textarea id="mcpRules" rows="12" spellcheck="false" aria-label="Rule cho AI"></textarea>
-            <div class="mcp-rules-foot"><span class="muted-s">AI đọc tệp này trước mỗi lần giao việc. Sửa xong thì giao việc lại.</span><button type="button" class="btn ghost small" id="mcpRulesReset">Khôi phục rule gốc</button></div>
-          </details>
-          <div class="mcp-ask">
-            <div class="mcp-chips" id="mcpChips"></div>
-            <div class="mcp-input">
-              <textarea id="mcpPrompt" rows="2" spellcheck="false" placeholder="Giao việc cho AI bằng một câu, ví dụ: Đăng nhập rồi đặt lệnh mua 100 Toyota, viết test cho luồng này" aria-label="Việc giao cho AI"></textarea>
-              <button type="button" class="btn small primary" id="mcpSend">Giao việc</button>
-            </div>
-          </div>
-          <div id="mcpLog" class="mcp-log" aria-live="polite"></div>
-          <details id="mcpInner" class="mcp-inner"><summary>Xem AI làm gì bên trong<span id="mcpInnerCount"></span></summary>
-            <p class="muted-s">Mỗi bước, AI gọi một công cụ của Playwright MCP. Công cụ trả về code Playwright vừa chạy và <b>snapshot</b> (cấu trúc trang) để AI chọn bước tiếp theo. Rê chuột vào một ref để xem phần tử trên trang.</p>
-            <div id="mcpCalls" class="mcp-calls"></div>
-          </details>
-        </div>
         <div id="appPane" class="app-pane none" aria-label="Trang web mẫu">
           <div class="app-bar">
             <span class="app-url" id="appUrl">about:blank</span>
@@ -102,6 +83,7 @@
            data-tip="Kéo sang trái hoặc phải để đổi độ rộng phần bài giảng. Bấm đúp để trả về mặc định."></div>
 
       <div class="toolbar">
+        <button class="btn primary" id="aiBtn" hidden data-tip-title="AI viết test" data-tip="AI đọc yêu cầu ở dòng // AI: trong ô soạn code, tự thao tác trên trang web mẫu qua Playwright MCP rồi viết test ngay bên dưới.">AI viết test</button>
         <button class="btn primary" id="runBtn" data-tip-title="Chạy" data-tip="Chạy code trong ô soạn thảo. Kết quả console.log hiện ở tab Console bên dưới. Phím tắt: Ctrl + Enter.">Chạy</button>
         <button class="btn check" id="checkBtn" data-tip-title="Kiểm tra bài" data-tip="Chạy các test case chấm tự động. Pass hết thì bài được tính là xong và hiện nút Sang bài tiếp. Phím tắt: Ctrl + Shift + Enter.">Kiểm tra bài</button>
         <button class="btn" id="markBtn" hidden data-tip-title="Đánh dấu đã xong" data-tip="Bài này không chấm tự động. Khi đã tự kiểm tra và hiểu hết, bấm để tính là đã xong.">Đánh dấu đã xong</button>
@@ -157,7 +139,7 @@
 <script src="js/mcp/snapshot.js"></script>
 <script src="js/mcp/codegen.js"></script>
 <script src="js/mcp/tools.js"></script>
-<script src="js/mcp/pane.js"></script>
+<script src="js/mcp/ai-writer.js"></script>
 <script src="js/project/files.js"></script>
 <script src="js/ci/yaml.js"></script>
 <script src="js/ci/config.js"></script>

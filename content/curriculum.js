@@ -6,6 +6,8 @@
      2. Ghi id của bài vào đúng nhóm bên dưới. Vị trí trong danh sách quyết định thứ tự hiển thị.
 
    Không khai báo week, group, num hay optional trong tệp bài: chúng được suy ra từ đây.
+   id của bài là khóa lưu tiến độ của người học: không đổi id khi chuyển bài sang tuần khác.
+   Vì vậy tiền tố id có thể khác số tuần (ví dụ bài CI/CD w5.x nằm ở tuần 6, bài AI w6.x nằm ở tuần 5).
      - num:      theo thứ tự trong tuần (tuần có numbering 'group' thì là <số nhóm>.<số bài trong nhóm>).
      - optional: đặt optional: true cho cả nhóm; bài trong nhóm không tính vào tiến độ.
      - tip:      mô tả ngắn của tuần (tooltip và README). {n} được thay bằng số bài bắt buộc của tuần.
@@ -72,17 +74,6 @@ const CURRICULUM = {
     },
     {
       week: 5, dir: 'week5',
-      title: 'CI/CD pipeline với GitHub Actions',
-      tip: 'Cho bộ test tự chạy mỗi khi có code mới: workflow, secrets, báo cáo khi test đỏ, và kiểm chứng workflow do AI viết. Matrix, sharding, chạy theo lịch là phần nâng cao.',
-      shared: ['shared.js'],   // tệp dùng chung, chạy trước các bài của tuần
-      groups: [
-        { name: 'CI/CD đủ dùng', exercises: ['w5.3', 'w5.4', 'w5.5', 'w5.12'] },
-        { name: 'Nâng cao (không bắt buộc): chuẩn bị project', optional: true, exercises: ['w5.1', 'w5.2'] },
-        { name: 'Nâng cao (không bắt buộc): pipeline', optional: true, exercises: ['w5.6', 'w5.7', 'w5.8', 'w5.9', 'w5.10', 'w5.11'] },
-      ],
-    },
-    {
-      week: 6, dir: 'week6',
       title: 'AI trong automation testing',
       tip: 'Giao việc cho AI bằng một câu: AI tự điều khiển trình duyệt qua Playwright MCP và viết test. Đặt rule để AI luôn theo nguyên tắc của team, và kiểm chứng test AI viết.',
       shared: ['shared.js'],   // tệp dùng chung, chạy trước các bài của tuần
@@ -91,6 +82,17 @@ const CURRICULUM = {
         { name: 'Giao việc cho AI qua MCP', exercises: ['w6.13', 'w6.14', 'w6.15', 'w6.16'] },
         { name: 'Đưa AI vào công việc hằng ngày', exercises: ['w6.8', 'w6.9'] },
         { name: 'Nâng cao (không bắt buộc)', optional: true, exercises: ['w6.3', 'w6.6', 'w6.7'] },
+      ],
+    },
+    {
+      week: 6, dir: 'week6',
+      title: 'CI/CD pipeline với GitHub Actions',
+      tip: 'Cho bộ test tự chạy mỗi khi có code mới: workflow, secrets, báo cáo khi test đỏ, và kiểm chứng workflow do AI viết. Matrix, sharding, chạy theo lịch là phần nâng cao.',
+      shared: ['shared.js'],   // tệp dùng chung, chạy trước các bài của tuần
+      groups: [
+        { name: 'CI/CD đủ dùng', exercises: ['w5.3', 'w5.4', 'w5.5', 'w5.12'] },
+        { name: 'Nâng cao (không bắt buộc): chuẩn bị project', optional: true, exercises: ['w5.1', 'w5.2'] },
+        { name: 'Nâng cao (không bắt buộc): pipeline', optional: true, exercises: ['w5.6', 'w5.7', 'w5.8', 'w5.9', 'w5.10', 'w5.11'] },
       ],
     },
   ],

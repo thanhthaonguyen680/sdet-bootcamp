@@ -19,7 +19,8 @@ function select(id, focusEditor){
   document.querySelector('.main').classList.toggle('wide', !!(ex.pw || ex.ci));
   applyBriefWidth();
   if (ex.ci) ciPaneSetup(ex);
-  if (ex.pw && !running){ App.init().then(() => { App.reset(); App.navigate(ex.route || '/login'); }); }
+  // Kiểm tra running cả lúc iframe nạp xong: nếu đã bấm Chạy hoặc AI viết test thì không reset trang giữa chừng.
+  if (ex.pw && !running){ App.init().then(() => { if (running || current !== ex) return; App.reset(); App.navigate(ex.route || '/login'); }); }
   clearConsole(true); resetTests();
   showTab('console');
   closeDrawer();

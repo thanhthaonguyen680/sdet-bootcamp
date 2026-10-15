@@ -69,7 +69,7 @@ ${TRACE(['Lỗi AI hay mắc', 'Lộ ra khi nào'], [['Bỏ sót sự kiện kí
 </ol>
 <p>Câu 1, 3, 4 không thể biết bằng cách chạy một lần thấy xanh. Phải <strong>cố tình thử các trường hợp khác</strong>, giống cách bạn test ứng dụng.</p>
 <h3>Đừng đưa bí mật cho AI</h3>
-<p>Câu yêu cầu trong bài dán nguyên nội dung <code>.env</code> có mật khẩu cho AI. AI làm đúng điều được đưa: chép mật khẩu vào workflow. Lẽ ra chỉ cần nói tên biến: <em>"test cần biến BASE_URL và TEST_USER_PASSWORD, lấy từ variables và secrets của repo"</em>. Đã lỡ dán mật khẩu thật vào công cụ AI thì việc cần làm là <strong>đổi mật khẩu</strong> (tuần 6, bài 1).</p>
+<p>Câu yêu cầu trong bài dán nguyên nội dung <code>.env</code> có mật khẩu cho AI. AI làm đúng điều được đưa: chép mật khẩu vào workflow. Lẽ ra chỉ cần nói tên biến: <em>"test cần biến BASE_URL và TEST_USER_PASSWORD, lấy từ variables và secrets của repo"</em>. Đã lỡ dán mật khẩu thật vào công cụ AI thì việc cần làm là <strong>đổi mật khẩu</strong> (tuần 5, bài 1).</p>
 <p class="note">Góc QA: các bài nâng cao của tuần (matrix, sharding, chạy theo lịch, nhiều job) đều là những thứ có thể nhờ AI viết. Học chúng để <strong>đọc hiểu và kiểm chứng</strong> được, không cần thuộc lòng cú pháp.</p>`,
 examples:[]},
 

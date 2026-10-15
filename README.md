@@ -1,6 +1,6 @@
-# Lộ trình tự học SDET cho team QC/QA: JavaScript, Playwright, CI/CD và AI
+# Lộ trình tự học SDET cho team QC/QA: JavaScript, Playwright, AI và CI/CD
 
-Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA có nhu cầu học và từng bước thực hành theo hướng SDET. Nội dung được chia thành <!--weeks-->6<!--/weeks--> tuần, từ JavaScript nền tảng đến Playwright, CI/CD và dùng AI trong automation testing. Bạn có thể học và làm bài trực tiếp trên trình duyệt, không cần cài đặt gì.
+Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA có nhu cầu học và từng bước thực hành theo hướng SDET. Nội dung được chia thành <!--weeks-->6<!--/weeks--> tuần, từ JavaScript nền tảng đến Playwright, dùng AI trong automation testing và CI/CD. Bạn có thể học và làm bài trực tiếp trên trình duyệt, không cần cài đặt gì.
 
 **Dùng thử:** https://TEN-CUA-BAN.github.io/sdet-bootcamp/
 
@@ -14,8 +14,8 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 | 2 | **Ôn tập qua thuật toán cơ bản.** 18 bài thuật toán cơ bản hay gặp khi phỏng vấn, giúp dùng thành thạo kiến thức tuần 1. | 18 |
 | 3 | **JavaScript nâng cao (ES6+).** Cú pháp dùng hằng ngày trong Playwright: arrow function, destructuring, map/filter, async/await. 7 bài bắt buộc, phần còn lại là nâng cao. | 7 + 11 nâng cao |
 | 4 | **Automation với Playwright + TypeScript.** Viết test tự động trên trang Sàn Demo: locator, assertion, Page Object Model, fixture, đến một dự án POM hoàn chỉnh. | 21 + 3 nâng cao |
-| 5 | **CI/CD pipeline với GitHub Actions.** Cho bộ test tự chạy mỗi khi có code mới: workflow, secrets, báo cáo khi test đỏ, và kiểm chứng workflow do AI viết. Matrix, sharding, chạy theo lịch là phần nâng cao. | 4 + 8 nâng cao |
-| 6 | **AI trong automation testing.** Giao việc cho AI bằng một câu: AI tự điều khiển trình duyệt qua Playwright MCP và viết test. Đặt rule để AI luôn theo nguyên tắc của team, và kiểm chứng test AI viết. | 7 + 3 nâng cao |
+| 5 | **AI trong automation testing.** Giao việc cho AI bằng một câu: AI tự điều khiển trình duyệt qua Playwright MCP và viết test. Đặt rule để AI luôn theo nguyên tắc của team, và kiểm chứng test AI viết. | 7 + 3 nâng cao |
+| 6 | **CI/CD pipeline với GitHub Actions.** Cho bộ test tự chạy mỗi khi có code mới: workflow, secrets, báo cáo khi test đỏ, và kiểm chứng workflow do AI viết. Matrix, sharding, chạy theo lịch là phần nâng cao. | 4 + 8 nâng cao |
 <!-- curriculum:end -->
 
 ## Tính năng
@@ -24,7 +24,7 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 - Trang web mẫu (sàn giao dịch giả lập) để luyện locator và viết test Playwright
 - Bộ chấm "cài bug" vào trang để kiểm tra test có thực sự bắt được lỗi không
 - Mô phỏng GitHub Actions: chạy workflow YAML, xem từng job, từng bước và log
-- Giao việc cho AI bằng một câu: AI (mô phỏng Playwright MCP) tự thao tác trên trang mẫu rồi viết test, người học kiểm chứng test đó
+- Giao việc cho AI ngay trong ô soạn code: viết yêu cầu ở dòng `// AI:` rồi bấm **AI viết test**; AI (mô phỏng Playwright MCP) tự thao tác trên trang mẫu, viết test bên dưới, người học kiểm chứng test đó
 - Sàn Demo chạy độc lập ở `sandemo.html` để thử Playwright MCP thật (thêm `?reset` để làm mới, `?bug=tên-bug` để bật bug)
 - Tiến độ lưu tự động trong trình duyệt
 
@@ -50,7 +50,7 @@ js/
   sandbox/              Sàn Demo, trang web mẫu để luyện viết test (kèm bug cài sẵn)
   project/              Bài làm theo project nhiều tệp
   ci/                   Mô phỏng GitHub Actions
-  mcp/                  Mô phỏng Playwright MCP: snapshot, ref, sinh locator, khung Giao việc cho AI
+  mcp/                  Mô phỏng Playwright MCP: snapshot, ref, sinh locator, nút AI viết test
   ui/                   Danh sách bài, đề bài, tooltip, hướng dẫn nhanh, thanh kéo
 tools/                  verify.mjs (kiểm tra cả khóa), sync-readme.mjs
 ```

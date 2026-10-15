@@ -54,7 +54,7 @@ check('Truyền thêm tùy chọn qua --', async () => { const r = await H.local
 
   // ===== Bài giảng =====
   lesson: { html:`
-<h3>Tuần 5: CI/CD là gì</h3>
+<h3>Tuần 6: CI/CD là gì</h3>
 <p><strong>CI</strong> (Continuous Integration, tích hợp liên tục): mỗi khi có người đưa code lên, một máy chủ tự động lấy code về, cài đặt, chạy kiểm tra và báo kết quả. <strong>CD</strong> (Continuous Delivery/Deployment): nếu mọi kiểm tra đều qua, tự động đưa bản mới lên môi trường staging hoặc production.</p>
 <pre>code mới → lấy code → cài đặt → typecheck → chạy test → báo cáo → (deploy)
            └──────────────── pipeline ────────────────┘</pre>

@@ -29,7 +29,9 @@ function refreshStatus(){
 function switchWeek(w){
   if (w === state.week && !current.free) return;
   state.week = w; buildNav();
-  const target = state.lastByWeek[w] || graded(w)[0].id;
+  // Bài mở gần nhất của tuần, nếu bài đó vẫn thuộc tuần này (bài có thể đã được chuyển sang tuần khác trong curriculum.js).
+  const last = state.lastByWeek[w];
+  const target = EX.some(e => e.id === last && e.week === w) ? last : graded(w)[0].id;
   select(target, false);
 }
 

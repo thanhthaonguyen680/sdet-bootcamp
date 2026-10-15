@@ -31,11 +31,9 @@ defineExercise({
   pw: true,
   route: '/login',
   title: 'Đặt rule cho AI: nói một lần, AI nhớ mãi',
-  env: { TEST_USER_EMAIL: 'thao@sandemo.test', TEST_USER_PASSWORD: 'Demo@123' },   // như tệp .env hoặc secrets trên CI
-
-  // AI ghi sẵn ở tab "Giao việc cho AI": đọc AGENTS.md trước, rồi viết test theo những rule nó tìm thấy (W6_RULES).
-  mcp: {
-    rules: { file: 'AGENTS.md', starter: String.raw`# Rule cho AI viết test Playwright (project sandemo-e2e)
+  projectName: 'sandemo-e2e',
+  files: {
+    'AGENTS.md': String.raw`# Rule cho AI viết test Playwright (project sandemo-e2e)
 
 Luôn tuân thủ các rule dưới đây khi viết hoặc sửa test.
 
@@ -51,8 +49,22 @@ Luôn tuân thủ các rule dưới đây khi viết hoặc sửa test.
 
 ## Dữ liệu và bí mật
 - TODO: viết rule về mật khẩu, tài khoản đăng nhập
-` },
-    suggest: ['Mua 100 cổ phiếu Toyota từ Bảng giá rồi viết test'],
+`,
+    'tests/mua.spec.ts': String.raw`// Giao việc cho AI: bấm nút "AI viết test". AI đọc AGENTS.md trước rồi mới viết test.
+// Kiểm tra bài chưa đạt thì sửa rule trong AGENTS.md (không sửa yêu cầu), rồi bấm AI viết test lại.
+// AI: Mua 100 cổ phiếu Toyota từ Bảng giá rồi viết test
+`,
+    '.env': String.raw`# Tài khoản test. Trên CI, các giá trị này nằm trong secrets (tuần 6).
+TEST_USER_EMAIL=thao@sandemo.test
+TEST_USER_PASSWORD=Demo@123
+`,
+  },
+  open: 'tests/mua.spec.ts',
+
+  // AI ghi sẵn, chạy khi bấm nút "AI viết test" (xem js/mcp/ai-writer.js): đọc AGENTS.md trước, rồi viết test theo những rule nó tìm thấy (W6_RULES).
+  mcp: {
+    file: 'tests/mua.spec.ts',
+    rules: 'AGENTS.md',
     tasks: [{
       match: [/\bmua\b|dat lenh/],
       plan: (prompt, p, rulesText) => {
@@ -89,35 +101,27 @@ Luôn tuân thủ các rule dưới đây khi viết hoặc sửa test.
         };
       },
     }],
-    unknown: 'Bài này mình làm việc mua cổ phiếu từ Bảng giá. Hãy bấm câu gợi ý ở trên.',
+    unknown: 'Bài này mình làm việc mua cổ phiếu từ Bảng giá. Ví dụ: Mua 100 cổ phiếu Toyota từ Bảng giá rồi viết test.',
   },
 
-  desc: `<p>Ở bài 2 đến 4, muốn AI viết test tốt thì phải nhắc đúng từng lỗi trong câu giao việc. Bài này dùng <strong>rule</strong>: viết các nguyên tắc một lần vào tệp <code>AGENTS.md</code>, AI tự đọc trước mỗi lần làm việc.</p>
+  desc: `<p>Ở bài 2 đến 4, muốn AI viết test tốt thì phải nhắc đúng từng lỗi trong yêu cầu. Bài này dùng <strong>rule</strong>: viết các nguyên tắc một lần vào tệp <code>AGENTS.md</code> của project, AI tự đọc trước mỗi lần làm việc.</p>
 <ol>
-<li>Mở tab <strong>Giao việc cho AI</strong>, bấm câu gợi ý <em>"Mua 100 cổ phiếu Toyota từ Bảng giá rồi viết test"</em> và giao việc. <code>AGENTS.md</code> mới có rule về Chờ, nên test AI viết còn nhiều lỗi.</li>
-<li>Viết thêm rule cho 3 nhóm còn TODO trong <code>AGENTS.md</code>: <strong>Locator</strong>, <strong>Assertion</strong>, <strong>Dữ liệu và bí mật</strong>.</li>
-<li>Giao lại <strong>đúng câu cũ</strong>. Đưa test mới vào ô soạn code và Kiểm tra bài.</li>
+<li>Mở tệp <code>tests/mua.spec.ts</code> (đang mở sẵn) và bấm <strong>AI viết test</strong>. <code>AGENTS.md</code> mới có rule về Chờ, nên test AI viết còn nhiều lỗi. Bấm Kiểm tra bài để xem.</li>
+<li>Mở <code>AGENTS.md</code> ở cây thư mục bên trái ô soạn code, viết thêm rule cho 3 nhóm còn TODO: <strong>Locator</strong>, <strong>Assertion</strong>, <strong>Dữ liệu và bí mật</strong>.</li>
+<li>Quay lại <code>tests/mua.spec.ts</code>, <strong>giữ nguyên yêu cầu</strong>, bấm AI viết test lại rồi Kiểm tra bài.</li>
 </ol>
-<p class="note">Bộ chấm chạy lại test khi giá đã đổi (phải vẫn pass) và trên bản có bug "bấm Mua mở nhầm mã cổ phiếu" (phải fail). Biến môi trường <code>TEST_USER_EMAIL</code>, <code>TEST_USER_PASSWORD</code> đã có sẵn, như trên máy CI.</p>`,
+<p class="note">Bộ chấm chạy lại test khi giá đã đổi (phải vẫn pass) và trên bản có bug "bấm Mua mở nhầm mã cổ phiếu" (phải fail). Tệp <code>.env</code> có sẵn tài khoản test, đọc bằng <code>process.env</code>.</p>`,
   hints: [
     'Mỗi rule là một gạch đầu dòng, nói rõ <strong>làm gì</strong> và <strong>tránh gì</strong>, như rule mẫu ở mục Chờ. Rule chung chung như "viết locator tốt" thì AI không biết làm theo thế nào.',
     'Locator: nói rõ không dựa vào giá hay dữ liệu thay đổi, tìm dòng theo mã. Assertion: kiểm tra nội dung cụ thể bằng <code>toContainText</code>, không chỉ <code>toBeVisible</code>. Bí mật: không ghi mật khẩu vào code, đọc từ <code>process.env</code>.',
-    'Lời AI trả lời đầu tiên cho biết nó nhận ra những nhóm rule nào. Nhóm nào chưa được nhận ra thì viết lại rule đó cụ thể hơn. Rule mẫu đầy đủ có trong bài giảng.'],
-  starter: String.raw`import { test, expect } from '@playwright/test';
-
-// 1. Mở tab "Giao việc cho AI": viết rule trong AGENTS.md rồi giao việc.
-// 2. Bấm "Đưa vào ô soạn code": test AI viết sẽ thay cho đoạn dưới đây.
-// 3. Kiểm tra bài. Chưa đạt thì sửa rule và giao lại đúng câu cũ.
-test('mua Toyota từ Bảng giá', async ({ page }) => {
-
-});
-`,
+    'Câu trả lời đầu tiên của AI ở tab Console cho biết nó nhận ra những nhóm rule nào. Nhóm nào chưa được nhận ra thì viết lại rule đó cụ thể hơn. Rule mẫu đầy đủ có trong bài giảng.'],
   tests: PWG + AWAIT_LINT + String.raw`
-check('AGENTS.md có rule cho cả 4 nhóm', () => { const r = W6_RULES(mcpRulesOf(current)); const miss = W6_RULE_GROUPS.filter(g => !r[g.key]).map(g => g.name); expect(miss.length === 0, 'Chưa có rule (hoặc rule chưa đủ cụ thể) cho: ' + miss.join(', ') + '. Viết rule trong tab Giao việc cho AI').toBe(true); });
+const F = __pw.files, __spec = (F['tests/mua.spec.ts'] || '').split('\n').filter(l => !l.trim().startsWith('//')).join('\n');
+check('AGENTS.md có rule cho cả 4 nhóm', () => { const r = W6_RULES(F['AGENTS.md'] || ''); const miss = W6_RULE_GROUPS.filter(g => !r[g.key]).map(g => g.name); expect(miss.length === 0, 'Chưa có rule (hoặc rule chưa đủ cụ thể) cho: ' + miss.join(', ') + '. Viết rule trong tệp AGENTS.md').toBe(true); });
 check('Có ít nhất một test và tất cả pass', () => expect(__passed(), __failMsg()).toBe(true));
-check('Test có đặt lệnh mua', () => expect(/Đặt lệnh thành công/.test(H.doc().body.textContent), 'Cuối test chưa thấy thông báo "Đặt lệnh thành công". Hãy giao việc cho AI rồi đưa test vào ô soạn code').toBe(true));
-check('Không chờ cứng, đủ await', () => { expect(/waitForTimeout|setTimeout/.test(__code), 'Còn chờ cứng (waitForTimeout)').toBe(false); const bad = __noAwait(); expect(bad.length === 0, 'Thiếu await: ' + bad.join(' | ')).toBe(true); });
-check('Không ghi mật khẩu vào code', () => { expect(/Demo@123/.test(__code), 'Mật khẩu đang nằm trong code. Cần rule về bí mật: đọc từ process.env').toBe(false); expect(/process\.env\.TEST_USER_PASSWORD/.test(__code), 'Hãy đọc mật khẩu từ process.env.TEST_USER_PASSWORD').toBe(true); });
+check('Test có đặt lệnh mua', () => expect(/Đặt lệnh thành công/.test(H.doc().body.textContent), 'Cuối test chưa thấy thông báo "Đặt lệnh thành công". Hãy bấm AI viết test ở tệp tests/mua.spec.ts').toBe(true));
+check('Không chờ cứng, đủ await', () => { expect(/waitForTimeout|setTimeout/.test(__spec), 'Còn chờ cứng (waitForTimeout)').toBe(false); const bad = __noAwait(__spec); expect(bad.length === 0, 'Thiếu await: ' + bad.join(' | ')).toBe(true); });
+check('Không ghi mật khẩu vào code', () => { expect(/Demo@123/.test(__spec), 'Mật khẩu đang nằm trong tệp test. Cần rule về bí mật: đọc từ process.env').toBe(false); expect(/process\.env\.TEST_USER_PASSWORD/.test(__spec), 'Hãy đọc mật khẩu từ process.env.TEST_USER_PASSWORD').toBe(true); });
 check('Không phụ thuộc vào giá: giá đổi thì test vẫn pass', async () => { const r = await H.rerun('price-tick'); expect(r.length > 0 && r.every(t => t.status === 'passed'), 'Giá vừa đổi và test bị fail: locator đang dựa vào giá. Cần rule về locator').toBe(true); });
 check('Phát hiện bug "bấm Mua mở nhầm mã cổ phiếu"', async () => { const r = await H.rerun('buy-wrong-stock'); expect(r.some(t => t.status === 'failed'), 'Đặt nhầm mã mà test vẫn pass: phần kiểm tra chỉ xem thông báo có hiện. Cần rule về assertion').toBe(true); });
 `,
@@ -150,18 +154,18 @@ ${TRACE(['Công cụ', 'Tệp rule'], [['Chuẩn dùng chung, nhiều công cụ
 examples:[]},
 
   // ===== Lời giải =====
-  solution: { rules: W6_RULES_SAMPLE, html:`
+  solution: { html:`
 <h3>Lời giải</h3>
-<p>Tệp <code>AGENTS.md</code>:</p>
-<pre>${esc(W6_RULES_SAMPLE)}</pre>
-<p>Giao lại câu <em>"Mua 100 cổ phiếu Toyota từ Bảng giá rồi viết test"</em>, AI viết test:</p>
+<p>Viết đủ rule trong <code>AGENTS.md</code> (như rule mẫu trong bài giảng), giữ nguyên yêu cầu <code>// AI: Mua 100 cổ phiếu Toyota từ Bảng giá rồi viết test</code>, AI viết test như dưới đây (hai tệp nằm chung một khối):</p>
 {{ex0}}
 <h3>Giải thích</h3>
 <ul>
 <li>Câu giao việc không đổi, chỉ có rule thay đổi. Mỗi nhóm rule sửa đúng một loại lỗi: rule Locator bỏ giá khỏi locator, rule Assertion đổi <code>toBeVisible</code> thành kiểm tra đúng mã và khối lượng, rule Bí mật chuyển mật khẩu sang <code>process.env</code>.</li>
 <li>Rule viết một lần dùng cho mọi lần giao việc sau, và cho cả team.</li>
 </ul>`,
-examples:[{ run:false, code:String.raw`import { test, expect } from '@playwright/test';
+examples:[{ run:false, code:'// @file: AGENTS.md\n' + W6_RULES_SAMPLE + '\n// @file: tests/mua.spec.ts\n' + String.raw`// AI: Mua 100 cổ phiếu Toyota từ Bảng giá rồi viết test
+
+import { test, expect } from '@playwright/test';
 
 test('mua Toyota Motor từ Bảng giá', async ({ page }) => {
   await page.goto('/login');

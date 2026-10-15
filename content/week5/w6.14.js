@@ -4,7 +4,7 @@ defineExercise({
   route: '/orders',
   title: 'Prompt rõ thì kết quả tốt',
 
-  // AI ghi sẵn ở tab "Giao việc cho AI" (xem js/mcp/pane.js).
+  // AI ghi sẵn, chạy khi bấm nút "AI viết test" (xem js/mcp/ai-writer.js).
   // Câu giao việc càng rõ, AI viết test càng có giá trị: mơ hồ → chỉ kiểm tra trang hiện; có thao tác → kiểm tra có dòng hiện; có kết quả mong đợi → kiểm tra đủ.
   mcp: (() => {
     const STATUS = [[/cho khop/, 'Chờ khớp'], [/da khop/, 'Đã khớp'], [/da huy/, 'Đã hủy']];
@@ -17,7 +17,6 @@ defineExercise({
       : { label: 'Kiểm tra: bảng còn đúng ' + count(st) + ' lệnh, đều là ' + st,
           expect: "const rows = page.getByRole('row').filter({ has: page.getByRole('cell') });\nawait expect(rows).toHaveCount(" + count(st) + ");\nawait expect(rows.filter({ hasNotText: '" + st + "' })).toHaveCount(0);" };
     return {
-      suggest: ['Viết test cho trang Lệnh của tôi', 'Vào trang Lệnh của tôi, lọc trạng thái Chờ khớp rồi viết test'],
       tasks: [{
         // Có thao tác lọc và nói rõ sau khi lọc điều gì phải đúng
         match: [/\bloc\b|filter/, /cho khop|da khop|da huy/, /chi con|chi hien|chi gom|chi co|tat ca|toan bo|\bdeu\b|khong con|khong co|khong hien|khong lan|so lenh|so dong|so luong|\bdem\b|bao nhieu|\d+ (lenh|dong)/],
@@ -47,34 +46,29 @@ defineExercise({
           { label: 'Kiểm tra: có bảng lệnh', expect: "await expect(page.getByRole('table')).toBeVisible();" }],
         done: 'Xong! Test mở trang Lệnh của tôi và kiểm tra trang hiện đúng tiêu đề và bảng lệnh.',
       }],
-      unknown: 'Bài này mình làm việc trên trang Lệnh của tôi. Hãy nói rõ muốn test thao tác gì ở đó, hoặc bấm một câu gợi ý ở trên.',
+      unknown: 'Bài này mình làm việc trên trang Lệnh của tôi. Hãy nói rõ muốn test thao tác gì ở đó.',
     };
   })(),
 
-  desc: `<p>AI chỉ làm đúng điều bạn nói. Bài này cho thấy câu giao việc mơ hồ và câu giao việc rõ ràng cho ra test khác nhau thế nào.</p>
+  desc: `<p>AI chỉ làm đúng điều bạn nói. Bài này cho thấy yêu cầu mơ hồ và yêu cầu rõ ràng cho ra test khác nhau thế nào.</p>
 <ol>
-<li>Mở tab <strong>Giao việc cho AI</strong>, gửi câu gợi ý đầu tiên <em>"Viết test cho trang Lệnh của tôi"</em>. Đưa test vào ô soạn code rồi bấm <strong>Kiểm tra bài</strong>: test pass, nhưng bài chưa đạt.</li>
-<li>Viết lại câu giao việc cho rõ. Việc cần test: lọc trạng thái <strong>Chờ khớp</strong>, sau đó bảng <strong>chỉ còn</strong> các lệnh Chờ khớp.</li>
-<li>Đưa test mới vào ô soạn code và Kiểm tra bài.</li>
+<li>Ô soạn code đang có yêu cầu <code>// AI: Viết test cho trang Lệnh của tôi</code>. Bấm <strong>AI viết test</strong>, rồi <strong>Kiểm tra bài</strong>: test pass, nhưng bài chưa đạt.</li>
+<li>Viết lại dòng <code>// AI:</code> cho rõ. Việc cần test: lọc trạng thái <strong>Chờ khớp</strong>, sau đó bảng <strong>chỉ còn</strong> các lệnh Chờ khớp.</li>
+<li>Bấm AI viết test lại (AI viết lại test theo yêu cầu mới), rồi Kiểm tra bài.</li>
 </ol>
 <p class="note">Bộ chấm chạy lại test trên phiên bản có bug "ô lọc không có tác dụng" (vẫn hiện mọi lệnh). Test phải fail.</p>`,
   hints: [
-    'Câu giao việc tốt có 3 phần: <strong>ở đâu</strong> (trang Lệnh của tôi), <strong>làm gì</strong> (lọc trạng thái Chờ khớp), <strong>sau đó điều gì phải đúng</strong> (chỉ còn lệnh Chờ khớp).',
+    'Yêu cầu tốt có 3 phần: <strong>ở đâu</strong> (trang Lệnh của tôi), <strong>làm gì</strong> (lọc trạng thái Chờ khớp), <strong>sau đó điều gì phải đúng</strong> (chỉ còn lệnh Chờ khớp).',
     'Nếu chỉ nói "lọc Chờ khớp", AI chỉ kiểm tra có lệnh Chờ khớp hiện ra. Khi ô lọc hỏng, lệnh Chờ khớp vẫn hiện (lẫn với lệnh khác), nên test vẫn pass.',
-    'Ví dụ: <em>"Vào trang Lệnh của tôi, lọc trạng thái Chờ khớp, kiểm tra bảng chỉ còn lệnh Chờ khớp."</em> Bạn cũng có thể tự sửa test, thêm <code>toHaveCount</code> như tuần 4.'],
-  starter: String.raw`import { test, expect } from '@playwright/test';
-
-// 1. Mở tab "Giao việc cho AI" và giao việc.
-// 2. Bấm "Đưa vào ô soạn code": test AI viết sẽ thay cho đoạn dưới đây.
-// 3. Kiểm tra bài. Chưa đạt thì viết lại câu giao việc cho rõ hơn.
-test('lọc lệnh chờ khớp', async ({ page }) => {
-
-});
+    'Ví dụ: <code>// AI: Vào trang Lệnh của tôi, lọc trạng thái Chờ khớp, kiểm tra bảng chỉ còn lệnh Chờ khớp.</code> Bạn cũng có thể tự sửa test, thêm <code>toHaveCount</code> như tuần 4.'],
+  starter: String.raw`// Giao việc cho AI: viết yêu cầu sau "AI:", rồi bấm nút "AI viết test".
+// Kiểm tra bài chưa đạt thì viết lại yêu cầu cho rõ hơn và bấm AI viết test lại.
+// AI: Viết test cho trang Lệnh của tôi
 `,
   tests: PWG + AWAIT_LINT + String.raw`
 check('Có ít nhất một test và tất cả pass', () => expect(__passed(), __failMsg()).toBe(true));
 check('Test có lọc trạng thái "Chờ khớp"', () => expect(__acts().some(a => a.type === 'selectOption' && /Chờ khớp/.test(JSON.stringify(a.arg))), 'Test chưa lọc trạng thái Chờ khớp. Câu giao việc cần nói rõ thao tác cần test').toBe(true));
-check('Không chờ cứng, đủ await', () => { expect(/waitForTimeout|setTimeout/.test(__code), 'Không cần chờ cứng: assertion của Playwright tự chờ').toBe(false); const bad = __noAwait(); expect(bad.length === 0, 'Thiếu await: ' + bad.join(' | ')).toBe(true); });
+check('Không chờ cứng, đủ await', () => { expect(/waitForTimeout|setTimeout/.test(__src), 'Không cần chờ cứng: assertion của Playwright tự chờ').toBe(false); const bad = __noAwait(); expect(bad.length === 0, 'Thiếu await: ' + bad.join(' | ')).toBe(true); });
 check('Có kiểm tra kết quả', () => expect(__okAssert(/^(toHaveCount|toHaveText|toContainText|toBeVisible|toBeHidden)$/), 'Test chưa kiểm tra gì').toBe(true));
 check('Phát hiện bug "ô lọc không có tác dụng"', async () => { const r = await H.rerun('filter-broken'); expect(r.some(t => t.status === 'failed'), 'Ô lọc hỏng (vẫn hiện mọi lệnh) mà test vẫn pass. Câu giao việc chưa nói sau khi lọc điều gì phải đúng, nên AI chỉ kiểm tra những gì dễ thấy').toBe(true); });
 `,
@@ -95,7 +89,7 @@ examples:[]},
   // ===== Lời giải =====
   solution: { html:`
 <h3>Lời giải</h3>
-<p>Câu giao việc: <em>"Vào trang Lệnh của tôi, lọc trạng thái Chờ khớp, kiểm tra bảng chỉ còn lệnh Chờ khớp."</em> Test AI viết:</p>
+<p>Yêu cầu: <code>// AI: Vào trang Lệnh của tôi, lọc trạng thái Chờ khớp, kiểm tra bảng chỉ còn lệnh Chờ khớp.</code> Test AI viết:</p>
 {{ex0}}
 <h3>Giải thích</h3>
 <ul>

@@ -4,11 +4,10 @@ defineExercise({
   route: '/dashboard',
   title: 'Kiểm chứng test AI viết',
 
-  // AI ghi sẵn ở tab "Giao việc cho AI" (xem js/mcp/pane.js).
+  // AI ghi sẵn, chạy khi bấm nút "AI viết test" (xem js/mcp/ai-writer.js).
   // Test AI viết pass ngay, nhưng có 2 lỗi hay gặp: locator dòng chứa cả giá (code Playwright MCP sinh ra lúc bấm),
   // và câu kiểm tra chỉ xem chữ đã có sẵn trên trang.
   mcp: {
-    suggest: ['Theo dõi cổ phiếu Sony trên Bảng giá rồi viết test cho thao tác này'],
     tasks: [{
       match: [/theo doi/],
       plan: (prompt, p) => { const st = W6_STOCK(p, '6758'); return {
@@ -24,10 +23,10 @@ defineExercise({
         done: 'Xong! Nút đã chuyển thành "Đang theo dõi". Test chạy được ngay, bạn thử nhé.',
       }; },
     }],
-    unknown: 'Bài này mình làm việc trên Bảng giá: theo dõi một mã cổ phiếu rồi viết test. Hãy bấm câu gợi ý ở trên.',
+    unknown: 'Bài này mình làm việc trên Bảng giá: theo dõi một mã cổ phiếu rồi viết test. Ví dụ: Theo dõi cổ phiếu Sony trên Bảng giá rồi viết test.',
   },
 
-  desc: `<p>Giao cho AI việc theo dõi cổ phiếu <strong>Sony</strong> trên Bảng giá rồi viết test (bấm câu gợi ý). Đưa test vào ô soạn code và Chạy: test pass. Nhưng bấm <strong>Kiểm tra bài</strong> sẽ thấy chưa đạt. Test AI viết có 2 vấn đề:</p>
+  desc: `<p>Ô soạn code có sẵn yêu cầu nhờ AI theo dõi cổ phiếu <strong>Sony</strong> trên Bảng giá rồi viết test. Bấm <strong>AI viết test</strong>, rồi <strong>Chạy</strong>: test pass. Nhưng bấm <strong>Kiểm tra bài</strong> sẽ thấy chưa đạt. Test AI viết có 2 vấn đề:</p>
 <ol>
 <li>Tìm dòng Sony bằng <strong>toàn bộ chữ của dòng</strong>, kể cả giá. Giá đổi liên tục, đổi là test vỡ.</li>
 <li>Phần kiểm tra chỉ xem chữ "Sony Group" có hiện. Chữ đó có sẵn từ trước khi bấm, nên nút Theo dõi hỏng thì test vẫn pass.</li>
@@ -38,20 +37,14 @@ defineExercise({
     'Tìm dòng theo tên công ty hoặc mã, chữ này không đổi: <code>page.getByRole(\'row\').filter({ hasText: \'Sony\' })</code>. Lưu vào một biến để dùng lại ở bước kiểm tra.',
     'Bấm nút trong dòng đó: <code>sony.getByRole(\'button\', { name: \'Theo dõi\' })</code>. Sau khi bấm, chữ trên nút đổi thành "Đang theo dõi".',
     'Kiểm tra đúng kết quả của thao tác: <code>await expect(sony.getByRole(\'button\', { name: \'Đang theo dõi\' })).toBeVisible();</code> hoặc kiểm tra thuộc tính <code>aria-pressed</code> là <code>\'true\'</code>.'],
-  starter: String.raw`import { test, expect } from '@playwright/test';
-
-// 1. Mở tab "Giao việc cho AI" và bấm câu gợi ý.
-// 2. Bấm "Đưa vào ô soạn code", Chạy thử, rồi Kiểm tra bài.
-// 3. Sửa test cho bền và kiểm tra đúng kết quả.
-test('theo dõi cổ phiếu Sony', async ({ page }) => {
-
-});
+  starter: String.raw`// Bấm nút "AI viết test", Chạy thử, rồi Kiểm tra bài. Sau đó tự sửa test AI viết cho bền và kiểm tra đúng kết quả.
+// AI: Theo dõi cổ phiếu Sony trên Bảng giá rồi viết test cho thao tác này
 `,
   tests: PWG + AWAIT_LINT + String.raw`
 const __sonyPressed = () => [...H.doc().querySelectorAll('tbody tr')].map(tr => ({ sony: tr.textContent.includes('Sony'), pressed: !!tr.querySelector('button[aria-pressed="true"]') }));
 check('Có ít nhất một test và tất cả pass', () => expect(__passed(), __failMsg()).toBe(true));
 check('Đã theo dõi đúng dòng Sony', () => { const rows = __sonyPressed(); expect(rows.some(r => r.sony && r.pressed), 'Nút của dòng Sony chưa ở trạng thái đang theo dõi').toBe(true); expect(rows.some(r => !r.sony && r.pressed), 'Có dòng khác Sony cũng bị bấm Theo dõi').toBe(false); });
-check('Không chờ cứng, đủ await', () => { expect(/waitForTimeout|setTimeout/.test(__code), 'Không cần chờ cứng: assertion của Playwright tự chờ').toBe(false); const bad = __noAwait(); expect(bad.length === 0, 'Thiếu await: ' + bad.join(' | ')).toBe(true); });
+check('Không chờ cứng, đủ await', () => { expect(/waitForTimeout|setTimeout/.test(__src), 'Không cần chờ cứng: assertion của Playwright tự chờ').toBe(false); const bad = __noAwait(); expect(bad.length === 0, 'Thiếu await: ' + bad.join(' | ')).toBe(true); });
 check('Không phụ thuộc vào giá: giá đổi thì test vẫn pass', async () => { const r = await H.rerun('price-tick'); expect(r.length > 0 && r.every(t => t.status === 'passed'), 'Giá trên bảng vừa nhảy sang phiên khác và test bị fail. Locator đang dựa vào giá hoặc chữ đầy đủ của dòng: hãy tìm dòng bằng tên công ty hoặc mã').toBe(true); });
 check('Phát hiện bug "bấm Theo dõi không có tác dụng"', async () => { const r = await H.rerun('watch-broken'); expect(r.some(t => t.status === 'failed'), 'Nút Theo dõi không đổi trạng thái mà test vẫn pass. Hãy kiểm tra nút của dòng Sony đã chuyển sang Đang theo dõi').toBe(true); });
 `,
