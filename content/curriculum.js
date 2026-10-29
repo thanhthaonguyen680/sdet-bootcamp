@@ -95,5 +95,18 @@ const CURRICULUM = {
         { name: 'Nâng cao (không bắt buộc): pipeline', optional: true, exercises: ['w5.6', 'w5.7', 'w5.8', 'w5.9', 'w5.10', 'w5.11'] },
       ],
     },
+    {
+      week: 7, dir: 'week7',
+      title: 'SQL cho QA',
+      tip: 'Truy vấn database của Sàn Demo bằng SQL: lọc, sắp xếp, tổng hợp, nối bảng, tìm dữ liệu sai và kiểm tra dữ liệu sau một thao tác trên giao diện.',
+      shared: ['shared.js'],   // tệp dùng chung, chạy trước các bài của tuần
+      groups: [
+        { name: 'Truy vấn cơ bản', exercises: ['w7.1', 'w7.2', 'w7.3', 'w7.4'] },
+        { name: 'Tổng hợp dữ liệu', exercises: ['w7.5', 'w7.6'] },
+        { name: 'Kết hợp nhiều bảng', exercises: ['w7.7', 'w7.8'] },
+        { name: 'QA với dữ liệu', exercises: ['w7.9', 'w7.10'] },
+        { name: 'Nâng cao (không bắt buộc)', optional: true, exercises: ['w7.11', 'w7.12'] },
+      ],
+    },
   ],
 };

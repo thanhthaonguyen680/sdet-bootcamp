@@ -12,6 +12,7 @@ window.addEventListener('unhandledrejection', ev => {
 });
 const LIMIT_MS = 3000;
 async function run(withTests, override){
+  if (current.sql) return runSQL(withTests, override);
   if (current.ci) return runCI(withTests, override);
   if (current.pw) return runPW(withTests, override);
   if (running) return;

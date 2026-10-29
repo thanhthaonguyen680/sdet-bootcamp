@@ -2,7 +2,7 @@
   "name": "sdet-bootcamp",
   "version": "1.0.0",
   "private": true,
-  "description": "Khóa học tự học SDET: JavaScript, Playwright, AI và CI/CD. Trang tĩnh, không cần build.",
+  "description": "Khóa học tự học SDET: JavaScript, Playwright, AI, CI/CD và SQL. Trang tĩnh, không cần build.",
   "type": "module",
   "scripts": {
     "verify": "node tools/verify.mjs",

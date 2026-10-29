@@ -63,13 +63,15 @@ async function grade(page, id) {
   const n = await page.evaluate(id => SOLUTIONS[id].examples.length, id);
   let last;
   for (let k = 0; k < n; k++) {
-    await page.evaluate(([id, k]) => {
+    await page.evaluate(async ([id, k]) => {
       select(id === 'w2.1' ? '1.2' : 'w2.1');   // chuyển bài khác để select() không lưu đè code mới
       const ex = EX.find(e => e.id === id), e0 = SOLUTIONS[id].examples[k], code = typeof e0 === 'string' ? e0 : e0.code;
       delete state.status[id];
       if (ex.files) { const files = splitMarked(code); for (const f of Object.keys(ex.files)) if (!(f in files)) files[f] = ex.files[f]; state.codes[id] = JSON.stringify(files); }
       else state.codes[id] = code;
       select(id);
+      // Lời giải cần trạng thái trang web mẫu (ví dụ bài SQL kiểm tra lệnh vừa đặt): chạy setup sau khi trang đã được reset
+      if (SOLUTIONS[id].setup){ await App.init(); await new Promise(r => setTimeout(r, 50)); SOLUTIONS[id].setup(); }
     }, [id, k]);
     await page.click('#checkBtn');
     await page.waitForFunction(() => !document.getElementById('paneTests').textContent.includes('Đang chấm') && !document.getElementById('checkBtn').disabled, null, { timeout: 240000 });

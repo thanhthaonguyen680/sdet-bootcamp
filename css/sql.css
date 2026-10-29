@@ -1,0 +1,15 @@
+/* Bài SQL (tuần 7): bảng kết quả trong Console và tab Dữ liệu (xem js/sql/sql.js) */
+
+.sql-result{padding:6px 14px 10px}
+.sql-meta{font:12px var(--sans);color:var(--ink-3);margin-bottom:4px}
+.sql-scroll{overflow:auto;max-width:100%}
+.sql-table{border-collapse:collapse;font:12.5px/1.45 var(--mono);min-width:min(100%,360px)}
+.sql-table th{position:sticky;top:0;background:var(--surface-2);text-align:left;font-weight:700;color:var(--ink-2);padding:5px 10px;border:1px solid var(--line);white-space:nowrap}
+.sql-table th small{display:block;font-weight:400;font-size:11px;color:var(--ink-3)}
+.sql-table td{padding:4px 10px;border:1px solid var(--line);white-space:nowrap;color:var(--ink)}
+.sql-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.sql-table tbody tr:nth-child(even) td{background:color-mix(in srgb, var(--surface-2) 55%, transparent)}
+.sql-null{color:var(--ink-3);font-style:italic}
+.sql-empty{color:var(--ink-3);font-style:italic;text-align:center}
+.sql-tname{margin:16px 0 6px;font-size:15px;font-family:var(--mono)}
+.sql-tname span{font:400 12.5px var(--sans);color:var(--ink-3);margin-left:6px}

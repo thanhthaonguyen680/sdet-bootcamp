@@ -28,4 +28,4 @@ function highlight(src){
   return out;
 }
 let errLine = 0, lastLines = -1;
-function renderHL(){ hlEl.innerHTML = (activeIsYaml() ? highlightYaml : highlight)(ta.value) + '\n'; }
+function renderHL(){ hlEl.innerHTML = (activeIsYaml() ? highlightYaml : current && current.sql ? highlightSql : highlight)(ta.value) + '\n'; }

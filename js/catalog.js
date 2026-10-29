@@ -30,6 +30,7 @@ function buildCatalog(){
     Object.assign(ex, meta);
     // Bài làm theo project nhiều tệp: code khởi đầu chính là bộ tệp mẫu, không cần viết hai lần.
     if (ex.files && ex.starter === undefined) ex.starter = JSON.stringify(ex.files);
+    if (ex.sql && !ex.tests) ex.tests = '/* chấm bằng sql.answer (js/sql/sql.js) */';   // bài SQL luôn có nút Kiểm tra bài
     EX.push(ex);
     if (lesson) LESSONS[id] = lesson;
     if (solution) SOLUTIONS[id] = solution;

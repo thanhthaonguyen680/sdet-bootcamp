@@ -1,6 +1,6 @@
-# Lộ trình tự học SDET cho team QC/QA: JavaScript, Playwright, AI và CI/CD
+# Lộ trình tự học SDET cho team QC/QA: JavaScript, Playwright, AI, CI/CD và SQL
 
-Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA có nhu cầu học và từng bước thực hành theo hướng SDET. Nội dung được chia thành <!--weeks-->6<!--/weeks--> tuần, từ JavaScript nền tảng đến Playwright, dùng AI trong automation testing và CI/CD. Bạn có thể học và làm bài trực tiếp trên trình duyệt, không cần cài đặt gì.
+Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA có nhu cầu học và từng bước thực hành theo hướng SDET. Nội dung được chia thành <!--weeks-->7<!--/weeks--> tuần, từ JavaScript nền tảng đến Playwright, dùng AI trong automation testing, CI/CD và SQL cho QA. Bạn có thể học và làm bài trực tiếp trên trình duyệt, không cần cài đặt gì.
 
 **Dùng thử:** https://TEN-CUA-BAN.github.io/sdet-bootcamp/
 
@@ -16,6 +16,7 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 | 4 | **Automation với Playwright + TypeScript.** Viết test tự động trên trang Sàn Demo: locator, assertion, Page Object Model, fixture, đến một dự án POM hoàn chỉnh. | 21 + 3 nâng cao |
 | 5 | **AI trong automation testing.** Giao việc cho AI bằng một câu: AI tự điều khiển trình duyệt qua Playwright MCP và viết test. Đặt rule để AI luôn theo nguyên tắc của team, và kiểm chứng test AI viết. | 7 + 3 nâng cao |
 | 6 | **CI/CD pipeline với GitHub Actions.** Cho bộ test tự chạy mỗi khi có code mới: workflow, secrets, báo cáo khi test đỏ, và kiểm chứng workflow do AI viết. Matrix, sharding, chạy theo lịch là phần nâng cao. | 4 + 8 nâng cao |
+| 7 | **SQL cho QA.** Truy vấn database của Sàn Demo bằng SQL: lọc, sắp xếp, tổng hợp, nối bảng, tìm dữ liệu sai và kiểm tra dữ liệu sau một thao tác trên giao diện. | 10 + 2 nâng cao |
 <!-- curriculum:end -->
 
 ## Tính năng
@@ -25,6 +26,7 @@ Mình xây dựng lộ trình này dành cho các thành viên trong team QC/QA 
 - Báo cáo sau mỗi lần chạy test Playwright, giống HTML report: test nào pass/fail, từng bước kèm thời gian, lỗi và trang lúc test kết thúc
 - Bộ chấm "cài bug" vào trang để kiểm tra test có thực sự bắt được lỗi không
 - Mô phỏng GitHub Actions: chạy workflow YAML, xem từng job, từng bước và log
+- Chạy SQL thật ngay trong trình duyệt (SQLite) trên database của Sàn Demo, kết quả hiện thành bảng; chấm bài trên hai bộ dữ liệu để không chép cứng kết quả
 - Giao việc cho AI ngay trong ô soạn code: viết yêu cầu ở dòng `// AI:` rồi bấm **AI viết test**; AI (mô phỏng Playwright MCP) tự thao tác trên trang mẫu, viết test bên dưới, người học kiểm chứng test đó
 - Sàn Demo chạy độc lập ở `sandemo.html` để thử Playwright MCP thật (thêm `?reset` để làm mới, `?bug=tên-bug` để bật bug)
 - Tiến độ lưu tự động trong trình duyệt
@@ -40,7 +42,7 @@ css/                    Giao diện, mỗi tệp một phần (tokens, header, l
 content/
   curriculum.js         Danh mục khóa học: NGUỒN DUY NHẤT cho tuần, nhóm, thứ tự và số bài
   helpers.js            Hàm hỗ trợ viết bài giảng (L, ANAT, TRACE)
-  free/ week1/ ... week6/   Mỗi bài một tệp: đề bài + bài giảng + lời giải + bộ chấm
+  free/ week1/ ... week7/   Mỗi bài một tệp: đề bài + bài giảng + lời giải + bộ chấm
 js/
   boot.js               Khởi động: nạp nội dung, dựng danh mục, dựng giao diện
   catalog.js, loader.js Ghép các tệp bài thành danh mục; nạp tệp theo curriculum.js
@@ -52,6 +54,7 @@ js/
   project/              Bài làm theo project nhiều tệp
   ci/                   Mô phỏng GitHub Actions
   mcp/                  Mô phỏng Playwright MCP: snapshot, ref, sinh locator, nút AI viết test
+  sql/                  Chạy SQL bằng SQLite trong trình duyệt, hiện kết quả, chấm bài SQL
   ui/                   Danh sách bài, đề bài, tooltip, hướng dẫn nhanh, thanh kéo
 tools/                  verify.mjs (kiểm tra cả khóa), sync-readme.mjs
 ```

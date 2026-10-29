@@ -16,11 +16,11 @@ function select(id, focusEditor){
   errLine = 0; lastLines = -1;
   renderHL(); renderGutter(); renderFileBar();
   renderBrief(); renderToolbar(); refreshStatus();
-  document.querySelector('.main').classList.toggle('wide', !!(ex.pw || ex.ci));
+  document.querySelector('.main').classList.toggle('wide', !!(ex.pw || ex.ci || ex.app));
   applyBriefWidth();
   if (ex.ci) ciPaneSetup(ex);
   // Kiểm tra running cả lúc iframe nạp xong: nếu đã bấm Chạy hoặc AI viết test thì không reset trang giữa chừng.
-  if (ex.pw && !running){ App.init().then(() => { if (running || current !== ex) return; App.reset(); App.navigate(ex.route || '/login'); }); }
+  if ((ex.pw || ex.app) && !running){ App.init().then(() => { if (running || current !== ex) return; App.reset(); App.navigate(ex.route || '/login'); }); }
   clearConsole(true); resetTests(); resetReport();
   showTab('console', true);
   closeDrawer();

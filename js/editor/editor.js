@@ -64,9 +64,11 @@ function indentLines(dir){
 function toggleComment(){
   const [ls, le] = lineBounds();
   const lines = ta.value.slice(ls, le).split('\n');
-  const y = activeIsYaml();
-  const all = lines.filter(l => l.trim()).every(l => y ? /^\s*#/.test(l) : /^\s*\/\//.test(l));
-  const nl = lines.map(l => !l.trim() ? l : all ? (y ? l.replace(/^(\s*)# ?/, '$1') : l.replace(/^(\s*)\/\/ ?/, '$1')) : l.replace(/^(\s*)/, y ? '$1# ' : '$1// '));
+  // Dấu comment theo ngôn ngữ của tệp: # (YAML), -- (SQL), // (JavaScript, TypeScript)
+  const mark = activeIsYaml() ? '#' : current && current.sql ? '--' : '//';
+  const re = new RegExp('^(\\s*)' + mark.replace(/\//g, '\\/') + ' ?');
+  const all = lines.filter(l => l.trim()).every(l => re.test(l));
+  const nl = lines.map(l => !l.trim() ? l : all ? l.replace(re, '$1') : l.replace(/^(\s*)/, '$1' + mark + ' '));
   const nb = nl.join('\n');
   replaceRange(ls, le, nb, ls, ls + nb.length);
 }
